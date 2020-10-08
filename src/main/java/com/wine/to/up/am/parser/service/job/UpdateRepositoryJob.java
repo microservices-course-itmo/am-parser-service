@@ -22,7 +22,7 @@ public class UpdateRepositoryJob {
     private AmService amService;
 
     /**
-     * Каждую неделю обновляет список вин
+     * Каждый день обновляет список вин
      */
     @Scheduled(cron = "${job.cron.update.repository}")
     public void runJob() {
