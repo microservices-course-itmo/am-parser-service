@@ -30,6 +30,8 @@ public class Wine {
     @Column(name = "import_id")
     private String importId;
 
+    private String name;
+
     @Column(name = "picture_url")
     private String pictureUrl;
 
