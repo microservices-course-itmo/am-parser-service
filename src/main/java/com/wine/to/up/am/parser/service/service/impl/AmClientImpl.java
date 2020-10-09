@@ -11,11 +11,11 @@ import java.io.IOException;
 
 /**
  * @author : SSyrova
- * @since : 29.09.2020, вт
+ * @since : 08.10.2020, чт
  **/
 @Component
 @Slf4j
-public class JsoupAmClientImpl implements AmClient {
+public class AmClientImpl implements AmClient {
 
     @Value(value = "${am.site.base-url}")
     private String baseUrl;

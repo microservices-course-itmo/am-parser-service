@@ -5,58 +5,61 @@ import com.wine.to.up.am.parser.service.domain.entity.Color;
 import com.wine.to.up.am.parser.service.domain.entity.Country;
 import com.wine.to.up.am.parser.service.domain.entity.Grape;
 import com.wine.to.up.am.parser.service.domain.entity.Sugar;
-import com.wine.to.up.am.parser.service.model.dto.Catalog;
+import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.repository.BrandRepository;
 import com.wine.to.up.am.parser.service.repository.ColorRepository;
 import com.wine.to.up.am.parser.service.repository.CountryRepository;
 import com.wine.to.up.am.parser.service.repository.GrapeRepository;
 import com.wine.to.up.am.parser.service.repository.SugarRepository;
-import com.wine.to.up.am.parser.service.service.AmCatalogService;
-import com.wine.to.up.am.parser.service.service.AmClient;
-import com.wine.to.up.am.parser.service.service.AmParserService;
+import com.wine.to.up.am.parser.service.service.AmService;
+import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
-import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+/**
+ * @author : SSyrova
+ * @since : 08.10.2020, чт
+ **/
+@Service
 @Slf4j
-public class AmCatalogServiceImpl implements AmCatalogService {
+public class UpdateServiceImpl implements UpdateService {
 
     @Autowired
-    private BrandRepository brandRepo;
+    @Qualifier("amServiceImpl")
+    private AmService amService;
+
     @Autowired
-    private ColorRepository colorRepo;
+    private BrandRepository brandRepository;
+
     @Autowired
-    private CountryRepository countryRepo;
+    private ColorRepository colorRepository;
+
     @Autowired
-    private GrapeRepository grapeRepo;
+    private CountryRepository countryRepository;
+
     @Autowired
-    private SugarRepository sugarRepo;
+    private GrapeRepository grapeRepository;
+
     @Autowired
-    @Qualifier("amParserServiceImpl")
-    private AmParserService amParserService;
+    private SugarRepository sugarRepository;
 
     @Override
-    public Catalog getCatalog(Document document) {
-        return amParserService.parseCatalog(document);
-    }
-
-    @Override
-    public void updateCatalog(Catalog catalog) {
+    public void updateDictionary() {
+        final Dictionary dictionary = amService.getDictionary();
         int created = 0;
         int updated = 0;
         int deleted = 0;
-        for (Catalog.CatalogProp prop : catalog.getBrands()) {
-            Brand brand = brandRepo.findByImportId(prop.getImportId());
+        for (Dictionary.CatalogProp prop : dictionary.getBrands().values()) {
+            Brand brand = brandRepository.findByImportId(prop.getImportId());
             if (brand == null) {
-                brandRepo.save(new Brand(prop.getImportId(), prop.getValue()));
+                brandRepository.save(new Brand(prop.getImportId(), prop.getValue()));
                 created++;
             } else {
                 if (!brand.getName().equals(prop.getValue())) {
                     brand.setName(prop.getValue());
-                    brandRepo.save(brand);
+                    brandRepository.save(brand);
                     updated++;
                 }
             }
@@ -68,15 +71,15 @@ public class AmCatalogServiceImpl implements AmCatalogService {
         updated = 0;
         deleted = 0;
 
-        for (Catalog.CatalogProp prop : catalog.getColors()) {
-            Color color = colorRepo.findByImportId(prop.getImportId());
+        for (Dictionary.CatalogProp prop : dictionary.getColors().values()) {
+            Color color = colorRepository.findByImportId(prop.getImportId());
             if (color == null) {
-                colorRepo.save(new Color(prop.getImportId(), prop.getValue()));
+                colorRepository.save(new Color(prop.getImportId(), prop.getValue()));
                 created++;
             } else {
                 if (!color.getName().equals(prop.getValue())) {
                     color.setName(prop.getValue());
-                    colorRepo.save(color);
+                    colorRepository.save(color);
                     updated++;
                 }
             }
@@ -88,15 +91,15 @@ public class AmCatalogServiceImpl implements AmCatalogService {
         updated = 0;
         deleted = 0;
 
-        for (Catalog.CatalogProp prop : catalog.getCountries()) {
-            Country country = countryRepo.findByImportId(prop.getImportId());
+        for (Dictionary.CatalogProp prop : dictionary.getCountries().values()) {
+            Country country = countryRepository.findByImportId(prop.getImportId());
             if (country == null) {
-                countryRepo.save(new Country(prop.getImportId(), prop.getValue()));
+                countryRepository.save(new Country(prop.getImportId(), prop.getValue()));
                 created++;
             } else {
                 if (!country.getName().equals(prop.getValue())) {
                     country.setName(prop.getValue());
-                    countryRepo.save(country);
+                    countryRepository.save(country);
                     updated++;
                 }
             }
@@ -108,15 +111,15 @@ public class AmCatalogServiceImpl implements AmCatalogService {
         updated = 0;
         deleted = 0;
 
-        for (Catalog.CatalogProp prop : catalog.getGrapes()) {
-            Grape grape = grapeRepo.findByImportId(prop.getImportId());
+        for (Dictionary.CatalogProp prop : dictionary.getGrapes().values()) {
+            Grape grape = grapeRepository.findByImportId(prop.getImportId());
             if (grape == null) {
-                grapeRepo.save(new Grape(prop.getImportId(), prop.getValue()));
+                grapeRepository.save(new Grape(prop.getImportId(), prop.getValue()));
                 created++;
             } else {
                 if (!grape.getName().equals(prop.getValue())) {
                     grape.setName(prop.getValue());
-                    grapeRepo.save(grape);
+                    grapeRepository.save(grape);
                     updated++;
                 }
             }
@@ -128,15 +131,15 @@ public class AmCatalogServiceImpl implements AmCatalogService {
         updated = 0;
         deleted = 0;
 
-        for (Catalog.CatalogProp prop : catalog.getSugars()) {
-            Sugar sugar = sugarRepo.findByImportId(prop.getImportId());
+        for (Dictionary.CatalogProp prop : dictionary.getSugars().values()) {
+            Sugar sugar = sugarRepository.findByImportId(prop.getImportId());
             if (sugar == null) {
-                sugarRepo.save(new Sugar(prop.getImportId(), prop.getValue()));
+                sugarRepository.save(new Sugar(prop.getImportId(), prop.getValue()));
                 created++;
             } else {
                 if (!sugar.getName().equals(prop.getValue())) {
                     sugar.setName(prop.getValue());
-                    sugarRepo.save(sugar);
+                    sugarRepository.save(sugar);
                     updated++;
                 }
             }
@@ -144,5 +147,10 @@ public class AmCatalogServiceImpl implements AmCatalogService {
         log.info("updated {} sugars", updated);
         log.info("created {} sugars", created);
         log.info("deleted {} sugars", deleted);
+    }
+
+    @Override
+    public void updateWines() {
+
     }
 }

@@ -1,8 +1,7 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
-import com.wine.to.up.am.parser.service.service.AmService;
+import com.wine.to.up.am.parser.service.service.SearchService;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -13,15 +12,10 @@ import java.util.List;
  * @since : 08.10.2020, чт
  **/
 @Service
-public class AmServiceStub implements AmService {
+public class SearchServiceStub implements SearchService {
 
     @Override
-    public List<WineDto> getWines() {
+    public List<WineDto> findAllLessByRub(Double price) {
         return Collections.nCopies(10, WineDto.builder().build());
-    }
-
-    @Override
-    public Dictionary getDictionary() {
-        return new Dictionary();
     }
 }

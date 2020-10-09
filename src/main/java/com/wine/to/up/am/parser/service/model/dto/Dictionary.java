@@ -14,31 +14,37 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
-@NoArgsConstructor
-public class Catalog {
+public class Dictionary {
 
     @JsonDeserialize(using = CatalogPropDeserializer.class)
     @JsonProperty("brand")
-    private List<CatalogProp> brands;
+    private Map<String, CatalogProp> brands;
     @JsonDeserialize(using = CatalogPropDeserializer.class)
     @JsonProperty("color")
-    private List<CatalogProp> colors;
+    private Map<String, CatalogProp> colors;
     @JsonDeserialize(using = CatalogPropDeserializer.class)
     @JsonProperty("country")
-    private List<CatalogProp> countries;
+    private Map<String, CatalogProp> countries;
     @JsonDeserialize(using = CatalogPropDeserializer.class)
     @JsonProperty("grape_sort")
-    private List<CatalogProp> grapes;
+    private Map<String, CatalogProp> grapes;
     @JsonDeserialize(using = CatalogPropDeserializer.class)
     @JsonProperty("sugar")
-    private List<CatalogProp> sugars;
+    private Map<String, CatalogProp> sugars;
 
+    public Dictionary() {
+        brands = new HashMap<>();
+        colors = new HashMap<>();
+        countries = new HashMap<>();
+        grapes = new HashMap<>();
+        sugars = new HashMap<>();
+    }
 
     @Getter
     @Setter
@@ -49,17 +55,17 @@ public class Catalog {
         private String value;
     }
 
-    public static class CatalogPropDeserializer extends JsonDeserializer<List<CatalogProp>> {
+    public static class CatalogPropDeserializer extends JsonDeserializer<Map<String, CatalogProp>> {
         @Override
-        public List<CatalogProp> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException, JsonProcessingException {
-            List<CatalogProp> catalogProps = new ArrayList<>();
+        public Map<String, CatalogProp> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext) throws IOException {
+            Map<String, CatalogProp> catalogProps = new HashMap<>();
 
             JsonNode node = jsonParser.getCodec().readTree(jsonParser);
             Iterator<JsonNode> iterator = node.get("values").elements();
 
             while (iterator.hasNext()) {
                 JsonNode jsonNode = iterator.next();
-                catalogProps.add(new CatalogProp(jsonNode.get("id").asText(), jsonNode.get("value").asText()));
+                catalogProps.put(jsonNode.get("id").asText(), new CatalogProp(jsonNode.get("id").asText(), jsonNode.get("value").asText()));
             }
             return catalogProps;
         }
