@@ -4,7 +4,7 @@ import org.jsoup.nodes.Document;
 
 /**
  * @author : SSyrova
- * @since : 29.09.2020, вт
+ * @since : 07.10.2020, ср
  **/
 public interface AmClient {
 
@@ -24,4 +24,3 @@ public interface AmClient {
      */
     Document getMainPage();
 }
-

@@ -1,6 +1,6 @@
 package com.wine.to.up.am.parser.service.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,33 +9,26 @@ import java.util.List;
 
 /**
  * @author : SSyrova
- * @since : 29.09.2020, вт
+ * @since : 08.10.2020, чт
  **/
-
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
 public class WineDto {
 
-    private String id;
-    private Long sort;
     private String name;
-    private Props props;
-    @JsonProperty("preview_picture")
-    private String pictureUrl;
 
+    private String picture;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public class Props {
-        private Long color;
-        private Long sugar;
-        private String country;
-        private Double alco;
-        private Double value;
-        @JsonProperty("grape_sort")
-        private List<String> grapes;
+    private String color;
 
-    }
+    private String sugar;
+
+    private String country;
+
+    private Double alco;
+
+    private Double value;
+
+    private List<String> grapes;
 }
