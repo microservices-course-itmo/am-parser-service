@@ -29,6 +29,11 @@
       "name": "spring.kafka.bootstrap-server",
       "type": "java.lang.String",
       "description": "Spring kafka bootstrap server."
+    },
+    {
+      "name": "job.cron.update.repository",
+      "type": "java.lang.String",
+      "description": "Сron for update repository."
     }
   ]
 }
