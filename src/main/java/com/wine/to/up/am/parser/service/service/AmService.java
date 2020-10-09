@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.service;
 
+import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 
@@ -12,6 +13,8 @@ import java.util.List;
 public interface AmService {
 
     List<WineDto> getWines();
+
+    List<AmWine> getAmWines();
 
     Dictionary getDictionary();
 }

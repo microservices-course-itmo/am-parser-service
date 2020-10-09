@@ -85,8 +85,9 @@ public class AmServiceImpl implements AmService {
         return wineDtos;
     }
 
-    private List<AmWine> getAmWines() {
-        Long pages = getCatalogPagesAmount();
+    @Override
+    public List<AmWine> getAmWines() {
+        Long pages = 1L;
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
         AtomicLong page = new AtomicLong(1);
 

@@ -1,22 +1,18 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Brand;
-import com.wine.to.up.am.parser.service.domain.entity.Color;
-import com.wine.to.up.am.parser.service.domain.entity.Country;
-import com.wine.to.up.am.parser.service.domain.entity.Grape;
-import com.wine.to.up.am.parser.service.domain.entity.Sugar;
+import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.BrandRepository;
-import com.wine.to.up.am.parser.service.repository.ColorRepository;
-import com.wine.to.up.am.parser.service.repository.CountryRepository;
-import com.wine.to.up.am.parser.service.repository.GrapeRepository;
-import com.wine.to.up.am.parser.service.repository.SugarRepository;
+import com.wine.to.up.am.parser.service.model.dto.WineDto;
+import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author : SSyrova
@@ -44,6 +40,9 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Autowired
     private SugarRepository sugarRepository;
+
+    @Autowired
+    private WineRepository wineRepository;
 
     @Override
     public void updateDictionary() {
@@ -151,6 +150,77 @@ public class UpdateServiceImpl implements UpdateService {
 
     @Override
     public void updateWines() {
-
+        var wines = amService.getAmWines();
+        var created = 0;
+        var updated = 0;
+        for (var wine : wines) {
+            var importId = wine.getId();
+            var wineEntity = wineRepository.findByImportId(importId);
+            var brand = brandRepository.findByImportId("413957");
+            var country = countryRepository.findByImportId(wine.getProps().getCountry());
+            var alco = wine.getProps().getAlco();
+            var color = colorRepository.findByImportId(wine.getProps().getColor().toString());
+            var sugar = sugarRepository.findByImportId(wine.getProps().getSugar().toString());
+            var grapes = new ArrayList<Grape>();
+            var pictureUrl = wine.getPictureUrl();
+            for (var grape : wine.getProps().getGrapes()) {
+                grapes.add(grapeRepository.findByImportId(grape));
+            }
+            var value = wine.getProps().getValue();
+            if (wineEntity == null) {
+              wineRepository.save(new Wine(importId,
+                      pictureUrl,
+                      brand,
+                      country,
+                      value,
+                      alco,
+                      color,
+                      sugar,
+                      grapes,
+                      value));
+                created++;
+            } else {
+                var isUpdated = false;
+                if (!wineEntity.getCountry().getImportId().equals(country.getImportId())) {
+                    wineEntity.setCountry(country);
+                    isUpdated = true;
+                }
+                if (!wineEntity.getBrand().getImportId().equals(brand.getImportId())) {
+                    wineEntity.setBrand(brand);
+                    isUpdated = true;
+                }
+                if (!wineEntity.getSugar().getImportId().equals(sugar.getImportId())) {
+                    wineEntity.setSugar(sugar);
+                    isUpdated = true;
+                }
+                if (!wineEntity.getColor().getImportId().equals(color.getImportId())) {
+                    wineEntity.setColor(color);
+                    isUpdated = true;
+                }
+                if (wineEntity.getStrength() != (alco)) {
+                    wineEntity.setStrength(alco);
+                    isUpdated = true;
+                }
+                var oldGrapes = wineEntity.getGrapes();
+                if (oldGrapes.size() != grapes.size()) {
+                    wineEntity.setGrapes(grapes);
+                    isUpdated = true;
+                } else {
+                    for (int i = 0; i < grapes.size(); i++) {
+                        if (!oldGrapes.get(i).getImportId().equals(grapes.get(i).getImportId())) {
+                            wineEntity.setGrapes(grapes);
+                            isUpdated = true;
+                            break;
+                        }
+                    }
+                }
+                if (isUpdated) {
+                    updated++;
+                    wineRepository.save(wineEntity);
+                }
+            }
+        }
+        log.info("updated {} wines", updated);
+        log.info("created {} wines", created);
     }
 }
