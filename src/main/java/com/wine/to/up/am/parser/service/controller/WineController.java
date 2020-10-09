@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * @author : skorz
+ * @author : SSyrova
  * @since : 09.10.2020, пт
  **/
 @RestController
