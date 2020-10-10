@@ -12,9 +12,21 @@ import java.util.List;
  **/
 public interface AmService {
 
+    /**
+     * Метод маппинга "сырых" вин в DTO.
+     * @return Список DTO.
+     */
     List<WineDto> getWines();
 
+    /**
+     * Метод получения вин путем получения HTML страниц и их парсинга.
+     * @return Список вин в "сыром" виде(вместо атрибутов - их id в справочнике).
+     */
     List<AmWine> getAmWines();
 
+    /**
+     * Метод получения справочной информации в виде словаря.
+     * @return Словарь справочной информации.
+     */
     Dictionary getDictionary();
 }

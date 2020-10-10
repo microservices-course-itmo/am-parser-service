@@ -2,7 +2,6 @@ package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
@@ -12,7 +11,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author : SSyrova
@@ -148,6 +146,9 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("deleted {} sugars", deleted);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateWines() {
         var wines = amService.getAmWines();
@@ -156,17 +157,32 @@ public class UpdateServiceImpl implements UpdateService {
         for (var wine : wines) {
             var importId = wine.getId();
             var wineEntity = wineRepository.findByImportId(importId);
-            var brand = brandRepository.findByImportId("413957");
-            var country = countryRepository.findByImportId(wine.getProps().getCountry());
+            var brand = (Brand)null;
+            var countryImportId = wine.getProps().getCountry();
+            var country = countryImportId == null ? null : countryRepository.findByImportId(countryImportId);
             var alco = wine.getProps().getAlco();
-            var color = colorRepository.findByImportId(wine.getProps().getColor().toString());
-            var sugar = sugarRepository.findByImportId(wine.getProps().getSugar().toString());
-            var grapes = new ArrayList<Grape>();
+            if (alco == null) {
+                alco = 0.0;
+            }
+            var colorImportId = wine.getProps().getColor();
+            var color = colorImportId == null ? null : colorRepository.findByImportId(colorImportId.toString());
+            var sugarImportId = wine.getProps().getSugar();
+            var sugar = sugarImportId == null ? null : sugarRepository.findByImportId(sugarImportId.toString());
             var pictureUrl = wine.getPictureUrl();
-            for (var grape : wine.getProps().getGrapes()) {
-                grapes.add(grapeRepository.findByImportId(grape));
+            var grapes = new ArrayList<Grape>();
+            var newGrapes = wine.getProps().getGrapes();
+            if (newGrapes != null) {
+                for (var grape : newGrapes) {
+                    var newGrape = grape == null ? null : grapeRepository.findByImportId(grape);
+                    if (newGrape != null) {
+                        grapes.add(newGrape);
+                    }
+                }
             }
             var value = wine.getProps().getValue();
+            if (value == null) {
+                value = 0.0;
+            }
             if (wineEntity == null) {
               wineRepository.save(new Wine(importId,
                       pictureUrl,
@@ -177,40 +193,67 @@ public class UpdateServiceImpl implements UpdateService {
                       color,
                       sugar,
                       grapes,
-                      value));
+                      0.0));
                 created++;
             } else {
                 var isUpdated = false;
-                if (!wineEntity.getCountry().getImportId().equals(country.getImportId())) {
-                    wineEntity.setCountry(country);
-                    isUpdated = true;
+                var oldCountry = wineEntity.getCountry();
+                var countryOldImportId = oldCountry == null ? null : oldCountry.getImportId();
+                var countryNewImportId = country == null ? null : country.getImportId();
+                if (countryOldImportId == null || !countryOldImportId.equals(countryNewImportId)) {
+                    if (!(countryOldImportId == null && countryNewImportId == null)) {
+                        wineEntity.setCountry(country);
+                        isUpdated = true;
+                    }
                 }
-                if (!wineEntity.getBrand().getImportId().equals(brand.getImportId())) {
-                    wineEntity.setBrand(brand);
-                    isUpdated = true;
+                var oldBrand = wineEntity.getBrand();
+                var brandOldImportId = oldBrand == null ? null : oldBrand.getImportId();
+                var brandNewImportId = brand == null ? null : brand.getImportId();
+                if (brandOldImportId == null || !brandOldImportId.equals(brandNewImportId)) {
+                    if (!(brandOldImportId == null && brandNewImportId == null)) {
+                        wineEntity.setBrand(brand);
+                        isUpdated = true;
+                    }
                 }
-                if (!wineEntity.getSugar().getImportId().equals(sugar.getImportId())) {
-                    wineEntity.setSugar(sugar);
-                    isUpdated = true;
+                var oldSugar = wineEntity.getSugar();
+                var sugarOldImportId = oldSugar == null ? null : oldSugar.getImportId();
+                var sugarNewImportId = sugar == null ? null : sugar.getImportId();
+                if (sugarOldImportId == null || !sugarOldImportId.equals(sugarNewImportId)) {
+                    if (!(sugarOldImportId == null && sugarNewImportId == null)) {
+                        wineEntity.setSugar(sugar);
+                        isUpdated = true;
+                    }
                 }
-                if (!wineEntity.getColor().getImportId().equals(color.getImportId())) {
-                    wineEntity.setColor(color);
-                    isUpdated = true;
+                var oldColor = wineEntity.getColor();
+                var colorOldImportId = oldColor == null ? null : oldColor.getImportId();
+                var colorNewImportId = color == null ? null : color.getImportId();
+                if (colorOldImportId == null || !colorOldImportId.equals(colorNewImportId)) {
+                    if (!(colorNewImportId == null && colorOldImportId == null)) {
+                        wineEntity.setColor(color);
+                        isUpdated = true;
+                    }
                 }
-                if (wineEntity.getStrength() != (alco)) {
+                var oldStrength = wineEntity.getStrength();
+                if (oldStrength != (alco)) {
                     wineEntity.setStrength(alco);
                     isUpdated = true;
                 }
                 var oldGrapes = wineEntity.getGrapes();
-                if (oldGrapes.size() != grapes.size()) {
+                if (oldGrapes == null || oldGrapes.size() != grapes.size()) {
                     wineEntity.setGrapes(grapes);
                     isUpdated = true;
                 } else {
-                    for (int i = 0; i < grapes.size(); i++) {
-                        if (!oldGrapes.get(i).getImportId().equals(grapes.get(i).getImportId())) {
-                            wineEntity.setGrapes(grapes);
-                            isUpdated = true;
-                            break;
+                    for (int i = 0; i < oldGrapes.size(); i++) {
+                        var oldGrape = oldGrapes.get(i);
+                        var grape = grapes.get(i);
+                        var grapeOldImportId = oldGrape == null ? null : oldGrape.getImportId();
+                        var grapeNewImportId = grape == null ? null : grape.getImportId();
+                        if (grapeOldImportId == null || !grapeOldImportId.equals(grapeNewImportId)) {
+                            if (!(grapeNewImportId == null && grapeOldImportId == null)) {
+                                wineEntity.setGrapes(grapes);
+                                isUpdated = true;
+                                break;
+                            }
                         }
                     }
                 }
