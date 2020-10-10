@@ -93,7 +93,7 @@ public class AmServiceImpl implements AmService {
      */
     @Override
     public List<AmWine> getAmWines() {
-        Long pages = 10L;
+        Long pages = getCatalogPagesAmount();
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
         AtomicLong page = new AtomicLong(1);
 
