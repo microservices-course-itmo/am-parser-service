@@ -1,13 +1,11 @@
 package com.wine.to.up.am.parser.service.job;
 
-import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Date;
 
 /**
@@ -20,8 +18,7 @@ import java.util.Date;
 @Slf4j
 public class UpdateRepositoryJob {
 
-    @Autowired
-    @Qualifier("updateServiceImpl")
+    @Resource(name = "updateServiceBean")
     private UpdateService updateService;
 
     /**

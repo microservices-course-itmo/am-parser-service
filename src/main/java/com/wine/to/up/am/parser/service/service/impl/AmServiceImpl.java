@@ -13,11 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,8 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AmServiceImpl implements AmService {
 
-    @Autowired
-    @Qualifier("amClientImpl")
+    @Resource(name = "amClientBean")
     private AmClient client;
 
     private static final String DICT_NAME = "catalogProps";

@@ -15,8 +15,9 @@ import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 
 /**
  * @author : SSyrova
@@ -26,8 +27,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class UpdateServiceImpl implements UpdateService {
 
-    @Autowired
-    @Qualifier("amServiceImpl")
+    @Resource(name = "amServiceBean")
     private AmService amService;
 
     @Autowired
