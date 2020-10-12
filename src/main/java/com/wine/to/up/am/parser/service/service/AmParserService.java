@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.service;
 
+import com.wine.to.up.am.parser.service.model.dto.Catalog;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import org.jsoup.nodes.Document;
 
@@ -13,6 +14,7 @@ public interface AmParserService {
 
     /**
      * Получение объектов вина из страницы каталога
+     *
      * @param document страница каталога
      * @return объект WineDto
      */
@@ -20,7 +22,10 @@ public interface AmParserService {
 
     /**
      * Получение количества страниц каталога
+     *
      * @return количество страниц
      */
-    Long getCatalogPagesAmount();
+    Long getCatalogPagesAmount(Document document);
+
+    Catalog parseCatalog(Document document);
 }

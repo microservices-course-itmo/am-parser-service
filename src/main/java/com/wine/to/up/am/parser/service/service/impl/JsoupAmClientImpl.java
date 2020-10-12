@@ -1,17 +1,13 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.service.AmClient;
-import com.wine.to.up.am.parser.service.service.AmParserService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author : SSyrova

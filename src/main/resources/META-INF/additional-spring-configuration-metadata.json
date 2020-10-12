@@ -14,5 +14,21 @@
       "name": "am.site.referrer",
       "type": "java.lang.String",
       "description": "Jsoup referrer."
+    },
+    {
+      "name": "spring.version.name",
+      "type": "java.lang.String",
+      "description": "Description for spring.version.name."
+    },
+    {
+      "name": "default.kafka.bootstrap-server",
+      "type": "java.lang.String",
+      "description": "Default kafka bootstrap server."
+    },
+    {
+      "name": "spring.kafka.bootstrap-server",
+      "type": "java.lang.String",
+      "description": "Spring kafka bootstrap server."
     }
-  ] }
+  ]
+}
