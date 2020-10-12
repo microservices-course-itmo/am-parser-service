@@ -1,6 +1,7 @@
 package com.wine.to.up.am.parser.service.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -15,6 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
+@ApiModel(description = "All details about the AmWine (DTO)")
 public class AmWine {
 
     private String id;
@@ -34,6 +36,7 @@ public class AmWine {
         private String country;
         private Double alco;
         private Double value;
+        private String brand;
         @JsonProperty("grape_sort")
         private List<String> grapes;
 

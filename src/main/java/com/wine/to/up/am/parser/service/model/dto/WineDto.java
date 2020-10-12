@@ -1,5 +1,7 @@
 package com.wine.to.up.am.parser.service.model.dto;
 
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +16,7 @@ import java.util.List;
 @Getter
 @Setter
 @Builder
+@ApiModel(description = "All details about the WineDTO (DTO)")
 public class WineDto {
 
     private String name;

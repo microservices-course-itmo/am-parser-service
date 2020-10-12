@@ -6,7 +6,13 @@ package com.wine.to.up.am.parser.service.service;
  **/
 public interface UpdateService {
 
+    /**
+     * Обновление справочной информации.
+     */
     void updateDictionary();
 
+    /**
+     * Получение вин и обновление информации в БД(добавление вина или изменение полей вина)
+     */
     void updateWines();
 }
