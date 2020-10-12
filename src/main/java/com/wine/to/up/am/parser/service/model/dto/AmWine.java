@@ -34,6 +34,7 @@ public class AmWine {
         private String country;
         private Double alco;
         private Double value;
+        private String brand;
         @JsonProperty("grape_sort")
         private List<String> grapes;
 

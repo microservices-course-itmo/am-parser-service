@@ -62,6 +62,9 @@ public class AmServiceImpl implements AmService {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<WineDto> getWines() {
         Dictionary dictionary = getDictionary();
@@ -83,7 +86,11 @@ public class AmServiceImpl implements AmService {
         return wineDtos;
     }
 
-    private List<AmWine> getAmWines() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AmWine> getAmWines() {
         Long pages = getCatalogPagesAmount();
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
         AtomicLong page = new AtomicLong(1);
@@ -109,16 +116,21 @@ public class AmServiceImpl implements AmService {
         return amWines;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Dictionary getDictionary() {
+        Dictionary result;
         final Document document = client.getMainPage();
         String rawDictionary = getRawValue(document, DICT_NAME, DICT_PATTERN);
         try {
-            return rawDictionary != null ? mapper.readValue(rawDictionary, Dictionary.class) : new Dictionary();
+            result = rawDictionary != null ? mapper.readValue(rawDictionary, Dictionary.class) : new Dictionary();
         } catch (JsonProcessingException e) {
             log.error("Cannot parse dictionary with error: {}", e.getMessage());
-            return new Dictionary();
+            result = new Dictionary();
         }
+        return result;
     }
 
     private List<AmWine> getAmWines(Long page) {
