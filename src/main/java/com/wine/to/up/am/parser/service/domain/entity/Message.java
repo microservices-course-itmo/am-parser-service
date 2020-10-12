@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.domain.entity;
 
+import io.swagger.annotations.ApiModel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -14,6 +15,7 @@ import java.util.UUID;
 @Setter
 @Getter
 @NoArgsConstructor
+@ApiModel(description = "All details about the Message")
 public class Message {
     @Id
     private UUID id = UUID.randomUUID();

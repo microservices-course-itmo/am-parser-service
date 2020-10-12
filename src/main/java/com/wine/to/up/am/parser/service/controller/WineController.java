@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @RestController
 @RequestMapping("/parser")
-@Api(tags = {"Объекты главного экрана и баннеры"})
+@Api(value = "Wine controller", description = "Updating the information in the database")
 public class WineController {
 
     @Autowired
@@ -28,16 +28,13 @@ public class WineController {
     /**
      * Обновление справочника в базе данных
      */
-    @ApiOperation(value = "Обновление справочника в базе данных")
-    @ApiResponses(value = {
-            @ApiResponse(code = 200, message = "Успешное выполнение"),
-            @ApiResponse(code = 500, message = "Внутренная ошибка сервера")
-    })
+    @ApiOperation(value = "Updating the dictionary in the database")
     @PostMapping("/dictionary")
     public void updateDictionary() {
         restService.updateDictionary();
     }
 
+    @ApiOperation(value = "Updating the catalog in the database")
     @PostMapping("/wine")
     public void updateCatalog() {
         restService.updateWines();
