@@ -25,7 +25,10 @@ import java.util.ArrayList;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
-
+/**
+ * @author : bgubanov
+ * @since : 11.10.2020
+ **/
 @RunWith(SpringRunner.class)
 @SpringBootTest
 @ExtendWith(MockitoExtension.class)

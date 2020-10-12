@@ -15,7 +15,10 @@ import java.io.File;
 import java.io.IOException;
 
 import static org.junit.Assert.*;
-
+/**
+ * @author : bgubanov
+ * @since : 11.10.2020
+ **/
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class AmParserServiceImplTest {
