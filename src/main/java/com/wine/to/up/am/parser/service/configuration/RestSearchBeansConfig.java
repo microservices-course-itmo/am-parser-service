@@ -1,7 +1,9 @@
 package com.wine.to.up.am.parser.service.configuration;
 
 import com.wine.to.up.am.parser.service.service.SearchService;
+import com.wine.to.up.am.parser.service.service.UpdateService;
 import com.wine.to.up.am.parser.service.service.impl.SearchServiceImpl;
+import com.wine.to.up.am.parser.service.service.impl.UpdateServiceImpl;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -14,8 +16,8 @@ public class RestSearchBeansConfig {
     }
 
     @Bean(name="updateServiceBean")
-    public SearchService updateService() {
-        return new SearchServiceImpl();
+    public UpdateService updateService() {
+        return new UpdateServiceImpl();
     }
 
 }
