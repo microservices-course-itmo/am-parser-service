@@ -4,15 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -35,11 +27,11 @@ public class Wine {
     @Column(name = "picture_url")
     private String pictureUrl;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private Brand brand;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private Country country;
 
@@ -47,15 +39,15 @@ public class Wine {
 
     private double strength;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private Color color;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private Sugar sugar;
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Grape> grapes;
 
     private double price;
