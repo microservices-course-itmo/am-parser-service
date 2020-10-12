@@ -13,11 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,8 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AmServiceImpl implements AmService {
 
-    @Autowired
-    @Qualifier("amClientImpl")
+    @Resource(name = "amClientBean")
     private AmClient client;
 
     private static final String DICT_NAME = "catalogProps";
@@ -64,6 +62,9 @@ public class AmServiceImpl implements AmService {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<WineDto> getWines() {
         Dictionary dictionary = getDictionary();
@@ -85,7 +86,11 @@ public class AmServiceImpl implements AmService {
         return wineDtos;
     }
 
-    private List<AmWine> getAmWines() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<AmWine> getAmWines() {
         Long pages = getCatalogPagesAmount();
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
         AtomicLong page = new AtomicLong(1);
@@ -111,16 +116,21 @@ public class AmServiceImpl implements AmService {
         return amWines;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Dictionary getDictionary() {
+        Dictionary result;
         final Document document = client.getMainPage();
         String rawDictionary = getRawValue(document, DICT_NAME, DICT_PATTERN);
         try {
-            return rawDictionary != null ? mapper.readValue(rawDictionary, Dictionary.class) : new Dictionary();
+            result = rawDictionary != null ? mapper.readValue(rawDictionary, Dictionary.class) : new Dictionary();
         } catch (JsonProcessingException e) {
             log.error("Cannot parse dictionary with error: {}", e.getMessage());
-            return new Dictionary();
+            result = new Dictionary();
         }
+        return result;
     }
 
     private List<AmWine> getAmWines(Long page) {

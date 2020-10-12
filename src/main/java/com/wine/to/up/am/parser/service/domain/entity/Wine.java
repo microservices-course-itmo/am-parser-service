@@ -6,15 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -42,12 +34,12 @@ public class Wine {
     @ApiModelProperty(notes = "The URL of the picture")
     private String pictureUrl;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     @ApiModelProperty(notes = "The brand")
     private Brand brand;
 
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     @ApiModelProperty(notes = "The country")
     private Country country;
@@ -57,19 +49,16 @@ public class Wine {
 
     @ApiModelProperty(notes = "Percent of the alcohol")
     private double strength;
-
-    @ApiModelProperty(notes = "The color")
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+  
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private Color color;
 
-    @ApiModelProperty(notes = "The sugar")
-    @ManyToOne(optional = false, cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private Sugar sugar;
 
-    @ApiModelProperty(notes = "The list of grapes")
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private List<Grape> grapes;
 
     @ApiModelProperty(notes = "The price of the bottle")

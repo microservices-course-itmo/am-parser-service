@@ -4,10 +4,9 @@ import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.RestService;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -17,12 +16,10 @@ import java.util.List;
 @Service
 public class RestServiceImpl implements RestService {
 
-    @Autowired
-    @Qualifier("searchServiceImpl")
+    @Resource(name="searchServiceBean")
     private SearchService searchService;
 
-    @Autowired
-    @Qualifier("updateServiceImpl")
+    @Resource(name="updateServiceBean")
     private UpdateService updateService;
 
     @Override
