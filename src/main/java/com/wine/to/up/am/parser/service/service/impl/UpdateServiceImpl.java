@@ -168,7 +168,8 @@ public class UpdateServiceImpl implements UpdateService {
         for (var wine : wines) {
             var importId = wine.getId();
             var wineEntity = wineRepository.findByImportId(importId);
-            var brand = (Brand) null;
+            var brandImportId = wine.getProps().getBrand();
+            var brand = brandRepository.findByImportId(brandImportId);;
             var countryImportId = wine.getProps().getCountry();
             var country = countryImportId == null ? null : countryRepository.findByImportId(countryImportId);
             var alco = wine.getProps().getAlco();
