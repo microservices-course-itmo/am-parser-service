@@ -30,7 +30,7 @@ public class AmWine {
     @Getter
     @Setter
     @NoArgsConstructor
-    public class Props {
+    public static class Props {
         private Long color;
         private Long sugar;
         private String country;
