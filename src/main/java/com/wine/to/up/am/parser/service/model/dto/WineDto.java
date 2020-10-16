@@ -53,7 +53,7 @@ public class WineDto {
     private Double value;
     
     /**
-     * Объем бутылки.
+     * Сорта винограда.
      */
     private List<String> grapes;
 }
