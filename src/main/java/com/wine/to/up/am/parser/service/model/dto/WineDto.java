@@ -1,10 +1,8 @@
 package com.wine.to.up.am.parser.service.model.dto;
 
 import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
@@ -19,19 +17,43 @@ import java.util.List;
 @ApiModel(description = "All details about the WineDTO (DTO)")
 public class WineDto {
 
+    /**
+     * Название вина.
+     */
     private String name;
 
+    /**
+     * Ссылка на изображение.
+     */
     private String picture;
 
+    /**
+     * Цвет вина.
+     */
     private String color;
 
+    /**
+     * Сахаристость вина.
+     */
     private String sugar;
 
+    /**
+     * Страна производства.
+     */
     private String country;
 
+    /**
+     * Крепость вина.
+     */
     private Double alco;
 
+    /**
+     * Объем бутылки.
+     */
     private Double value;
-
+    
+    /**
+     * Объем бутылки.
+     */
     private List<String> grapes;
 }

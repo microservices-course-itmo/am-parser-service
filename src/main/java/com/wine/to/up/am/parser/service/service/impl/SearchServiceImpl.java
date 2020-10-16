@@ -21,6 +21,9 @@ public class SearchServiceImpl implements SearchService {
     @Autowired
     private WineRepository wineRepository;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<WineDto> findAllLessByRub(Double price) {
         List<Wine> wines = wineRepository.findAllByPriceLessThan(price);
