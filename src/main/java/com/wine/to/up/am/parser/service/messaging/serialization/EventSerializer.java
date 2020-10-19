@@ -1,17 +1,18 @@
 package com.wine.to.up.am.parser.service.messaging.serialization;
 
+import com.wine.to.up.parser.common.api.schema.ParserApi;
 import com.wine.to.up.parser.common.api.schema.UpdateProducts;
 import org.apache.kafka.common.serialization.Serializer;
 
 /**
- * Serializer for {@link UpdateProducts.UpdateProductsMessage}
+ * Serializer for {@link ParserApi.WineParsedEvent}
  */
-public class EventSerializer implements Serializer<UpdateProducts.UpdateProductsMessage> {
+public class EventSerializer implements Serializer<ParserApi.WineParsedEvent> {
     /**
      * {@inheritDoc}
      */
     @Override
-    public byte[] serialize(String topic, UpdateProducts.UpdateProductsMessage data) {
+    public byte[] serialize(String topic, ParserApi.WineParsedEvent data) {
         return data.toByteArray();
     }
 }

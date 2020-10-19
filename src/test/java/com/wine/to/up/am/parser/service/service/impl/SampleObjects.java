@@ -1,9 +1,7 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
