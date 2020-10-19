@@ -5,6 +5,7 @@ import com.wine.to.up.am.parser.service.messaging.serialization.EventSerializer;
 import com.wine.to.up.commonlib.messaging.KafkaMessageHandler;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.ParserCommonApiProperties;
+import com.wine.to.up.parser.common.api.schema.ParserApi;
 import com.wine.to.up.parser.common.api.schema.UpdateProducts;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
@@ -100,10 +101,10 @@ public class KafkaConfiguration {
      * @param metricsCollector         class encapsulating the logic of the metrics collecting and publishing
      */
 
-    @Bean
-    KafkaMessageSender<UpdateProducts.UpdateProductsMessage> testTopicKafkaMessageSender(Properties producerProperties,
-                                                                                         ParserCommonApiProperties apiProperties,
-                                                                                         AmServiceMetricsCollector metricsCollector) {
+    @Bean(name = "testSender")
+    KafkaMessageSender<ParserApi.WineParsedEvent> testTopicKafkaMessageSender(Properties producerProperties,
+                                                              ParserCommonApiProperties apiProperties,
+                                                              AmServiceMetricsCollector metricsCollector) {
         // set appropriate serializer for value
         producerProperties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, EventSerializer.class.getName());
 

@@ -16,4 +16,6 @@ public interface SearchService {
      * @return Список DTO.
      */
     List<WineDto> findAllLessByRub(Double price);
+
+    List<WineDto> findAll();
 }

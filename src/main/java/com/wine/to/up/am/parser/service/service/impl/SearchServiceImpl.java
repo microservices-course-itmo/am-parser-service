@@ -41,4 +41,22 @@ public class SearchServiceImpl implements SearchService {
                         .build())
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public List<WineDto> findAll() {
+        List<Wine> wines = wineRepository.getAll();
+        return wines
+                .stream()
+                .map(e -> WineDto.builder()
+                        .name(e.getName())
+                        .value(e.getVolume())
+                        .sugar(e.getSugar().getName())
+                        .grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
+                        .country(e.getCountry().getName())
+                        .color(e.getName())
+                        .alco(e.getStrength())
+                        .picture(e.getPictureUrl())
+                        .build())
+                .collect(Collectors.toList());
+    }
 }
