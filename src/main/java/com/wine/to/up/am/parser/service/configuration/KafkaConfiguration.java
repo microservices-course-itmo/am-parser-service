@@ -1,17 +1,12 @@
 package com.wine.to.up.am.parser.service.configuration;
 
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
-import com.wine.to.up.am.parser.service.messaging.serialization.EventDeserializer;
 import com.wine.to.up.am.parser.service.messaging.serialization.EventSerializer;
-import com.wine.to.up.commonlib.messaging.BaseKafkaHandler;
 import com.wine.to.up.commonlib.messaging.KafkaMessageHandler;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
-import com.wine.to.up.demo.service.api.DemoServiceApiProperties;
-import com.wine.to.up.demo.service.api.message.KafkaMessageSentEventOuterClass.KafkaMessageSentEvent;
 import com.wine.to.up.parser.common.api.ParserCommonApiProperties;
 import com.wine.to.up.parser.common.api.schema.UpdateProducts;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -112,6 +107,6 @@ public class KafkaConfiguration {
         // set appropriate serializer for value
         producerProperties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, EventSerializer.class.getName());
 
-        return new KafkaMessageSender<>(new KafkaProducer<>(producerProperties),  apiProperties.getParserWinePositionParsedEvents(), metricsCollector);
+        return new KafkaMessageSender<>(new KafkaProducer<>(producerProperties),  apiProperties.getWineParsedEventsTopicName(), metricsCollector);
     }
 }
