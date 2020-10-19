@@ -10,5 +10,10 @@ import java.util.List;
  **/
 public interface SearchService {
 
+    /**
+     * Поиск вин,у которых цена меньше указанной.
+     * @param price Пороговая цена.
+     * @return Список DTO.
+     */
     List<WineDto> findAllLessByRub(Double price);
 }

@@ -10,7 +10,7 @@ public interface AmClient {
 
     /**
      * Получение страницы каталога
-     *
+     * @param page Номер получаемой страницы каталога.
      * @return страницу каталога
      */
     Document getPage(Long page);

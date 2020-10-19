@@ -92,6 +92,7 @@ public class AmServiceImpl implements AmService {
     @Override
     public List<AmWine> getAmWines() {
         Long pages = getCatalogPagesAmount();
+        log.info("The catalog contains {} pages", pages);
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
         AtomicLong page = new AtomicLong(1);
 
@@ -133,8 +134,17 @@ public class AmServiceImpl implements AmService {
         return result;
     }
 
+    /**
+     * Получение списка вин в "сыром" виде() с заданной страницы.
+     * @param page Номер страницы, с которой мы парсим и получаем вина.
+     * @return Список вин
+     */
     private List<AmWine> getAmWines(Long page) {
         final Document document = client.getPage(page);
+        if (document == null) {
+            return Collections.emptyList();
+        }
+        log.info("Wines from {} page were successfully received", page);
         String rawWines = getRawValue(document, PROD_NAME, PROD_PATTERN);
         try {
             return rawWines != null ?
@@ -147,6 +157,10 @@ public class AmServiceImpl implements AmService {
         }
     }
 
+    /**
+     * Получение информации о количестве страниц в каталоге.
+     * @return Количество страниц каталога.
+     */
     private Long getCatalogPagesAmount() {
         final Document document = client.getMainPage();
         String rawTotalCount = getRawValue(document, TOTAL_COUNT_NAME, TOTAL_COUNT_PATTERN);
@@ -167,6 +181,9 @@ public class AmServiceImpl implements AmService {
     }
 
     private String getRawValue(Document document, String elementName, Pattern pattern) {
+        if (document == null) {
+            return null;
+        }
         Elements elements = document.getElementsByTag("script");
         for (Element element : elements) {
             if (element.data().contains(elementName)) {

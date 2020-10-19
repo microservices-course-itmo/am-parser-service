@@ -53,9 +53,18 @@ public class UpdateServiceImpl implements UpdateService {
     @Autowired
     private WineRepository wineRepository;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void updateDictionary() {
         final Dictionary dictionary = amService.getDictionary();
+        log.info("Received {} brands", dictionary.getBrands().size());
+        log.info("Received {} colors", dictionary.getColors().size());
+        log.info("Received {} grapes", dictionary.getGrapes().size());
+        log.info("Received {} sugars", dictionary.getSugars().size());
+        log.info("Received {} countries", dictionary.getCountries().size());
+
         int created = 0;
         int updated = 0;
         int deleted = 0;
@@ -163,13 +172,15 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public void updateWines() {
         var wines = amService.getAmWines();
+        var received = wines.size();
+        log.info("Received {} wines", received);
         var created = 0;
         var updated = 0;
         for (var wine : wines) {
             var importId = wine.getId();
             var wineEntity = wineRepository.findByImportId(importId);
             var brandImportId = wine.getProps().getBrand();
-            var brand = brandRepository.findByImportId(brandImportId);;
+            var brand = brandRepository.findByImportId(brandImportId);
             var countryImportId = wine.getProps().getCountry();
             var country = countryImportId == null ? null : countryRepository.findByImportId(countryImportId);
             var alco = wine.getProps().getAlco();
@@ -267,5 +278,6 @@ public class UpdateServiceImpl implements UpdateService {
         }
         log.info("updated {} wines", updated);
         log.info("created {} wines", created);
+        log.info("{} wines are already in the database and they have not changed", received - created - updated);
     }
 }

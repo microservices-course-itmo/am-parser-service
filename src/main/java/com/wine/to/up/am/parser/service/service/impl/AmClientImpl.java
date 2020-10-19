@@ -26,13 +26,22 @@ public class AmClientImpl implements AmClient {
     @Value(value = "${am.site.referrer}")
     private String referrer;
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Document getPage(Long page) {
         return getPage(baseUrl + "?page=" + page);
     }
 
+    /**
+     * Получение страницы каталога
+     * @param url url, который используется для получения страницы.
+     * @return страницу каталога
+     */
     private Document getPage(String url) {
         try {
+            log.info("Trying to get document by '{}' url", url);
             return Jsoup
                     .connect(url)
                     .userAgent(userAgent)
@@ -44,6 +53,9 @@ public class AmClientImpl implements AmClient {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Document getMainPage() {
         return getPage(baseUrl);

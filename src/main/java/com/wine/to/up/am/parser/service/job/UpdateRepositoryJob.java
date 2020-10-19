@@ -6,7 +6,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 /**
  * Job для периодического обновления данных о винах
@@ -26,11 +27,13 @@ public class UpdateRepositoryJob {
      */
     @Scheduled(cron = "${job.cron.update.repository}")
     public void runJob() {
-        long startDate = new Date().getTime();
+        ZoneOffset zone = ZoneOffset.of("Z");
+        LocalDateTime startDate = LocalDateTime.now();
         log.info("start ActualizeWineJob run job method at " + startDate);
         updateService.updateDictionary();
         updateService.updateWines();
-        log.info("end ActualizeWineJob run job method at " + new Date().getTime() + " duration = " + (new Date().getTime() - startDate));
+        LocalDateTime endDate = LocalDateTime.now();
+        log.info("end ActualizeWineJob run job method at " + endDate + " duration = " + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + " seconds");
     }
 
 }
