@@ -101,7 +101,7 @@ public class KafkaConfiguration {
      * @param metricsCollector         class encapsulating the logic of the metrics collecting and publishing
      */
 
-    @Bean(name = "testSender")
+    @Bean(name = "testTopicKafkaMessageSenderBean")
     KafkaMessageSender<ParserApi.WineParsedEvent> testTopicKafkaMessageSender(Properties producerProperties,
                                                               ParserCommonApiProperties apiProperties,
                                                               AmServiceMetricsCollector metricsCollector) {

@@ -21,7 +21,7 @@ import java.util.List;
 @Slf4j
 public class KafkaController {
 
-    @Resource(name = "testSender")
+    @Resource(name = "testTopicKafkaMessageSenderBean")
     private KafkaMessageSender<ParserApi.WineParsedEvent> kafkaSendMessageService;
     @Resource(name="searchServiceBean")
     private SearchService searchService;
