@@ -13,7 +13,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.*;
+
+import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleAmWineList;
+import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDictionary;
+import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDoc;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
