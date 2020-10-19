@@ -1,9 +1,8 @@
-package com.wine.to.up.am.parser.service.service.impl;
+package java.com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -13,14 +12,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import static java.com.wine.to.up.am.parser.service.service.impl.SampleRepositoryObjects.getSampleWineEntity;
+
 /**
  * @author : bgubanov
  * @since : 13.10.2020
  **/
 
-public class SampleObjects {
+class SampleObjects {
 
-    public static AmWine.Props getSampleProps() {
+    private static AmWine.Props getSampleProps() {
         var props = new AmWine.Props();
         props.setAlco(0.0);
         props.setBrand("brand");
@@ -34,13 +35,13 @@ public class SampleObjects {
         return props;
     }
 
-    public static List<AmWine> getSampleAmWineList() {
+    static List<AmWine> getSampleAmWineList() {
         var listWines = new ArrayList<AmWine>();
         listWines.add(getSampleAmWine());
         return listWines;
     }
 
-    public static AmWine getSampleAmWine() {
+    private static AmWine getSampleAmWine() {
         var amWine = new AmWine();
 
         amWine.setId("0");
@@ -52,47 +53,47 @@ public class SampleObjects {
     }
 
 
-    public static Document getSampleDoc() throws IOException {
+    static Document getSampleDoc() throws IOException {
         File input = new File("src/test/java/com/wine/to/up/am/parser/service/service/impl/mainPageSample.html");
         return Jsoup.parse(input, "UTF-8", "");
     }
 
-    public static Dictionary.CatalogProp getSampleSugarCatalogProp() {
+    private static Dictionary.CatalogProp getSampleSugarCatalogProp() {
         var sampleSugar = new Dictionary.CatalogProp();
         sampleSugar.setImportId("0");
         sampleSugar.setValue("0");
         return sampleSugar;
     }
 
-    public static Dictionary.CatalogProp getSampleBrandCatalogProp() {
+    private static Dictionary.CatalogProp getSampleBrandCatalogProp() {
         var sampleBrand = new Dictionary.CatalogProp();
         sampleBrand.setImportId("0");
         sampleBrand.setValue("brand");
         return sampleBrand;
     }
 
-    public static Dictionary.CatalogProp getSampleCountryCatalogProp() {
+    private static Dictionary.CatalogProp getSampleCountryCatalogProp() {
         var sampleCountry = new Dictionary.CatalogProp();
         sampleCountry.setImportId("0");
         sampleCountry.setValue("country");
         return sampleCountry;
     }
 
-    public static Dictionary.CatalogProp getSampleGrapeCatalogProp() {
+    private static Dictionary.CatalogProp getSampleGrapeCatalogProp() {
         var sampleGrape = new Dictionary.CatalogProp();
         sampleGrape.setImportId("0");
         sampleGrape.setValue("grape");
         return sampleGrape;
     }
 
-    public static Dictionary.CatalogProp getSampleColorCatalogProp() {
+    private static Dictionary.CatalogProp getSampleColorCatalogProp() {
         var sampleColor = new Dictionary.CatalogProp();
         sampleColor.setImportId("0");
         sampleColor.setValue("color");
         return sampleColor;
     }
 
-    public static Dictionary getSampleDictionary() {
+    static Dictionary getSampleDictionary() {
         var dictionary = new Dictionary();
 
         var sugars = new HashMap<String, Dictionary.CatalogProp>();
@@ -121,5 +122,11 @@ public class SampleObjects {
         dictionary.setGrapes(grapes);
         dictionary.setSugars(sugars);
         return dictionary;
+    }
+
+    static List<Wine> getSampleWineList() {
+        var listWines = new ArrayList<Wine>();
+        listWines.add(getSampleWineEntity());
+        return listWines;
     }
 }
