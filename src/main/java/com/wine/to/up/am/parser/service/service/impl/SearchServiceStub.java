@@ -4,6 +4,7 @@ import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -17,5 +18,10 @@ public class SearchServiceStub implements SearchService {
     @Override
     public List<WineDto> findAllLessByRub(Double price) {
         return Collections.nCopies(10, WineDto.builder().build());
+    }
+
+    @Override
+    public List<WineDto> findAll() {
+        return new ArrayList<>();
     }
 }

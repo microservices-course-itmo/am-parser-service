@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author : SSyrova
@@ -44,7 +45,9 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<WineDto> findAll() {
-        List<Wine> wines = wineRepository.getAll();
+        List<Wine> wines = StreamSupport
+                .stream(wineRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
         return wines
                 .stream()
                 .map(e -> WineDto.builder()

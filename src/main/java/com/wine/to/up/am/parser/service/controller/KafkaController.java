@@ -62,8 +62,6 @@ public class KafkaController {
         if (StringUtils.hasText(wineDto.getPicture())) {
             builder.setImage(wineDto.getPicture());
         }
-
-
         if (StringUtils.hasText(wineDto.getCountry())) {
             builder.setCountry(wineDto.getCountry());
         }
@@ -76,6 +74,8 @@ public class KafkaController {
         if (!wineDto.getGrapes().isEmpty()) {
             builder.addAllGrapeSort(wineDto.getGrapes());
         }
+        builder.setSugar(ParserApi.Wine.Sugar.UNRECOGNIZED);
+        builder.setColor(ParserApi.Wine.Color.UNRECOGNIZED);
 
         return builder.build();
     }

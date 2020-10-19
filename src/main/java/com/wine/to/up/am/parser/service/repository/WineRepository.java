@@ -15,7 +15,7 @@ public interface WineRepository extends CrudRepository<Wine, Long> {
 
     List<Wine> findAllByPriceLessThan(Double price);
 
-    List<Wine> getAll();
+    List<Wine> findAllBy();
 
     Wine findByImportId(String importId);
 }
