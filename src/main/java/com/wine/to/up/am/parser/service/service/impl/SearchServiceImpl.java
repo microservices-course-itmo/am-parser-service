@@ -53,9 +53,14 @@ public class SearchServiceImpl implements SearchService {
                 .map(e -> WineDto.builder()
                         .name(e.getName())
                         .value(e.getVolume())
-                        .sugar(e.getSugar().getName())
-                        .grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
-                        .country(e.getCountry().getName())
+                        //2020-10-20 ksv: TODO Sprint5 - Переписать после реализации преобразования сахара из WineDTO в ParserApi.Wine.
+                        //.sugar(e.getSugar().getName())
+
+                        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие винограда у вина.
+                        //.grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
+
+                        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие страны у вина.
+                        //.country(e.getCountry().getName())
                         .color(e.getName())
                         .alco(e.getStrength())
                         .picture(e.getPictureUrl())

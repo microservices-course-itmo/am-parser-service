@@ -71,11 +71,16 @@ public class KafkaController {
         if (wineDto.getValue() != null) {
             builder.setCapacity(wineDto.getValue().floatValue());
         }
-        if (!wineDto.getGrapes().isEmpty()) {
-            builder.addAllGrapeSort(wineDto.getGrapes());
-        }
-        builder.setSugar(ParserApi.Wine.Sugar.UNRECOGNIZED);
-        builder.setColor(ParserApi.Wine.Color.UNRECOGNIZED);
+        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие винограда у вина.
+        //if (!wineDto.getGrapes().isEmpty()) {
+        //    builder.addAllGrapeSort(wineDto.getGrapes());
+        // }
+
+        //2020-10-20 ksv: TODO Sprint5 - Переписать после реализации преобразования сахара из WineDTO в ParserApi.Wine.
+        // builder.setSugar(ParserApi.Wine.Sugar.UNRECOGNIZED);
+
+        //2020-10-20 ksv: TODO Sprint5 - Переписать после реализации преобразования цвета из WineDTO в ParserApi.Wine.
+        // builder.setColor(ParserApi.Wine.Color.UNRECOGNIZED);
 
         return builder.build();
     }
