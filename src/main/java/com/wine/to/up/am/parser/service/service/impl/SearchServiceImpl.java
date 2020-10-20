@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author : SSyrova
@@ -35,6 +36,31 @@ public class SearchServiceImpl implements SearchService {
                         .sugar(e.getSugar().getName())
                         .grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
                         .country(e.getCountry().getName())
+                        .color(e.getName())
+                        .alco(e.getStrength())
+                        .picture(e.getPictureUrl())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<WineDto> findAll() {
+        List<Wine> wines = StreamSupport
+                .stream(wineRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+        return wines
+                .stream()
+                .map(e -> WineDto.builder()
+                        .name(e.getName())
+                        .value(e.getVolume())
+                        //2020-10-20 ksv: TODO Sprint5 - Переписать после реализации преобразования сахара из WineDTO в ParserApi.Wine.
+                        //.sugar(e.getSugar().getName())
+
+                        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие винограда у вина.
+                        //.grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
+
+                        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие страны у вина.
+                        //.country(e.getCountry().getName())
                         .color(e.getName())
                         .alco(e.getStrength())
                         .picture(e.getPictureUrl())
