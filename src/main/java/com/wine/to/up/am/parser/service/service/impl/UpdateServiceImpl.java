@@ -32,7 +32,7 @@ import java.util.Objects;
 @Slf4j
 public class UpdateServiceImpl implements UpdateService {
 
-    @Resource(name = "amServiceBean")
+    @Resource
     private AmService amService;
 
     @Autowired

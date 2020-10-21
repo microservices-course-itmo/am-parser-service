@@ -13,7 +13,7 @@ import java.io.IOException;
  * @author : SSyrova
  * @since : 08.10.2020, чт
  **/
-@Component
+
 @Slf4j
 public class AmClientImpl implements AmClient {
 

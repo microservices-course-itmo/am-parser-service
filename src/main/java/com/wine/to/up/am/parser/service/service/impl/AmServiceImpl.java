@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AmServiceImpl implements AmService {
 
-    @Resource(name = "amClientBean")
+    @Resource
     private AmClient client;
 
     private static final String DICT_NAME = "catalogProps";
@@ -110,7 +110,7 @@ public class AmServiceImpl implements AmService {
         try {
             executorService.invokeAll(callableTasks);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            log.error("Error in getAmWines method : ", e);
         } finally {
             executorService.shutdown();
         }

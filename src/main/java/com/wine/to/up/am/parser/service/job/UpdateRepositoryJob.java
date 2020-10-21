@@ -19,7 +19,7 @@ import java.time.ZoneOffset;
 @Slf4j
 public class UpdateRepositoryJob {
 
-    @Resource(name = "updateServiceBean")
+    @Resource
     private UpdateService updateService;
 
     /**

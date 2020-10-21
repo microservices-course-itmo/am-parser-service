@@ -21,9 +21,9 @@ import java.util.List;
 @Slf4j
 public class KafkaController {
 
-    @Resource(name = "testTopicKafkaMessageSenderBean")
-    private KafkaMessageSender<ParserApi.WineParsedEvent> kafkaSendMessageService;
-    @Resource(name="searchServiceBean")
+    @Resource
+    private KafkaMessageSender<ParserApi.WineParsedEvent> kafkaMessageSender;
+    @Resource
     private SearchService searchService;
 
 
@@ -46,7 +46,7 @@ public class KafkaController {
                     .addAllWines(wines)
                     .build();
 
-            kafkaSendMessageService.sendMessage(message);
+            kafkaMessageSender.sendMessage(message);
         } catch (Exception exception) {
             log.error("Can't export wines list", exception);
         }

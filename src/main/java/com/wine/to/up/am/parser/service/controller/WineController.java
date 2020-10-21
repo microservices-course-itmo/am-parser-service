@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -23,8 +24,7 @@ import java.time.ZoneOffset;
 @Api(value = "Wine controller", description = "Updating the information in the database")
 public class WineController {
 
-    @Autowired
-    @Qualifier("restServiceImpl")
+    @Resource
     private RestService restService;
 
     /**

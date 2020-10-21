@@ -16,10 +16,10 @@ import java.util.List;
 @Service
 public class RestServiceImpl implements RestService {
 
-    @Resource(name="searchServiceBean")
+    @Resource
     private SearchService searchService;
 
-    @Resource(name="updateServiceBean")
+    @Resource
     private UpdateService updateService;
 
     @Override

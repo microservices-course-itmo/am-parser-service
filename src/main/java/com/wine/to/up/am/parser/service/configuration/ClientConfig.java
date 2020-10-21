@@ -13,12 +13,12 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class ClientConfig {
 
-    @Bean(name = "amClientBean")
+    @Bean
     public AmClient amClient() {
         return new AmClientImpl();
     }
 
-    @Bean(name = "amServiceBean")
+    @Bean
     public AmService amService() {
         return new AmServiceImpl();
     }
