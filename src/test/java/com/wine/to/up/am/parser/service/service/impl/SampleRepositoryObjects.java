@@ -1,4 +1,4 @@
-package java.com.wine.to.up.am.parser.service.service.impl;
+package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.domain.entity.Brand;
 import com.wine.to.up.am.parser.service.domain.entity.Color;
@@ -24,23 +24,23 @@ public class SampleRepositoryObjects {
                 getSampleSugarEntity(), getSampleListGrapeEntity(), winePrice++);
     }
 
-    private static Brand getSampleBrandEntity() {
+    public static Brand getSampleBrandEntity() {
         return new Brand("0", "brand");
     }
 
-    private static Country getSampleCountryEntity() {
+    public static Country getSampleCountryEntity() {
         return new Country("0", "country");
     }
 
-    private static Sugar getSampleSugarEntity() {
+    public static Sugar getSampleSugarEntity() {
         return new Sugar("0", "sugar");
     }
 
-    private static Color getSampleColorEntity() {
+    public static Color getSampleColorEntity() {
         return new Color("0", "color");
     }
 
-    private static List<Grape> getSampleListGrapeEntity() {
+    public static List<Grape> getSampleListGrapeEntity() {
         var list = new ArrayList<Grape>();
         list.add(new Grape("0", "grape"));
         return list;

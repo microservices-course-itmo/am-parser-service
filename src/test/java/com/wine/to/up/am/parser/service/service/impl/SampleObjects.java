@@ -1,6 +1,5 @@
-package java.com.wine.to.up.am.parser.service.service.impl;
+package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import org.jsoup.Jsoup;
@@ -11,8 +10,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
-import static java.com.wine.to.up.am.parser.service.service.impl.SampleRepositoryObjects.getSampleWineEntity;
 
 /**
  * @author : bgubanov
@@ -122,11 +119,5 @@ public class SampleObjects {
         dictionary.setGrapes(grapes);
         dictionary.setSugars(sugars);
         return dictionary;
-    }
-
-    public static List<Wine> getSampleWineList() {
-        var listWines = new ArrayList<Wine>();
-        listWines.add(getSampleWineEntity());
-        return listWines;
     }
 }
