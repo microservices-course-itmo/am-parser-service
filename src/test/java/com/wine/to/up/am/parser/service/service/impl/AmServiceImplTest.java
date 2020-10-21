@@ -1,6 +1,7 @@
-package com.wine.to.up.am.parser.service.service.impl;
+package java.com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.service.AmClient;
+import com.wine.to.up.am.parser.service.service.impl.AmServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,14 +10,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 
 
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleAmWineList;
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDictionary;
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDoc;
+import static java.com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleAmWineList;
+import static java.com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDictionary;
+import static java.com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDoc;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -28,11 +30,12 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @ExtendWith(MockitoExtension.class)
+@SpringBootTest
 public class AmServiceImplTest {
 
 
-    AmClient amClient = Mockito.mock(AmClient.class);
-    AmServiceImpl amServiceMock = Mockito.mock(AmServiceImpl.class);
+    private final AmClient amClient = Mockito.mock(AmClient.class);
+    private final AmServiceImpl amServiceMock = Mockito.mock(AmServiceImpl.class);
 
     @InjectMocks
     AmServiceImpl amService;
