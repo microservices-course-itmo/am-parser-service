@@ -16,6 +16,11 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import java.util.Date;
 import java.util.List;
 
 @Entity
@@ -73,6 +78,13 @@ public class Wine {
     @ApiModelProperty(notes = "The price of the bottle")
     private double price;
 
+    @Column(name = "actual")
+    private boolean actual;
+
+    @Column(name = "date_rec")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateRec;
+
     public Wine(String importId,
                 String pictureUrl,
                 Brand brand,
@@ -93,5 +105,31 @@ public class Wine {
         this.sugar = sugar;
         this.grapes = grapes;
         this.price = price;
+    }
+
+    public Wine(String importId,
+                String pictureUrl,
+                Brand brand,
+                Country country,
+                double volume,
+                double strength,
+                Color color,
+                Sugar sugar,
+                List<Grape> grapes,
+                double price,
+                boolean actual,
+                Date dateRec) {
+        this.importId = importId;
+        this.pictureUrl = pictureUrl;
+        this.brand = brand;
+        this.country = country;
+        this.volume = volume;
+        this.strength = strength;
+        this.color = color;
+        this.sugar = sugar;
+        this.grapes = grapes;
+        this.price = price;
+        this.actual = actual;
+        this.dateRec = dateRec;
     }
 }
