@@ -178,6 +178,7 @@ public class UpdateServiceImpl implements UpdateService {
         var updated = 0;
         for (var wine : wines) {
             var importId = wine.getId();
+            var name = wine.getName();
             var wineEntity = wineRepository.findByImportId(importId);
             var brandImportId = wine.getProps().getBrand();
             var brand = brandRepository.findByImportId(brandImportId);
@@ -208,6 +209,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
             if (wineEntity == null) {
                 wineRepository.save(new Wine(importId,
+                        name,
                         pictureUrl,
                         brand,
                         country,

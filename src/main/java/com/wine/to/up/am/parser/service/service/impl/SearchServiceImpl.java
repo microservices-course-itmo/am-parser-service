@@ -36,7 +36,7 @@ public class SearchServiceImpl implements SearchService {
                         .sugar(e.getSugar().getName())
                         .grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
                         .country(e.getCountry().getName())
-                        .color(e.getName())
+                        .color(e.getColor().getName())
                         .alco(e.getStrength())
                         .picture(e.getPictureUrl())
                         .build())

@@ -1,4 +1,4 @@
-package java.com.wine.to.up.am.parser.service.service.impl;
+package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import static java.com.wine.to.up.am.parser.service.service.impl.SampleRepositoryObjects.getSampleWineEntity;
+import static com.wine.to.up.am.parser.service.service.impl.SampleRepositoryObjects.getSampleWineEntity;
 
 /**
  * @author : bgubanov

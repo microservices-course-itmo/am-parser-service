@@ -74,6 +74,7 @@ public class Wine {
     private double price;
 
     public Wine(String importId,
+                String name,
                 String pictureUrl,
                 Brand brand,
                 Country country,
@@ -84,6 +85,7 @@ public class Wine {
                 List<Grape> grapes,
                 double price) {
         this.importId = importId;
+        this.name = name;
         this.pictureUrl = pictureUrl;
         this.brand = brand;
         this.country = country;

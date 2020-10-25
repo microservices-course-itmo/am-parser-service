@@ -1,24 +1,17 @@
-package java.com.wine.to.up.am.parser.service.service.impl;
+package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.service.AmClient;
-import com.wine.to.up.am.parser.service.service.impl.AmServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
 
-
-import static java.com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleAmWineList;
-import static java.com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDictionary;
-import static java.com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDoc;
+import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -28,9 +21,7 @@ import static org.mockito.Mockito.when;
  * @since : 13.10.2020
  **/
 
-@RunWith(SpringRunner.class)
 @ExtendWith(MockitoExtension.class)
-@SpringBootTest
 public class AmServiceImplTest {
 
 
