@@ -2,6 +2,8 @@ package com.wine.to.up.am.parser.service.controller;
 
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.SearchService;
+import com.wine.to.up.am.parser.service.util.ColorConverter;
+import com.wine.to.up.am.parser.service.util.SugarConverter;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.schema.ParserApi;
 import lombok.extern.slf4j.Slf4j;
@@ -76,11 +78,9 @@ public class KafkaController {
         //    builder.addAllGrapeSort(wineDto.getGrapes());
         // }
 
-        //2020-10-20 ksv: TODO Sprint5 - Переписать после реализации преобразования сахара из WineDTO в ParserApi.Wine.
-        // builder.setSugar(ParserApi.Wine.Sugar.UNRECOGNIZED);
 
-        //2020-10-20 ksv: TODO Sprint5 - Переписать после реализации преобразования цвета из WineDTO в ParserApi.Wine.
-        // builder.setColor(ParserApi.Wine.Color.UNRECOGNIZED);
+         builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
+         builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
 
         return builder.build();
     }
