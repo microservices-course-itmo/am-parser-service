@@ -26,6 +26,9 @@ public class AmClientImpl implements AmClient {
     @Value(value = "${am.site.referrer}")
     private String referrer;
 
+    @Value(value = "${am.site.max-retries}")
+    private Integer maxRetries;
+
     /**
      * {@inheritDoc}
      */
@@ -40,15 +43,27 @@ public class AmClientImpl implements AmClient {
      * @return страницу каталога
      */
     private Document getPage(String url) {
+        int attempt = 0;
+        log.info("Trying to get document by '{}' url", url);
+        while (attempt < maxRetries) {
+            Document document = fetchPage(url);
+            if (document != null) {
+                return document;
+            }
+            attempt ++;
+        }
+        log.error("Cannot get document by '{}' url in {} attempts", url, attempt);
+        return null;
+    }
+
+    private Document fetchPage(String url) {
         try {
-            log.info("Trying to get document by '{}' url", url);
             return Jsoup
                     .connect(url)
                     .userAgent(userAgent)
                     .referrer(referrer)
                     .get();
         } catch (IOException e) {
-            log.error("Cannot get document by '{}' url with exception: {}", url, e.getMessage());
             return null;
         }
     }
