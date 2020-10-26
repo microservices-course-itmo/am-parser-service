@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.Resource;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -71,7 +72,7 @@ public class UpdateServiceImpl implements UpdateService {
         for (Dictionary.CatalogProp prop : dictionary.getBrands().values()) {
             Brand brand = brandRepository.findByImportId(prop.getImportId());
             if (brand == null) {
-                brandRepository.save(new Brand(prop.getImportId(), prop.getValue()));
+                brandRepository.save(new Brand(prop.getImportId(), prop.getValue(), true, new Date()));
                 created++;
             } else {
                 if (!brand.getName().equals(prop.getValue())) {
@@ -91,7 +92,7 @@ public class UpdateServiceImpl implements UpdateService {
         for (Dictionary.CatalogProp prop : dictionary.getColors().values()) {
             Color color = colorRepository.findByImportId(prop.getImportId());
             if (color == null) {
-                colorRepository.save(new Color(prop.getImportId(), prop.getValue()));
+                colorRepository.save(new Color(prop.getImportId(), prop.getValue(), true, new Date()));
                 created++;
             } else {
                 if (!color.getName().equals(prop.getValue())) {
@@ -111,7 +112,7 @@ public class UpdateServiceImpl implements UpdateService {
         for (Dictionary.CatalogProp prop : dictionary.getCountries().values()) {
             Country country = countryRepository.findByImportId(prop.getImportId());
             if (country == null) {
-                countryRepository.save(new Country(prop.getImportId(), prop.getValue()));
+                countryRepository.save(new Country(prop.getImportId(), prop.getValue(), true, new Date()));
                 created++;
             } else {
                 if (!country.getName().equals(prop.getValue())) {
@@ -131,7 +132,7 @@ public class UpdateServiceImpl implements UpdateService {
         for (Dictionary.CatalogProp prop : dictionary.getGrapes().values()) {
             Grape grape = grapeRepository.findByImportId(prop.getImportId());
             if (grape == null) {
-                grapeRepository.save(new Grape(prop.getImportId(), prop.getValue()));
+                grapeRepository.save(new Grape(prop.getImportId(), prop.getValue(), true, new Date()));
                 created++;
             } else {
                 if (!grape.getName().equals(prop.getValue())) {
@@ -151,7 +152,7 @@ public class UpdateServiceImpl implements UpdateService {
         for (Dictionary.CatalogProp prop : dictionary.getSugars().values()) {
             Sugar sugar = sugarRepository.findByImportId(prop.getImportId());
             if (sugar == null) {
-                sugarRepository.save(new Sugar(prop.getImportId(), prop.getValue()));
+                sugarRepository.save(new Sugar(prop.getImportId(), prop.getValue(), true, new Date()));
                 created++;
             } else {
                 if (!sugar.getName().equals(prop.getValue())) {
@@ -216,7 +217,9 @@ public class UpdateServiceImpl implements UpdateService {
                         color,
                         sugar,
                         grapes,
-                        0.0));
+                        0.0,
+                        true,
+                        new Date()));
                 created++;
             } else {
                 var isUpdated = false;

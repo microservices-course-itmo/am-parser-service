@@ -5,6 +5,8 @@ import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.SearchService;
+import com.wine.to.up.am.parser.service.util.ColorConverter;
+import com.wine.to.up.am.parser.service.util.SugarConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,10 +35,10 @@ public class SearchServiceImpl implements SearchService {
                 .map(e -> WineDto.builder()
                         .name(e.getName())
                         .value(e.getVolume())
-                        .sugar(e.getSugar().getName())
+                        .sugar(SugarConverter.getSugar(e.getSugar()))
                         .grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
                         .country(e.getCountry().getName())
-                        .color(e.getName())
+                        .color(ColorConverter.getColor(e.getColor()))
                         .alco(e.getStrength())
                         .picture(e.getPictureUrl())
                         .build())
@@ -53,15 +55,13 @@ public class SearchServiceImpl implements SearchService {
                 .map(e -> WineDto.builder()
                         .name(e.getName())
                         .value(e.getVolume())
-                        //2020-10-20 ksv: TODO Sprint5 - Переписать после реализации преобразования сахара из WineDTO в ParserApi.Wine.
-                        //.sugar(e.getSugar().getName())
-
+                        .sugar(SugarConverter.getSugar(e.getSugar()))
                         //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие винограда у вина.
                         //.grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
 
                         //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие страны у вина.
                         //.country(e.getCountry().getName())
-                        .color(e.getName())
+                        .color(ColorConverter.getColor(e.getColor()))
                         .alco(e.getStrength())
                         .picture(e.getPictureUrl())
                         .build())
