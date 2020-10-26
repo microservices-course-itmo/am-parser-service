@@ -25,7 +25,7 @@ public enum ColorConverter {
     public static ParserApi.Wine.Color getApiColor(String color) {
         return Arrays.stream(ColorConverter.values()).filter(t -> t != null && t.getColor().equals(color))
                 .findFirst()
-                .orElse(UNRECOGNIZED)//2020-10-26 ksv: TODO Sprint6 - Изменить после починки UNRECOGNIZED или изменения модели.
+                .orElse(RED)//2020-10-26 ksv: TODO Sprint6 - Изменить после починки UNRECOGNIZED или изменения модели.
                 .getApiColor();
     }
 
