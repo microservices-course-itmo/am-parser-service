@@ -6,6 +6,7 @@ import com.wine.to.up.am.parser.service.domain.entity.Sugar;
 import com.wine.to.up.am.parser.service.domain.entity.Color;
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.domain.entity.Country;
+import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.repository.GrapeRepository;
@@ -91,7 +92,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Brand brand : brandList) {
-            if (brand.isActual()) {
+            if (brand.getActual()) {
                 brand.setActual(false);
                 brand.setDateRec(new Date());
                 brandRepository.save(brand);
@@ -128,7 +129,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Color color : colorList) {
-            if (color.isActual()) {
+            if (color.getActual()) {
                 color.setActual(false);
                 color.setDateRec(new Date());
                 colorRepository.save(color);
@@ -165,7 +166,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Country country : countryList) {
-            if (country.isActual()) {
+            if (country.getActual()) {
                 country.setActual(false);
                 country.setDateRec(new Date());
                 countryRepository.save(country);
@@ -202,7 +203,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Grape grape : grapeList) {
-            if (grape.isActual()) {
+            if (grape.getActual()) {
                 grape.setActual(false);
                 grape.setDateRec(new Date());
                 grapeRepository.save(grape);
@@ -240,7 +241,7 @@ public class UpdateServiceImpl implements UpdateService {
         }
 
         for (Sugar sugar : sugarList) {
-            if (sugar.isActual()) {
+            if (sugar.getActual()) {
                 sugar.setActual(false);
                 sugar.setDateRec(new Date());
                 sugarRepository.save(sugar);
@@ -410,7 +411,7 @@ public class UpdateServiceImpl implements UpdateService {
         }
 
         for (Wine wine : wineList) {
-            if (wine.isActual()) {
+            if (wine.getActual()) {
                 wine.setActual(false);
                 wine.setDateRec(new Date());
                 wineRepository.save(wine);
