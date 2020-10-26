@@ -1,9 +1,19 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.*;
+import com.wine.to.up.am.parser.service.domain.entity.Grape;
+import com.wine.to.up.am.parser.service.domain.entity.Brand;
+import com.wine.to.up.am.parser.service.domain.entity.Sugar;
+import com.wine.to.up.am.parser.service.domain.entity.Color;
+import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.domain.entity.Country;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.*;
+import com.wine.to.up.am.parser.service.repository.WineRepository;
+import com.wine.to.up.am.parser.service.repository.GrapeRepository;
+import com.wine.to.up.am.parser.service.repository.CountryRepository;
+import com.wine.to.up.am.parser.service.repository.ColorRepository;
+import com.wine.to.up.am.parser.service.repository.BrandRepository;
+import com.wine.to.up.am.parser.service.repository.SugarRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
@@ -53,11 +63,17 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public void updateDictionary() {
         final Dictionary dictionary = amService.getDictionary();
-        log.info("Received {} brands", dictionary.getBrands().size());
-        log.info("Received {} colors", dictionary.getColors().size());
-        log.info("Received {} grapes", dictionary.getGrapes().size());
-        log.info("Received {} sugars", dictionary.getSugars().size());
-        log.info("Received {} countries", dictionary.getCountries().size());
+        log.trace("Received {} brands", dictionary.getBrands().size());
+        log.trace("Received {} colors", dictionary.getColors().size());
+        log.trace("Received {} grapes", dictionary.getGrapes().size());
+        log.trace("Received {} sugars", dictionary.getSugars().size());
+        log.trace("Received {} countries", dictionary.getCountries().size());
+        log.info("Received {} dictionary entries", dictionary.getBrands().size() + dictionary.getColors().size() +
+                dictionary.getGrapes().size() + dictionary.getSugars().size() + dictionary.getCountries().size());
+
+        int createdTotal = 0;
+        int updatedTotal = 0;
+        int deletedTotal = 0;
 
         int created = 0;
         int updated = 0;
@@ -76,7 +92,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Brand brand : brandList) {
-            if (brand.isActual()) {
+            if (brand.getActual()) {
                 brand.setActual(false);
                 brand.setDateRec(new Date());
                 brandRepository.save(brand);
@@ -89,10 +105,12 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-
-        log.info("updated {} brands", updated);
-        log.info("created {} brands", created);
-        log.info("deleted {} brands", deleted);
+        log.trace("updated {} brands", updated);
+        log.trace("created {} brands", created);
+        log.trace("deleted {} brands", deleted);
+        createdTotal += created;
+        updatedTotal += updated;
+        deletedTotal += deleted;
         created = 0;
         updated = 0;
         deleted = 0;
@@ -111,7 +129,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Color color : colorList) {
-            if (color.isActual()) {
+            if (color.getActual()) {
                 color.setActual(false);
                 color.setDateRec(new Date());
                 colorRepository.save(color);
@@ -124,10 +142,12 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-
-        log.info("updated {} colors", updated);
-        log.info("created {} colors", created);
-        log.info("deleted {} colors", deleted);
+        log.trace("updated {} colors", updated);
+        log.trace("created {} colors", created);
+        log.trace("deleted {} colors", deleted);
+        createdTotal += created;
+        updatedTotal += updated;
+        deletedTotal += deleted;
         created = 0;
         updated = 0;
         deleted = 0;
@@ -146,7 +166,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Country country : countryList) {
-            if (country.isActual()) {
+            if (country.getActual()) {
                 country.setActual(false);
                 country.setDateRec(new Date());
                 countryRepository.save(country);
@@ -159,10 +179,12 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-
-        log.info("updated {} countries", updated);
-        log.info("created {} countries", created);
-        log.info("deleted {} countries", deleted);
+        log.trace("updated {} countries", updated);
+        log.trace("created {} countries", created);
+        log.trace("deleted {} countries", deleted);
+        createdTotal += created;
+        updatedTotal += updated;
+        deletedTotal += deleted;
         created = 0;
         updated = 0;
         deleted = 0;
@@ -181,7 +203,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Grape grape : grapeList) {
-            if (grape.isActual()) {
+            if (grape.getActual()) {
                 grape.setActual(false);
                 grape.setDateRec(new Date());
                 grapeRepository.save(grape);
@@ -194,10 +216,12 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-
-        log.info("updated {} grapes", updated);
-        log.info("created {} grapes", created);
-        log.info("deleted {} grapes", deleted);
+        log.trace("updated {} grapes", updated);
+        log.trace("created {} grapes", created);
+        log.trace("deleted {} grapes", deleted);
+        createdTotal += created;
+        updatedTotal += updated;
+        deletedTotal += deleted;
         created = 0;
         updated = 0;
         deleted = 0;
@@ -217,7 +241,7 @@ public class UpdateServiceImpl implements UpdateService {
         }
 
         for (Sugar sugar : sugarList) {
-            if (sugar.isActual()) {
+            if (sugar.getActual()) {
                 sugar.setActual(false);
                 sugar.setDateRec(new Date());
                 sugarRepository.save(sugar);
@@ -230,10 +254,16 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
+        log.trace("updated {} sugars", updated);
+        log.trace("created {} sugars", created);
+        log.trace("deleted {} sugars", deleted);
+        createdTotal += created;
+        updatedTotal += updated;
+        deletedTotal += deleted;
 
-        log.info("updated {} sugars", updated);
-        log.info("created {} sugars", created);
-        log.info("deleted {} sugars", deleted);
+        log.info("updated {} entries", updatedTotal);
+        log.info("created {} entries", createdTotal);
+        log.info("deleted {} entries", deletedTotal);
     }
 
     /**
@@ -381,7 +411,7 @@ public class UpdateServiceImpl implements UpdateService {
         }
 
         for (Wine wine : wineList) {
-            if (wine.isActual()) {
+            if (wine.getActual()) {
                 wine.setActual(false);
                 wine.setDateRec(new Date());
                 wineRepository.save(wine);
@@ -398,7 +428,7 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("updated {} wines", updated);
         log.info("created {} wines", created);
         log.info("deleted {} wines", deleted);
-        log.info("{} wines are already in the database and they have not changed", received - created - updated - deleted);
+        log.trace("{} wines are already in the database and they have not changed", received - created - updated - deleted);
 
     }
 }

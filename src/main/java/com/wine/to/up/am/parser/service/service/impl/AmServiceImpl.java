@@ -99,10 +99,19 @@ public class AmServiceImpl implements AmService {
         ExecutorService executorService = Executors.newFixedThreadPool(20);
         Callable<String> callableTask = () -> {
             log.info("Started client process...");
+            int successfulParseCount = 0;
             while (page.longValue() <= pages) {
+                int wineNum = amWines.size();
                 amWines.addAll(getAmWines(page.getAndIncrement()));
+                if(amWines.size() > wineNum) {
+                    successfulParseCount++;
+                }
             }
-            log.info("Finished client process!");
+            if(successfulParseCount == pages) {
+                log.info("Finished client process. All pages parsed successfully.");
+            } else {
+                log.info("Finished client process. Wines were successfully parsed from {} out of {} pages.", successfulParseCount, pages);
+            }
             return "Task's execution";
         };
         List<Callable<String>> callableTasks = Collections.nCopies(20, callableTask);
@@ -144,7 +153,6 @@ public class AmServiceImpl implements AmService {
         if (document == null) {
             return Collections.emptyList();
         }
-        log.info("Wines from {} page were successfully received", page);
         String rawWines = getRawValue(document, PROD_NAME, PROD_PATTERN);
         try {
             return rawWines != null ?
