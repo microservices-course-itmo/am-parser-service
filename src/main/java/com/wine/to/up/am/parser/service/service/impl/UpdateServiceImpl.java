@@ -1,36 +1,22 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Grape;
-import com.wine.to.up.am.parser.service.domain.entity.Brand;
-import com.wine.to.up.am.parser.service.domain.entity.Sugar;
-import com.wine.to.up.am.parser.service.domain.entity.Color;
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
-import com.wine.to.up.am.parser.service.domain.entity.Country;
+import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.WineRepository;
-import com.wine.to.up.am.parser.service.repository.GrapeRepository;
-import com.wine.to.up.am.parser.service.repository.CountryRepository;
-import com.wine.to.up.am.parser.service.repository.ColorRepository;
-import com.wine.to.up.am.parser.service.repository.BrandRepository;
-import com.wine.to.up.am.parser.service.repository.SugarRepository;
+import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
-import com.wine.to.up.parser.common.api.schema.UpdateProducts;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-
-import java.time.LocalDate;
-import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author : SSyrova
@@ -77,7 +63,9 @@ public class UpdateServiceImpl implements UpdateService {
         int updated = 0;
         int deleted = 0;
 
-        ArrayList<Brand> brandList = (ArrayList<Brand>) brandRepository.findAll();
+        List<Brand> brandList = StreamSupport
+                .stream(brandRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
         for (Dictionary.CatalogProp prop : dictionary.getBrands().values()) {
             var deletionComplete = brandList.removeIf(brand -> brand.getImportId().equals(prop.getImportId()));
             brandRepository.save(new Brand(prop.getImportId(), prop.getValue(), true, new Date()));
@@ -109,7 +97,10 @@ public class UpdateServiceImpl implements UpdateService {
         updated = 0;
         deleted = 0;
 
-        ArrayList<Color> colorList = (ArrayList<Color>) colorRepository.findAll();
+        List<Color> colorList = StreamSupport
+                .stream(colorRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+
         for (Dictionary.CatalogProp prop : dictionary.getColors().values()) {
             var deletionComplete = colorList.removeIf(color -> color.getImportId().equals(prop.getImportId()));
             colorRepository.save(new Color(prop.getImportId(), prop.getValue(), true, new Date()));
@@ -141,7 +132,10 @@ public class UpdateServiceImpl implements UpdateService {
         updated = 0;
         deleted = 0;
 
-        ArrayList<Country> countryList = (ArrayList<Country>) countryRepository.findAll();
+        List<Country> countryList = StreamSupport
+                .stream(countryRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+
         for (Dictionary.CatalogProp prop : dictionary.getCountries().values()) {
             var deletionComplete = countryList.removeIf(country -> country.getImportId().equals(prop.getImportId()));
             countryRepository.save(new Country(prop.getImportId(), prop.getValue(), true, new Date()));
@@ -173,7 +167,10 @@ public class UpdateServiceImpl implements UpdateService {
         updated = 0;
         deleted = 0;
 
-        ArrayList<Grape> grapeList = (ArrayList<Grape>) grapeRepository.findAll();
+        List<Grape> grapeList = StreamSupport
+                .stream(grapeRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+
         for (Dictionary.CatalogProp prop : dictionary.getGrapes().values()) {
             var deletionComplete = grapeList.removeIf(grape -> grape.getImportId().equals(prop.getImportId()));
             grapeRepository.save(new Grape(prop.getImportId(), prop.getValue(), true, new Date()));
@@ -205,7 +202,10 @@ public class UpdateServiceImpl implements UpdateService {
         updated = 0;
         deleted = 0;
 
-        ArrayList<Sugar> sugarList = (ArrayList<Sugar>) sugarRepository.findAll();
+        List<Sugar> sugarList = StreamSupport
+                .stream(sugarRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+
         for (Dictionary.CatalogProp prop : dictionary.getSugars().values()) {
             var deletionComplete = sugarList.removeIf(sugar -> sugar.getImportId().equals(prop.getImportId()));
             sugarRepository.save(new Sugar(prop.getImportId(), prop.getValue(), true, new Date()));
@@ -248,7 +248,10 @@ public class UpdateServiceImpl implements UpdateService {
         var updated = 0;
         var deleted = 0;
 
-        var wineList = (ArrayList<Wine>) wineRepository.findAll();
+        var wineList = StreamSupport
+                .stream(wineRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+
         for (AmWine amWine : wines) {
             var importId = amWine.getId();
 
