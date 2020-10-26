@@ -73,14 +73,11 @@ public class KafkaController {
         if (wineDto.getValue() != null) {
             builder.setCapacity(wineDto.getValue().floatValue());
         }
-        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие винограда у вина.
-        //if (!wineDto.getGrapes().isEmpty()) {
-        //    builder.addAllGrapeSort(wineDto.getGrapes());
-        // }
-
-
-         builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
-         builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
+        if (wineDto.getGrapes() != null && !wineDto.getGrapes().isEmpty()) {
+            builder.addAllGrapeSort(wineDto.getGrapes());
+        }
+        builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
+        builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
 
         return builder.build();
     }

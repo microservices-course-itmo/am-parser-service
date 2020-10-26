@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -56,11 +57,8 @@ public class SearchServiceImpl implements SearchService {
                         .name(e.getName())
                         .value(e.getVolume())
                         .sugar(SugarConverter.getSugar(e.getSugar()))
-                        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие винограда у вина.
-                        //.grapes(e.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
-
-                        //2020-10-20 ksv: TODO Sprint5 - Раскомментировать после реализации проверки на наличие страны у вина.
-                        //.country(e.getCountry().getName())
+                        .grapes(e.getGrapes().stream().filter(Objects::nonNull).map(Grape::getName).collect(Collectors.toList()))
+                        .country(e.getCountry() != null ? e.getCountry().getName() : null)
                         .color(ColorConverter.getColor(e.getColor()))
                         .alco(e.getStrength())
                         .picture(e.getPictureUrl())

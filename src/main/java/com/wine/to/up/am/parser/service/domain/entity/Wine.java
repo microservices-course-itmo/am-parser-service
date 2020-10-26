@@ -80,7 +80,7 @@ public class Wine {
     private double price;
 
     @Column(name = "actual")
-    private boolean actual;
+    private Boolean actual;
 
     @Column(name = "date_rec")
     @Temporal(TemporalType.TIMESTAMP)
