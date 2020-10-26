@@ -41,7 +41,7 @@ public class AmClientImpl implements AmClient {
      */
     private Document getPage(String url) {
         try {
-            log.info("Trying to get document by '{}' url", url);
+            log.trace("Trying to get document by '{}' url", url);
             return Jsoup
                     .connect(url)
                     .userAgent(userAgent)
