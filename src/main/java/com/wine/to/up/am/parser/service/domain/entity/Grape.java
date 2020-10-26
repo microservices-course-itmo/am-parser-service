@@ -38,7 +38,7 @@ public class Grape {
     private String name;
 
     @Column(name = "actual")
-    private boolean actual;
+    private Boolean actual;
 
     @Column(name = "date_rec")
     @Temporal(TemporalType.TIMESTAMP)
