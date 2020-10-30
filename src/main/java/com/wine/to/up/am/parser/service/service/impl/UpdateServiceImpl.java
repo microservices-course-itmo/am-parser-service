@@ -294,13 +294,18 @@ public class UpdateServiceImpl implements UpdateService {
             }
             wineList.remove(wineEntity);
 
-            var brandImportId = amWine.getProps().getBrand();
-            var brand = brandRepository.findByImportId(brandImportId);
+            var name = amWine.getName();
+            var brandName = amWine.getProps().getBrand();
+            var brand = brandName == null ? null : brandRepository.findByName(brandName);
             var countryImportId = amWine.getProps().getCountry();
             var country = countryImportId == null ? null : countryRepository.findByImportId(countryImportId);
             var alco = amWine.getProps().getAlco();
             if (alco == null) {
                 alco = 0.0;
+            }
+            var price = amWine.getPrice();
+            if (price == null) {
+                price = 0.0;
             }
             var colorImportId = amWine.getProps().getColor();
             var color = colorImportId == null ? null : colorRepository.findByImportId(colorImportId.toString());
@@ -356,6 +361,16 @@ public class UpdateServiceImpl implements UpdateService {
                     wineEntity.setStrength(alco);
                     isUpdated = true;
                 }
+                var oldPrice = wineEntity.getPrice();
+                if (oldPrice != price) {
+                    wineEntity.setPrice(price);
+                    isUpdated = true;
+                }
+                var oldName = wineEntity.getName();
+                if (!Objects.equals(oldName, name)) {
+                    wineEntity.setName(name);
+                    isUpdated = true;
+                }
                 var oldGrapes = wineEntity.getGrapes();
                 if (oldGrapes.size() != grapes.size()) {
                     wineEntity.setGrapes(grapes);
@@ -376,6 +391,7 @@ public class UpdateServiceImpl implements UpdateService {
                 if (isUpdated) {
                     updated++;
                     wineRepository.save(new Wine(importId,
+                            name,
                             pictureUrl,
                             brand,
                             country,
@@ -384,7 +400,7 @@ public class UpdateServiceImpl implements UpdateService {
                             color,
                             sugar,
                             grapes,
-                            0.0, //todo добавить нормальную цену
+                            price,
                             true,
                             new Date()));
                 } else {
@@ -394,6 +410,7 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             } else {
                 wineRepository.save(new Wine(importId,
+                        name,
                         pictureUrl,
                         brand,
                         country,
@@ -402,7 +419,7 @@ public class UpdateServiceImpl implements UpdateService {
                         color,
                         sugar,
                         grapes,
-                        0.0, //todo добавить нормальную цену
+                        price,
                         true,
                         new Date()));
                 created++;

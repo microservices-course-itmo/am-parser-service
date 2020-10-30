@@ -23,9 +23,9 @@ public class AmWine {
     private Long sort;
     private String name;
     private Props props;
+    private Double price;
     @JsonProperty("preview_picture")
     private String pictureUrl;
-
 
     @Getter
     @Setter
@@ -39,6 +39,5 @@ public class AmWine {
         private String brand;
         @JsonProperty("grape_sort")
         private List<String> grapes;
-
     }
 }

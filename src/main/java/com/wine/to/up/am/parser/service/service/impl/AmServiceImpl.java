@@ -103,11 +103,11 @@ public class AmServiceImpl implements AmService {
             while (page.longValue() <= pages) {
                 int wineNum = amWines.size();
                 amWines.addAll(getAmWines(page.getAndIncrement()));
-                if(amWines.size() > wineNum) {
+                if (amWines.size() > wineNum) {
                     successfulParseCount++;
                 }
             }
-            if(successfulParseCount == pages) {
+            if (successfulParseCount == pages) {
                 log.info("Finished client process. All pages parsed successfully.");
             } else {
                 log.info("Finished client process. Wines were successfully parsed from {} out of {} pages.", successfulParseCount, pages);
@@ -145,6 +145,7 @@ public class AmServiceImpl implements AmService {
 
     /**
      * Получение списка вин в "сыром" виде() с заданной страницы.
+     *
      * @param page Номер страницы, с которой мы парсим и получаем вина.
      * @return Список вин
      */
@@ -167,6 +168,7 @@ public class AmServiceImpl implements AmService {
 
     /**
      * Получение информации о количестве страниц в каталоге.
+     *
      * @return Количество страниц каталога.
      */
     private Long getCatalogPagesAmount() {

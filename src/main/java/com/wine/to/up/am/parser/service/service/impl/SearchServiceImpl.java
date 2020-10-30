@@ -56,11 +56,13 @@ public class SearchServiceImpl implements SearchService {
                 .map(e -> WineDto.builder()
                         .name(e.getName())
                         .value(e.getVolume())
+                        .brand(e.getBrand() != null ? e.getBrand().getName() : null)
                         .sugar(SugarConverter.getSugar(e.getSugar()))
                         .grapes(e.getGrapes().stream().filter(Objects::nonNull).map(Grape::getName).collect(Collectors.toList()))
                         .country(e.getCountry() != null ? e.getCountry().getName() : null)
                         .color(ColorConverter.getColor(e.getColor()))
                         .alco(e.getStrength())
+                        .price(e.getPrice())
                         .picture(e.getPictureUrl())
                         .build())
                 .collect(Collectors.toList());

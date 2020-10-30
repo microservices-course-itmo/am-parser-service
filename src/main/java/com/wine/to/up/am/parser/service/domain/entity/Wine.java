@@ -19,8 +19,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import java.util.Date;
 import java.util.List;
 
@@ -109,6 +107,7 @@ public class Wine {
     }
 
     public Wine(String importId,
+                String name,
                 String pictureUrl,
                 Brand brand,
                 Country country,
@@ -121,6 +120,7 @@ public class Wine {
                 boolean actual,
                 Date dateRec) {
         this.importId = importId;
+        this.name = name;
         this.pictureUrl = pictureUrl;
         this.brand = brand;
         this.country = country;
