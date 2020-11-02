@@ -6,6 +6,7 @@ import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
+import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -75,6 +76,116 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("updated {} entries", updatedTotal);
         log.info("created {} entries", createdTotal);
         log.info("deleted {} entries", deletedTotal);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateWines() {
+        var wines = amService.getAmWines();
+        var received = wines.size();
+        log.info("Received {} wines", received);
+        var created = 0;
+        var updated = 0;
+        var deleted = 0;
+
+        var wineList = StreamSupport
+                .stream(wineRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
+
+        for (AmWine amWine : wines) {
+            var importId = amWine.getId();
+
+            Wine wineEntity = null;
+            for (Wine wine : wineList) {
+                if (wine.getImportId().equals(amWine.getId())) {
+                    wineEntity = wine;
+                    break;
+                }
+            }
+            wineList.remove(wineEntity);
+
+            var brand = getBrand(amWine.getProps().getBrand());
+            var country = getCountry(amWine.getProps().getCountry());
+            var alco = amWine.getProps().getAlco();
+            if (alco == null) {
+                alco = 0.0;
+            }
+            var color = getColor(amWine.getProps().getColor());
+            var sugar = getSugar(amWine.getProps().getSugar());
+            var pictureUrl = amWine.getPictureUrl();
+            var grapes = getGrapes(amWine.getProps().getGrapes());
+            var value = getValue(amWine.getProps().getValue());
+            if (wineEntity != null) {
+                var isUpdated = updateWineEntity(wineEntity, country, brand, color, sugar, grapes, alco);
+                if (isUpdated) {
+                    updated++;
+                    wineRepository.save(new Wine(importId,
+                            pictureUrl,
+                            brand,
+                            country,
+                            value,
+                            alco,
+                            color,
+                            sugar,
+                            grapes,
+                            0.0, //todo добавить нормальную цену
+                            true,
+                            new Date()));
+                } else {
+                    wineEntity.setDateRec(new Date());
+                    wineEntity.setActual(true);
+                    wineRepository.save(wineEntity);
+                }
+            } else {
+                wineRepository.save(new Wine(importId,
+                        pictureUrl,
+                        brand,
+                        country,
+                        value,
+                        alco,
+                        color,
+                        sugar,
+                        grapes,
+                        0.0, //todo добавить нормальную цену
+                        true,
+                        new Date()));
+                created++;
+            }
+        }
+        var result = changeActual(wineList);
+        updated += result.getKey();
+        deleted += result.getValue();
+
+        log.info("updated {} wines", updated);
+        log.info("created {} wines", created);
+        log.info("deleted {} wines", deleted);
+        log.trace("{} wines are already in the database and they have not changed", received - created - updated - deleted);
+
+    }
+
+    private double getValue(Double value) {
+        if (value == null) {
+            value = 0.0;
+        }
+        return value;
+    }
+
+    private Brand getBrand(String brandImportId) {
+        return brandRepository.findByImportId(brandImportId);
+    }
+
+    private Country getCountry(String countryImportId) {
+        return countryImportId == null ? null : countryRepository.findByImportId(countryImportId);
+    }
+
+    private Color getColor(Long colorImportId) {
+        return colorImportId == null ? null : colorRepository.findByImportId(colorImportId.toString());
+    }
+
+    private Sugar getSugar(Long sugarImportId) {
+        return sugarImportId == null ? null : sugarRepository.findByImportId(sugarImportId.toString());
     }
 
     private void updateBrands(Collection<Dictionary.CatalogProp> brands) {
@@ -233,6 +344,26 @@ public class UpdateServiceImpl implements UpdateService {
         deletedTotal += deleted;
     }
 
+    private Pair<Integer, Integer> changeActual(List<Wine> wineList) {
+        var updated = 0;
+        var deleted = 0;
+        for (Wine wine : wineList) {
+            if (wine.getActual()) {
+                wine.setActual(false);
+                wine.setDateRec(new Date());
+                wineRepository.save(wine);
+                updated++;
+            } else {
+                var timeDifference = new Date().getTime() - wine.getDateRec().getTime();
+                if (timeDifference > 1000 * 3600 * 24 * 7) {
+                    wineRepository.delete(wine);
+                    deleted++;
+                }
+            }
+        }
+        return new Pair<>(updated, deleted);
+    }
+
     private void updateSugars(Collection<Dictionary.CatalogProp> sugars) {
         int created = 0;
         int updated = 0;
@@ -272,169 +403,118 @@ public class UpdateServiceImpl implements UpdateService {
         deletedTotal += deleted;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateWines() {
-        var wines = amService.getAmWines();
-        var received = wines.size();
-        log.info("Received {} wines", received);
-        var created = 0;
-        var updated = 0;
-        var deleted = 0;
-
-        var wineList = StreamSupport
-                .stream(wineRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-
-        for (AmWine amWine : wines) {
-            var importId = amWine.getId();
-
-            Wine wineEntity = null;
-            for (Wine wine : wineList) {
-                if (wine.getImportId().equals(amWine.getId())) {
-                    wineEntity = wine;
+    private boolean updateGrapes(Wine wineEntity, ArrayList<Grape> grapes) {
+        var isUpdated = false;
+        var oldGrapes = wineEntity.getGrapes();
+        if (oldGrapes.size() != grapes.size()) {
+            wineEntity.setGrapes(grapes);
+            isUpdated = true;
+        } else {
+            for (int i = 0; i < oldGrapes.size(); i++) {
+                var oldGrape = oldGrapes.get(i);
+                var grape = grapes.get(i);
+                var grapeOldImportId = oldGrape == null ? null : oldGrape.getImportId();
+                var grapeNewImportId = grape == null ? null : grape.getImportId();
+                if (!Objects.equals(grapeOldImportId, grapeNewImportId)) {
+                    wineEntity.setGrapes(grapes);
+                    isUpdated = true;
                     break;
                 }
             }
-            wineList.remove(wineEntity);
-
-            var brandImportId = amWine.getProps().getBrand();
-            var brand = brandRepository.findByImportId(brandImportId);
-            var countryImportId = amWine.getProps().getCountry();
-            var country = countryImportId == null ? null : countryRepository.findByImportId(countryImportId);
-            var alco = amWine.getProps().getAlco();
-            if (alco == null) {
-                alco = 0.0;
-            }
-            var colorImportId = amWine.getProps().getColor();
-            var color = colorImportId == null ? null : colorRepository.findByImportId(colorImportId.toString());
-            var sugarImportId = amWine.getProps().getSugar();
-            var sugar = sugarImportId == null ? null : sugarRepository.findByImportId(sugarImportId.toString());
-            var pictureUrl = amWine.getPictureUrl();
-            var grapes = new ArrayList<Grape>();
-            var newGrapes = amWine.getProps().getGrapes();
-            if (newGrapes != null) {
-                for (var grape : newGrapes) {
-                    var newGrape = grape == null ? null : grapeRepository.findByImportId(grape);
-                    if (newGrape != null) {
-                        grapes.add(newGrape);
-                    }
-                }
-            }
-            var value = amWine.getProps().getValue();
-            if (value == null) {
-                value = 0.0;
-            }
-            if (wineEntity != null) {
-                var isUpdated = false;
-                var oldCountry = wineEntity.getCountry();
-                var countryOldImportId = oldCountry == null ? null : oldCountry.getImportId();
-                var countryNewImportId = country == null ? null : country.getImportId();
-                if (!Objects.equals(countryOldImportId, countryNewImportId)) {
-                    wineEntity.setCountry(country);
-                    isUpdated = true;
-                }
-                var oldBrand = wineEntity.getBrand();
-                var brandOldImportId = oldBrand == null ? null : oldBrand.getImportId();
-                var brandNewImportId = brand == null ? null : brand.getImportId();
-                if (!Objects.equals(brandOldImportId, brandNewImportId)) {
-                    wineEntity.setBrand(brand);
-                    isUpdated = true;
-                }
-                var oldSugar = wineEntity.getSugar();
-                var sugarOldImportId = oldSugar == null ? null : oldSugar.getImportId();
-                var sugarNewImportId = sugar == null ? null : sugar.getImportId();
-                if (!Objects.equals(sugarOldImportId, sugarNewImportId)) {
-                    wineEntity.setSugar(sugar);
-                    isUpdated = true;
-                }
-                var oldColor = wineEntity.getColor();
-                var colorOldImportId = oldColor == null ? null : oldColor.getImportId();
-                var colorNewImportId = color == null ? null : color.getImportId();
-                if (!Objects.equals(colorOldImportId, colorNewImportId)) {
-                    wineEntity.setColor(color);
-                    isUpdated = true;
-                }
-                var oldStrength = wineEntity.getStrength();
-                if (oldStrength != (alco)) {
-                    wineEntity.setStrength(alco);
-                    isUpdated = true;
-                }
-                var oldGrapes = wineEntity.getGrapes();
-                if (oldGrapes.size() != grapes.size()) {
-                    wineEntity.setGrapes(grapes);
-                    isUpdated = true;
-                } else {
-                    for (int i = 0; i < oldGrapes.size(); i++) {
-                        var oldGrape = oldGrapes.get(i);
-                        var grape = grapes.get(i);
-                        var grapeOldImportId = oldGrape == null ? null : oldGrape.getImportId();
-                        var grapeNewImportId = grape == null ? null : grape.getImportId();
-                        if (!Objects.equals(grapeOldImportId, grapeNewImportId)) {
-                            wineEntity.setGrapes(grapes);
-                            isUpdated = true;
-                            break;
-                        }
-                    }
-                }
-                if (isUpdated) {
-                    updated++;
-                    wineRepository.save(new Wine(importId,
-                            pictureUrl,
-                            brand,
-                            country,
-                            value,
-                            alco,
-                            color,
-                            sugar,
-                            grapes,
-                            0.0, //todo добавить нормальную цену
-                            true,
-                            new Date()));
-                } else {
-                    wineEntity.setDateRec(new Date());
-                    wineEntity.setActual(true);
-                    wineRepository.save(wineEntity);
-                }
-            } else {
-                wineRepository.save(new Wine(importId,
-                        pictureUrl,
-                        brand,
-                        country,
-                        value,
-                        alco,
-                        color,
-                        sugar,
-                        grapes,
-                        0.0, //todo добавить нормальную цену
-                        true,
-                        new Date()));
-                created++;
-            }
-
         }
-
-        for (Wine wine : wineList) {
-            if (wine.getActual()) {
-                wine.setActual(false);
-                wine.setDateRec(new Date());
-                wineRepository.save(wine);
-                updated++;
-            } else {
-                var timeDifference = new Date().getTime() - wine.getDateRec().getTime();
-                if (timeDifference > 1000 * 3600 * 24 * 7) {
-                    wineRepository.delete(wine);
-                    deleted++;
-                }
-            }
-        }
-
-        log.info("updated {} wines", updated);
-        log.info("created {} wines", created);
-        log.info("deleted {} wines", deleted);
-        log.trace("{} wines are already in the database and they have not changed", received - created - updated - deleted);
-
+        return isUpdated;
     }
+
+    private boolean updateCountry(Wine wineEntity, Country country) {
+        var isUpdated = false;
+        var oldCountry = wineEntity.getCountry();
+        var countryOldImportId = oldCountry == null ? null : oldCountry.getImportId();
+        var countryNewImportId = country == null ? null : country.getImportId();
+        if (!Objects.equals(countryOldImportId, countryNewImportId)) {
+            wineEntity.setCountry(country);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private boolean updateWineEntity(Wine wineEntity, Country country, Brand brand, Color color, Sugar sugar,
+                                     ArrayList<Grape> grapes, Double alco) {
+        boolean isUpdated = false;
+        if (updateCountry(wineEntity, country)) {
+            isUpdated = true;
+        }
+
+        if (updateBrand(wineEntity, brand)) {
+            isUpdated = true;
+        }
+
+        if (updateSugar(wineEntity, sugar)) {
+            isUpdated = true;
+        }
+
+        if (updateColor(wineEntity, color)) {
+            isUpdated = true;
+        }
+
+        var oldStrength = wineEntity.getStrength();
+        if (oldStrength != (alco)) {
+            wineEntity.setStrength(alco);
+            isUpdated = true;
+        }
+        if (updateGrapes(wineEntity, grapes)) {
+            isUpdated = true;
+        }
+
+        return isUpdated;
+    }
+
+    private boolean updateColor(Wine wineEntity, Color color) {
+        var isUpdated = false;
+        var oldColor = wineEntity.getColor();
+        var colorOldImportId = oldColor == null ? null : oldColor.getImportId();
+        var colorNewImportId = color == null ? null : color.getImportId();
+        if (!Objects.equals(colorOldImportId, colorNewImportId)) {
+            wineEntity.setColor(color);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private boolean updateSugar(Wine wineEntity, Sugar sugar) {
+        var isUpdated = false;
+        var oldSugar = wineEntity.getSugar();
+        var sugarOldImportId = oldSugar == null ? null : oldSugar.getImportId();
+        var sugarNewImportId = sugar == null ? null : sugar.getImportId();
+        if (!Objects.equals(sugarOldImportId, sugarNewImportId)) {
+            wineEntity.setSugar(sugar);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private boolean updateBrand(Wine wineEntity, Brand brand) {
+        var isUpdated = false;
+        var oldBrand = wineEntity.getBrand();
+        var brandOldImportId = oldBrand == null ? null : oldBrand.getImportId();
+        var brandNewImportId = brand == null ? null : brand.getImportId();
+        if (!Objects.equals(brandOldImportId, brandNewImportId)) {
+            wineEntity.setBrand(brand);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private ArrayList<Grape> getGrapes(List<String> newGrapes) {
+        var grapes = new ArrayList<Grape>();
+        if (newGrapes != null) {
+            for (var grape : newGrapes) {
+                var newGrape = grape == null ? null : grapeRepository.findByImportId(grape);
+                if (newGrape != null) {
+                    grapes.add(newGrape);
+                }
+            }
+        }
+        return grapes;
+    }
+
 }
