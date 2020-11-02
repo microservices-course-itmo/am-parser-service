@@ -4,11 +4,14 @@ import com.wine.to.up.am.parser.service.service.RestService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
@@ -62,5 +65,11 @@ public class WineController {
         restService.updateAll();
         LocalDateTime endDate = LocalDateTime.now();
         log.info("end UpdateAll method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
+    }
+
+    @ApiOperation(value = "get all wines in file")
+    @GetMapping("/file")
+    public void readAsFile(HttpServletResponse httpServletResponse) throws IOException {
+        restService.readAsFile(httpServletResponse);
     }
 }
