@@ -76,9 +76,15 @@ public class KafkaController {
         if (wineDto.getGrapes() != null && !wineDto.getGrapes().isEmpty()) {
             builder.addAllGrapeSort(wineDto.getGrapes());
         }
+        if (wineDto.getPrice() != null) {
+            builder.setOldPrice(wineDto.getPrice().floatValue());
+        }
+        if (StringUtils.hasText(wineDto.getBrand())) {
+            builder.setBrand(wineDto.getBrand());
+        }
+
         builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
         builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
-
         return builder.build();
     }
 }

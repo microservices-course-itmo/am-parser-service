@@ -9,7 +9,7 @@ import java.util.Arrays;
 @Getter
 public enum ColorConverter {
 
-    RED("Красный", ParserApi.Wine.Color.RED),
+    RED("Красное", ParserApi.Wine.Color.RED),
     ROSE("Розовое", ParserApi.Wine.Color.ROSE),
     WHITE("Белое", ParserApi.Wine.Color.WHITE),
     UNRECOGNIZED("", ParserApi.Wine.Color.UNRECOGNIZED);

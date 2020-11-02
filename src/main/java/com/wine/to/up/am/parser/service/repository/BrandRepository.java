@@ -8,4 +8,6 @@ import org.springframework.stereotype.Repository;
 public interface BrandRepository extends CrudRepository<Brand, Long> {
 
     Brand findByImportId(String importId);
+
+    Brand findByName(String name);
 }
