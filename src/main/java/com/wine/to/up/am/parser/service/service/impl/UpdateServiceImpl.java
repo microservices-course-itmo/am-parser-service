@@ -1,31 +1,17 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Grape;
-import com.wine.to.up.am.parser.service.domain.entity.Brand;
-import com.wine.to.up.am.parser.service.domain.entity.Sugar;
-import com.wine.to.up.am.parser.service.domain.entity.Color;
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
-import com.wine.to.up.am.parser.service.domain.entity.Country;
+import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.WineRepository;
-import com.wine.to.up.am.parser.service.repository.GrapeRepository;
-import com.wine.to.up.am.parser.service.repository.CountryRepository;
-import com.wine.to.up.am.parser.service.repository.ColorRepository;
-import com.wine.to.up.am.parser.service.repository.BrandRepository;
-import com.wine.to.up.am.parser.service.repository.SugarRepository;
+import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
-import javafx.util.Pair;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -58,9 +44,12 @@ public class UpdateServiceImpl implements UpdateService {
     @Autowired
     private WineRepository wineRepository;
 
-    private int createdTotal = 0;
-    private int updatedTotal = 0;
-    private int deletedTotal = 0;
+    private int createdPropsTotal = 0;
+    private int createdWinesTotal = 0;
+    private int updatedPropsTotal = 0;
+    private int updatedWinesTotal = 0;
+    private int deletedPropsTotal = 0;
+    private int deletedWinesTotal = 0;
 
     /**
      * {@inheritDoc}
@@ -76,9 +65,9 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("Received {} dictionary entries", dictionary.getBrands().size() + dictionary.getColors().size() +
                 dictionary.getGrapes().size() + dictionary.getSugars().size() + dictionary.getCountries().size());
 
-        updatedTotal = 0;
-        createdTotal = 0;
-        deletedTotal = 0;
+        updatedPropsTotal = 0;
+        createdPropsTotal = 0;
+        deletedPropsTotal = 0;
 
         updateBrands(dictionary.getBrands().values());
         updateColors(dictionary.getColors().values());
@@ -86,9 +75,9 @@ public class UpdateServiceImpl implements UpdateService {
         updateSugars(dictionary.getSugars().values());
         updateGrapes(dictionary.getGrapes().values());
 
-        log.info("updated {} entries", updatedTotal);
-        log.info("created {} entries", createdTotal);
-        log.info("deleted {} entries", deletedTotal);
+        log.info("updated {} entries", updatedPropsTotal);
+        log.info("created {} entries", createdPropsTotal);
+        log.info("deleted {} entries", deletedPropsTotal);
     }
 
     /**
@@ -99,9 +88,6 @@ public class UpdateServiceImpl implements UpdateService {
         var wines = amService.getAmWines();
         var received = wines.size();
         log.info("Received {} wines", received);
-        var created = 0;
-        var updated = 0;
-        var deleted = 0;
 
         var wineList = StreamSupport
                 .stream(wineRepository.findAll().spliterator(), false)
@@ -119,6 +105,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
             wineList.remove(wineEntity);
 
+            var name = amWine.getName();
             var brand = getBrand(amWine.getProps().getBrand());
             var country = getCountry(amWine.getProps().getCountry());
             var alco = amWine.getProps().getAlco();
@@ -133,8 +120,9 @@ public class UpdateServiceImpl implements UpdateService {
             if (wineEntity != null) {
                 var isUpdated = updateWineEntity(wineEntity, country, brand, color, sugar, grapes, alco);
                 if (isUpdated) {
-                    updated++;
+                    updatedWinesTotal++;
                     wineRepository.save(new Wine(importId,
+                            name,
                             pictureUrl,
                             brand,
                             country,
@@ -153,6 +141,7 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             } else {
                 wineRepository.save(new Wine(importId,
+                        name,
                         pictureUrl,
                         brand,
                         country,
@@ -164,17 +153,16 @@ public class UpdateServiceImpl implements UpdateService {
                         0.0, //todo добавить нормальную цену
                         true,
                         new Date()));
-                created++;
+                createdWinesTotal++;
             }
         }
-        var result = changeActual(wineList);
-        updated += result.getKey();
-        deleted += result.getValue();
+        changeActual(wineList);
 
-        log.info("updated {} wines", updated);
-        log.info("created {} wines", created);
-        log.info("deleted {} wines", deleted);
-        log.trace("{} wines are already in the database and they have not changed", received - created - updated - deleted);
+        log.info("updated {} wines", updatedWinesTotal);
+        log.info("created {} wines", createdWinesTotal);
+        log.info("deleted {} wines", deletedWinesTotal);
+        log.trace("{} wines are already in the database and they have not changed", received - createdWinesTotal
+                - updatedWinesTotal - deletedWinesTotal);
 
     }
 
@@ -235,9 +223,9 @@ public class UpdateServiceImpl implements UpdateService {
         log.trace("updated {} brands", updated);
         log.trace("created {} brands", created);
         log.trace("deleted {} brands", deleted);
-        createdTotal += created;
-        updatedTotal += updated;
-        deletedTotal += deleted;
+        createdPropsTotal += created;
+        updatedPropsTotal += updated;
+        deletedPropsTotal += deleted;
     }
 
     private void updateColors(Collection<Dictionary.CatalogProp> colors) {
@@ -274,9 +262,9 @@ public class UpdateServiceImpl implements UpdateService {
         log.trace("updated {} colors", updated);
         log.trace("created {} colors", created);
         log.trace("deleted {} colors", deleted);
-        createdTotal += created;
-        updatedTotal += updated;
-        deletedTotal += deleted;
+        createdPropsTotal += created;
+        updatedPropsTotal += updated;
+        deletedPropsTotal += deleted;
     }
 
     private void updateCountries(Collection<Dictionary.CatalogProp> countries) {
@@ -313,9 +301,9 @@ public class UpdateServiceImpl implements UpdateService {
         log.trace("updated {} countries", updated);
         log.trace("created {} countries", created);
         log.trace("deleted {} countries", deleted);
-        createdTotal += created;
-        updatedTotal += updated;
-        deletedTotal += deleted;
+        createdPropsTotal += created;
+        updatedPropsTotal += updated;
+        deletedPropsTotal += deleted;
     }
 
     private void updateGrapes(Collection<Dictionary.CatalogProp> grapes) {
@@ -352,16 +340,16 @@ public class UpdateServiceImpl implements UpdateService {
         log.trace("updated {} grapes", updated);
         log.trace("created {} grapes", created);
         log.trace("deleted {} grapes", deleted);
-        createdTotal += created;
-        updatedTotal += updated;
-        deletedTotal += deleted;
+        createdPropsTotal += created;
+        updatedPropsTotal += updated;
+        deletedPropsTotal += deleted;
     }
 
-    private Pair<Integer, Integer> changeActual(List<Wine> wineList) {
+    private void changeActual(List<Wine> wineList) {
         var updated = 0;
         var deleted = 0;
         for (Wine wine : wineList) {
-            if (wine.getActual()) {
+            if (Boolean.TRUE.equals(wine.getActual())) {
                 wine.setActual(false);
                 wine.setDateRec(new Date());
                 wineRepository.save(wine);
@@ -374,7 +362,8 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-        return new Pair<>(updated, deleted);
+        updatedWinesTotal += updated;
+        deletedWinesTotal += deleted;
     }
 
     private void updateSugars(Collection<Dictionary.CatalogProp> sugars) {
@@ -411,13 +400,13 @@ public class UpdateServiceImpl implements UpdateService {
         log.trace("updated {} sugars", updated);
         log.trace("created {} sugars", created);
         log.trace("deleted {} sugars", deleted);
-        createdTotal += created;
-        updatedTotal += updated;
-        deletedTotal += deleted;
+        createdPropsTotal += created;
+        updatedPropsTotal += updated;
+        deletedPropsTotal += deleted;
 
-        log.info("updated {} entries", updatedTotal);
-        log.info("created {} entries", createdTotal);
-        log.info("deleted {} entries", deletedTotal);
+        log.info("updated {} entries", updatedPropsTotal);
+        log.info("created {} entries", createdPropsTotal);
+        log.info("deleted {} entries", deletedPropsTotal);
     }
 
     private boolean updateGrapes(Wine wineEntity, ArrayList<Grape> grapes) {
