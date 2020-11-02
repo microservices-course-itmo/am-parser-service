@@ -94,23 +94,25 @@ public class AmServiceImpl implements AmService {
         Long pages = getCatalogPagesAmount();
         log.info("The catalog contains {} pages", pages);
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
-        AtomicLong page = new AtomicLong(1);
+        AtomicLong page = new AtomicLong(1L);
+
+        final int[] parseAttemptsCount = {0};
+        final int[] successfulParseCount = {0};
+        final boolean[] pagesProcessed = new boolean[pages.intValue()];
+        final boolean[] pagesWithParsedWines = new boolean[pages.intValue()];
 
         ExecutorService executorService = Executors.newFixedThreadPool(20);
         Callable<String> callableTask = () -> {
-            log.info("Started client process...");
-            int successfulParseCount = 0;
             while (page.longValue() <= pages) {
-                int wineNum = amWines.size();
-                amWines.addAll(getAmWines(page.getAndIncrement()));
-                if(amWines.size() > wineNum) {
-                    successfulParseCount++;
+                parseAttemptsCount[0]++;
+                Long pageCopy = page.get();
+                List<AmWine> newWines = getAmWines(page.getAndIncrement());
+                amWines.addAll(newWines);
+                pagesProcessed[pageCopy.intValue() - 1] = true;
+                if(newWines.size() > 0) {
+                    successfulParseCount[0]++;
+                    pagesWithParsedWines[pageCopy.intValue() - 1] = true;
                 }
-            }
-            if(successfulParseCount == pages) {
-                log.info("Finished client process. All pages parsed successfully.");
-            } else {
-                log.info("Finished client process. Wines were successfully parsed from {} out of {} pages.", successfulParseCount, pages);
             }
             return "Task's execution";
         };
@@ -122,6 +124,25 @@ public class AmServiceImpl implements AmService {
             log.error("Error in getAmWines method : ", e);
         } finally {
             executorService.shutdown();
+        }
+        StringBuilder lostPagesLog = new StringBuilder("Unprocessed pages: ");
+        for(int i = 0; i < pages; i++) {
+            if(!pagesProcessed[i]) {
+                lostPagesLog.append(i + 1).append(", ");
+            }
+        }
+        log.info(lostPagesLog.toString());
+        StringBuilder zeroParsePagesLog = new StringBuilder("Pages from which zero wines were parsed: ");
+        for(int i = 0; i < pages; i++) {
+            if(!pagesWithParsedWines[i]) {
+                zeroParsePagesLog.append(i + 1).append(", ");
+            }
+        }
+        log.info(zeroParsePagesLog.toString());
+        if(successfulParseCount[0] == parseAttemptsCount[0]) {
+            log.info("All {} pages parsed successfully.", successfulParseCount[0]);
+        } else {
+            log.info("Wines were successfully parsed from {} out of {} pages.", successfulParseCount[0], parseAttemptsCount[0]);
         }
         return amWines;
     }

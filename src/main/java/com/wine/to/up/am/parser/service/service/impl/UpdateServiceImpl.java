@@ -63,11 +63,6 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public void updateDictionary() {
         final Dictionary dictionary = amService.getDictionary();
-        log.trace("Received {} brands", dictionary.getBrands().size());
-        log.trace("Received {} colors", dictionary.getColors().size());
-        log.trace("Received {} grapes", dictionary.getGrapes().size());
-        log.trace("Received {} sugars", dictionary.getSugars().size());
-        log.trace("Received {} countries", dictionary.getCountries().size());
         log.info("Received {} dictionary entries", dictionary.getBrands().size() + dictionary.getColors().size() +
                 dictionary.getGrapes().size() + dictionary.getSugars().size() + dictionary.getCountries().size());
 
@@ -105,9 +100,6 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-        log.trace("updated {} brands", updated);
-        log.trace("created {} brands", created);
-        log.trace("deleted {} brands", deleted);
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
@@ -142,9 +134,6 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-        log.trace("updated {} colors", updated);
-        log.trace("created {} colors", created);
-        log.trace("deleted {} colors", deleted);
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
@@ -179,9 +168,6 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-        log.trace("updated {} countries", updated);
-        log.trace("created {} countries", created);
-        log.trace("deleted {} countries", deleted);
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
@@ -216,9 +202,6 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-        log.trace("updated {} grapes", updated);
-        log.trace("created {} grapes", created);
-        log.trace("deleted {} grapes", deleted);
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
@@ -254,9 +237,6 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-        log.trace("updated {} sugars", updated);
-        log.trace("created {} sugars", created);
-        log.trace("deleted {} sugars", deleted);
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
@@ -428,7 +408,7 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("updated {} wines", updated);
         log.info("created {} wines", created);
         log.info("deleted {} wines", deleted);
-        log.trace("{} wines are already in the database and they have not changed", received - created - updated - deleted);
+        log.info("{} wines are already in the database and they have not changed", received - created - updated - deleted);
 
     }
 }

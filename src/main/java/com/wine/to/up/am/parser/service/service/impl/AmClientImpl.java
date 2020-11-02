@@ -44,7 +44,6 @@ public class AmClientImpl implements AmClient {
      */
     private Document getPage(String url) {
         int attempt = 0;
-        log.trace("Trying to get document by '{}' url", url);
         while (attempt < maxRetries) {
             Document document = fetchPage(url);
             if (document != null) {
