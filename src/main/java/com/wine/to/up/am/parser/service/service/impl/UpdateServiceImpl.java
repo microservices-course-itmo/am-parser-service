@@ -1,19 +1,9 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Grape;
-import com.wine.to.up.am.parser.service.domain.entity.Brand;
-import com.wine.to.up.am.parser.service.domain.entity.Sugar;
-import com.wine.to.up.am.parser.service.domain.entity.Color;
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
-import com.wine.to.up.am.parser.service.domain.entity.Country;
+import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.WineRepository;
-import com.wine.to.up.am.parser.service.repository.GrapeRepository;
-import com.wine.to.up.am.parser.service.repository.CountryRepository;
-import com.wine.to.up.am.parser.service.repository.ColorRepository;
-import com.wine.to.up.am.parser.service.repository.BrandRepository;
-import com.wine.to.up.am.parser.service.repository.SugarRepository;
+import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
@@ -87,7 +77,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Brand brand : brandList) {
-            if (brand.getActual()) {
+            if (Boolean.TRUE.equals(brand.getActual())) {
                 brand.setActual(false);
                 brand.setDateRec(new Date());
                 brandRepository.save(brand);
@@ -121,7 +111,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Color color : colorList) {
-            if (color.getActual()) {
+            if (Boolean.TRUE.equals(color.getActual())) {
                 color.setActual(false);
                 color.setDateRec(new Date());
                 colorRepository.save(color);
@@ -155,7 +145,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Country country : countryList) {
-            if (country.getActual()) {
+            if (Boolean.TRUE.equals(country.getActual())) {
                 country.setActual(false);
                 country.setDateRec(new Date());
                 countryRepository.save(country);
@@ -189,7 +179,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Grape grape : grapeList) {
-            if (grape.getActual()) {
+            if (Boolean.TRUE.equals(grape.getActual())) {
                 grape.setActual(false);
                 grape.setDateRec(new Date());
                 grapeRepository.save(grape);
@@ -224,7 +214,7 @@ public class UpdateServiceImpl implements UpdateService {
         }
 
         for (Sugar sugar : sugarList) {
-            if (sugar.getActual()) {
+            if (Boolean.TRUE.equals(sugar.getActual())) {
                 sugar.setActual(false);
                 sugar.setDateRec(new Date());
                 sugarRepository.save(sugar);
@@ -391,7 +381,7 @@ public class UpdateServiceImpl implements UpdateService {
         }
 
         for (Wine wine : wineList) {
-            if (wine.getActual()) {
+            if (Boolean.TRUE.equals(wine.getActual())) {
                 wine.setActual(false);
                 wine.setDateRec(new Date());
                 wineRepository.save(wine);

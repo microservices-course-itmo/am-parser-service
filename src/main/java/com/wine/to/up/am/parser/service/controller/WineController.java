@@ -4,8 +4,6 @@ import com.wine.to.up.am.parser.service.service.RestService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,8 +19,11 @@ import java.time.ZoneOffset;
 @RestController
 @RequestMapping("/parser")
 @Slf4j
-@Api(value = "Wine controller", description = "Updating the information in the database")
+@Api(value = "Wine controller")
 public class WineController {
+
+    private static final String DURATION = "duration= ";
+    private static final String SECONDS = " seconds";
 
     @Resource
     private RestService restService;
@@ -38,7 +39,7 @@ public class WineController {
         log.info("start UpdateDictionary method at " + startDate);
         restService.updateDictionary();
         LocalDateTime endDate = LocalDateTime.now();
-        log.info("end UpdateDictionary method at " + endDate + " duration = " + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + " seconds");
+        log.info("end UpdateDictionary method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
     @ApiOperation(value = "Updating the catalog in the database")
@@ -49,7 +50,7 @@ public class WineController {
         log.info("start UpdateCatalog method at " + startDate);
         restService.updateWines();
         LocalDateTime endDate = LocalDateTime.now();
-        log.info("end UpdateCatalog method at " + endDate + " duration = " + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + " seconds");
+        log.info("end UpdateCatalog method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
     @ApiOperation(value = "Updating all information in the database")
@@ -60,6 +61,6 @@ public class WineController {
         log.info("start UpdateAll method at " + startDate);
         restService.updateAll();
         LocalDateTime endDate = LocalDateTime.now();
-        log.info("end UpdateAll method at " + endDate + " duration = " + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + " seconds");
+        log.info("end UpdateAll method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 }

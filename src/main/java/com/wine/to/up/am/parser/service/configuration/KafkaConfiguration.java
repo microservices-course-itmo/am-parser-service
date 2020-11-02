@@ -2,11 +2,9 @@ package com.wine.to.up.am.parser.service.configuration;
 
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.messaging.serialization.EventSerializer;
-import com.wine.to.up.commonlib.messaging.KafkaMessageHandler;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.ParserCommonApiProperties;
 import com.wine.to.up.parser.common.api.schema.ParserApi;
-import com.wine.to.up.parser.common.api.schema.UpdateProducts;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.OffsetResetStrategy;
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -62,33 +60,6 @@ public class KafkaConfiguration {
         properties.setProperty(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         return properties;
     }
-
-
-    /**
-     * Creates consumer based on general properties.
-     * <p>
-     * Uses custom deserializer as the messages within single topic should be the same type. And
-     * the messages in different topics can have different types and require different deserializers
-     * <p>
-     * Binds the consumer of the topic with the object which is responsible for handling messages from
-     * this topic
-     * <p>
-     * From now on all the messages consumed from given topic will be delegate
-     * to {@link KafkaMessageHandler#handle(Object)} of the given handler
-     *
-     * @param consumerProperties is the general consumer properties. {@link #consumerProperties()}
-     * @param handler            which is responsible for handling messages from this topic
-     */
-    /*@Bean
-    BaseKafkaHandler<UpdateProducts.UpdateProductsMessage> testTopicMessagesHandler(Properties consumerProperties,
-                                                                                    ParserCommonApiProperties apiProperties,
-                                                                     TestTopicKafkaMessageHandler handler) {
-        // set appropriate deserializer for value
-        consumerProperties.setProperty(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, EventDeserializer.class.getName());
-
-        // bind consumer with topic name and with appropriate handler
-        return new BaseKafkaHandler<>(apiProperties.getTopicName(), new KafkaConsumer<>(consumerProperties), handler);
-    }*/
 
     /**
      * Creates sender based on general properties. It helps to send single message to designated topic.
