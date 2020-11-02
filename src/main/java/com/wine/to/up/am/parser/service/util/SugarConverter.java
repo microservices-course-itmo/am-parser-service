@@ -27,7 +27,7 @@ public enum SugarConverter {
     public static ParserApi.Wine.Sugar getApiSugar(String sugar) {
         return Arrays.stream(SugarConverter.values()).filter(t -> t != null && t.getSugar().equals(sugar))
                 .findFirst()
-                .orElse(DRY) //2020-10-26 ksv: TODO Sprint6 - Изменить после починки UNRECOGNIZED или изменения модели.
+                .orElse(DRY)
                 .getApiSugar();
     }
 

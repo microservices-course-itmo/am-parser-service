@@ -9,7 +9,7 @@ import java.util.Arrays;
 @Getter
 public enum ColorConverter {
 
-    RED("Красный", ParserApi.Wine.Color.RED),
+    RED("Красное", ParserApi.Wine.Color.RED),
     ROSE("Розовое", ParserApi.Wine.Color.ROSE),
     WHITE("Белое", ParserApi.Wine.Color.WHITE),
     UNRECOGNIZED("", ParserApi.Wine.Color.UNRECOGNIZED);
@@ -25,7 +25,7 @@ public enum ColorConverter {
     public static ParserApi.Wine.Color getApiColor(String color) {
         return Arrays.stream(ColorConverter.values()).filter(t -> t != null && t.getColor().equals(color))
                 .findFirst()
-                .orElse(RED)//2020-10-26 ksv: TODO Sprint6 - Изменить после починки UNRECOGNIZED или изменения модели.
+                .orElse(RED)
                 .getApiColor();
     }
 

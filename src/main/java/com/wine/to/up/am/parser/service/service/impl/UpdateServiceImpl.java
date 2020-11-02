@@ -1,9 +1,19 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.*;
+import com.wine.to.up.am.parser.service.domain.entity.Grape;
+import com.wine.to.up.am.parser.service.domain.entity.Brand;
+import com.wine.to.up.am.parser.service.domain.entity.Sugar;
+import com.wine.to.up.am.parser.service.domain.entity.Color;
+import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.domain.entity.Country;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.*;
+import com.wine.to.up.am.parser.service.repository.WineRepository;
+import com.wine.to.up.am.parser.service.repository.GrapeRepository;
+import com.wine.to.up.am.parser.service.repository.CountryRepository;
+import com.wine.to.up.am.parser.service.repository.ColorRepository;
+import com.wine.to.up.am.parser.service.repository.BrandRepository;
+import com.wine.to.up.am.parser.service.repository.SugarRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import javafx.util.Pair;
@@ -12,7 +22,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -206,7 +219,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Brand brand : brandList) {
-            if (brand.getActual()) {
+            if (Boolean.TRUE.equals(brand.getActual())) {
                 brand.setActual(false);
                 brand.setDateRec(new Date());
                 brandRepository.save(brand);
@@ -245,7 +258,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Color color : colorList) {
-            if (color.getActual()) {
+            if (Boolean.TRUE.equals(color.getActual())) {
                 color.setActual(false);
                 color.setDateRec(new Date());
                 colorRepository.save(color);
@@ -284,7 +297,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Country country : countryList) {
-            if (country.getActual()) {
+            if (Boolean.TRUE.equals(country.getActual())) {
                 country.setActual(false);
                 country.setDateRec(new Date());
                 countryRepository.save(country);
@@ -323,7 +336,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Grape grape : grapeList) {
-            if (grape.getActual()) {
+            if (Boolean.TRUE.equals(grape.getActual())) {
                 grape.setActual(false);
                 grape.setDateRec(new Date());
                 grapeRepository.save(grape);
@@ -382,7 +395,7 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         for (Sugar sugar : sugarList) {
-            if (sugar.getActual()) {
+            if (Boolean.TRUE.equals(sugar.getActual())) {
                 sugar.setActual(false);
                 sugar.setDateRec(new Date());
                 sugarRepository.save(sugar);
@@ -401,6 +414,10 @@ public class UpdateServiceImpl implements UpdateService {
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
+
+        log.info("updated {} entries", updatedTotal);
+        log.info("created {} entries", createdTotal);
+        log.info("deleted {} entries", deletedTotal);
     }
 
     private boolean updateGrapes(Wine wineEntity, ArrayList<Grape> grapes) {

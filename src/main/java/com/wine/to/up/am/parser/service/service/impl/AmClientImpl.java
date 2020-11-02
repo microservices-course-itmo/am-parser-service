@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
@@ -44,7 +43,6 @@ public class AmClientImpl implements AmClient {
      */
     private Document getPage(String url) {
         int attempt = 0;
-        log.trace("Trying to get document by '{}' url", url);
         while (attempt < maxRetries) {
             Document document = fetchPage(url);
             if (document != null) {
