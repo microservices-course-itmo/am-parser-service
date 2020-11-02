@@ -1,19 +1,9 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Grape;
-import com.wine.to.up.am.parser.service.domain.entity.Brand;
-import com.wine.to.up.am.parser.service.domain.entity.Sugar;
-import com.wine.to.up.am.parser.service.domain.entity.Color;
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
-import com.wine.to.up.am.parser.service.domain.entity.Country;
+import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.WineRepository;
-import com.wine.to.up.am.parser.service.repository.GrapeRepository;
-import com.wine.to.up.am.parser.service.repository.CountryRepository;
-import com.wine.to.up.am.parser.service.repository.ColorRepository;
-import com.wine.to.up.am.parser.service.repository.BrandRepository;
-import com.wine.to.up.am.parser.service.repository.SugarRepository;
+import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,10 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -57,6 +44,10 @@ public class UpdateServiceImpl implements UpdateService {
     @Autowired
     private WineRepository wineRepository;
 
+    private int createdTotal = 0;
+    private int updatedTotal = 0;
+    private int deletedTotal = 0;
+
     /**
      * {@inheritDoc}
      */
@@ -71,10 +62,22 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("Received {} dictionary entries", dictionary.getBrands().size() + dictionary.getColors().size() +
                 dictionary.getGrapes().size() + dictionary.getSugars().size() + dictionary.getCountries().size());
 
-        int createdTotal = 0;
-        int updatedTotal = 0;
-        int deletedTotal = 0;
+        updatedTotal = 0;
+        createdTotal = 0;
+        deletedTotal = 0;
 
+        updateBrands(dictionary.getBrands().values());
+        updateColors(dictionary.getColors().values());
+        updateCountries(dictionary.getCountries().values());
+        updateSugars(dictionary.getSugars().values());
+        updateGrapes(dictionary.getGrapes().values());
+
+        log.info("updated {} entries", updatedTotal);
+        log.info("created {} entries", createdTotal);
+        log.info("deleted {} entries", deletedTotal);
+    }
+
+    private void updateBrands(Collection<Dictionary.CatalogProp> brands) {
         int created = 0;
         int updated = 0;
         int deleted = 0;
@@ -82,7 +85,7 @@ public class UpdateServiceImpl implements UpdateService {
         List<Brand> brandList = StreamSupport
                 .stream(brandRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-        for (Dictionary.CatalogProp prop : dictionary.getBrands().values()) {
+        for (Dictionary.CatalogProp prop : brands) {
             var deletionComplete = brandList.removeIf(brand -> brand.getImportId().equals(prop.getImportId()));
             brandRepository.save(new Brand(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
@@ -111,15 +114,17 @@ public class UpdateServiceImpl implements UpdateService {
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
-        created = 0;
-        updated = 0;
-        deleted = 0;
+    }
+
+    private void updateColors(Collection<Dictionary.CatalogProp> colors) {
+        int created = 0;
+        int updated = 0;
+        int deleted = 0;
 
         List<Color> colorList = StreamSupport
                 .stream(colorRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-
-        for (Dictionary.CatalogProp prop : dictionary.getColors().values()) {
+        for (Dictionary.CatalogProp prop : colors) {
             var deletionComplete = colorList.removeIf(color -> color.getImportId().equals(prop.getImportId()));
             colorRepository.save(new Color(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
@@ -148,15 +153,17 @@ public class UpdateServiceImpl implements UpdateService {
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
-        created = 0;
-        updated = 0;
-        deleted = 0;
+    }
+
+    private void updateCountries(Collection<Dictionary.CatalogProp> countries) {
+        int created = 0;
+        int updated = 0;
+        int deleted = 0;
 
         List<Country> countryList = StreamSupport
                 .stream(countryRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-
-        for (Dictionary.CatalogProp prop : dictionary.getCountries().values()) {
+        for (Dictionary.CatalogProp prop : countries) {
             var deletionComplete = countryList.removeIf(country -> country.getImportId().equals(prop.getImportId()));
             countryRepository.save(new Country(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
@@ -185,15 +192,17 @@ public class UpdateServiceImpl implements UpdateService {
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
-        created = 0;
-        updated = 0;
-        deleted = 0;
+    }
+
+    private void updateGrapes(Collection<Dictionary.CatalogProp> grapes) {
+        int created = 0;
+        int updated = 0;
+        int deleted = 0;
 
         List<Grape> grapeList = StreamSupport
                 .stream(grapeRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-
-        for (Dictionary.CatalogProp prop : dictionary.getGrapes().values()) {
+        for (Dictionary.CatalogProp prop : grapes) {
             var deletionComplete = grapeList.removeIf(grape -> grape.getImportId().equals(prop.getImportId()));
             grapeRepository.save(new Grape(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
@@ -222,15 +231,17 @@ public class UpdateServiceImpl implements UpdateService {
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
-        created = 0;
-        updated = 0;
-        deleted = 0;
+    }
+
+    private void updateSugars(Collection<Dictionary.CatalogProp> sugars) {
+        int created = 0;
+        int updated = 0;
+        int deleted = 0;
 
         List<Sugar> sugarList = StreamSupport
                 .stream(sugarRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
-
-        for (Dictionary.CatalogProp prop : dictionary.getSugars().values()) {
+        for (Dictionary.CatalogProp prop : sugars) {
             var deletionComplete = sugarList.removeIf(sugar -> sugar.getImportId().equals(prop.getImportId()));
             sugarRepository.save(new Sugar(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
@@ -239,7 +250,6 @@ public class UpdateServiceImpl implements UpdateService {
                 created++;
             }
         }
-
         for (Sugar sugar : sugarList) {
             if (sugar.getActual()) {
                 sugar.setActual(false);
@@ -260,10 +270,6 @@ public class UpdateServiceImpl implements UpdateService {
         createdTotal += created;
         updatedTotal += updated;
         deletedTotal += deleted;
-
-        log.info("updated {} entries", updatedTotal);
-        log.info("created {} entries", createdTotal);
-        log.info("deleted {} entries", deletedTotal);
     }
 
     /**
