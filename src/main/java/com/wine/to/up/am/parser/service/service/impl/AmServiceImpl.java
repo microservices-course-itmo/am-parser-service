@@ -24,6 +24,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,19 +43,21 @@ public class AmServiceImpl implements AmService {
 
     private static final String DICT_NAME = "catalogProps";
 
-    private static final Pattern DICT_PATTERN = Pattern.compile(".*window\\." + DICT_NAME + "\\s*=\\s*(\\{.*});");
+    private static final String WINDOW_PATTERN_START = ".*window\\.";
+
+    private static final Pattern DICT_PATTERN = Pattern.compile(WINDOW_PATTERN_START + DICT_NAME + "\\s*=\\s*(\\{.*});");
 
     private static final String TOTAL_COUNT_NAME = "productsTotalCount";
 
-    private static final Pattern TOTAL_COUNT_PATTERN = Pattern.compile(".*window\\." + TOTAL_COUNT_NAME + "\\s*=\\s*(\\d*);");
+    private static final Pattern TOTAL_COUNT_PATTERN = Pattern.compile(WINDOW_PATTERN_START + TOTAL_COUNT_NAME + "\\s*=\\s*(\\d*);");
 
     private static final String PER_PAGE_COUNT_NAME = "productsPerServerPage";
 
-    private static final Pattern PER_PAGE_COUNT_PATTERN = Pattern.compile(".*window\\." + PER_PAGE_COUNT_NAME + "\\s*=\\s*(\\d*);");
+    private static final Pattern PER_PAGE_COUNT_PATTERN = Pattern.compile(WINDOW_PATTERN_START + PER_PAGE_COUNT_NAME + "\\s*=\\s*(\\d*);");
 
     private static final String PROD_NAME = "products";
 
-    private static final Pattern PROD_PATTERN = Pattern.compile(".*window\\." + PROD_NAME + "\\s*=\\s*(\\[.*]);");
+    private static final Pattern PROD_PATTERN = Pattern.compile(WINDOW_PATTERN_START + PROD_NAME + "\\s*=\\s*(\\[.*]);");
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
@@ -94,23 +97,25 @@ public class AmServiceImpl implements AmService {
         Long pages = getCatalogPagesAmount();
         log.info("The catalog contains {} pages", pages);
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
-        AtomicLong page = new AtomicLong(1);
+        AtomicLong page = new AtomicLong(1L);
+
+        AtomicInteger parseAttemptsCount = new AtomicInteger(0);
+        AtomicInteger successfulParseCount = new AtomicInteger(0);
+        final boolean[] pagesProcessed = new boolean[pages.intValue()];
+        final boolean[] pagesWithParsedWines = new boolean[pages.intValue()];
 
         ExecutorService executorService = Executors.newFixedThreadPool(20);
         Callable<String> callableTask = () -> {
-            log.info("Started client process...");
-            int successfulParseCount = 0;
             while (page.longValue() <= pages) {
-                int wineNum = amWines.size();
-                amWines.addAll(getAmWines(page.getAndIncrement()));
-                if (amWines.size() > wineNum) {
-                    successfulParseCount++;
+                parseAttemptsCount.getAndIncrement();
+                long pageCopy = page.get();
+                List<AmWine> newWines = getAmWines(page.getAndIncrement());
+                amWines.addAll(newWines);
+                pagesProcessed[(int) pageCopy - 1] = true;
+                if(!newWines.isEmpty()) {
+                    successfulParseCount.getAndIncrement();
+                    pagesWithParsedWines[(int) pageCopy - 1] = true;
                 }
-            }
-            if (successfulParseCount == pages) {
-                log.info("Finished client process. All pages parsed successfully.");
-            } else {
-                log.info("Finished client process. Wines were successfully parsed from {} out of {} pages.", successfulParseCount, pages);
             }
             return "Task's execution";
         };
@@ -119,9 +124,29 @@ public class AmServiceImpl implements AmService {
         try {
             executorService.invokeAll(callableTasks);
         } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
             log.error("Error in getAmWines method : ", e);
         } finally {
             executorService.shutdown();
+        }
+        StringBuilder lostPagesLog = new StringBuilder("Unprocessed pages: ");
+        for(int i = 0; i < pages; i++) {
+            if(!pagesProcessed[i]) {
+                lostPagesLog.append(i + 1).append(", ");
+            }
+        }
+        log.info(lostPagesLog.toString());
+        StringBuilder zeroParsePagesLog = new StringBuilder("Pages from which zero wines were parsed: ");
+        for(int i = 0; i < pages; i++) {
+            if(!pagesWithParsedWines[i]) {
+                zeroParsePagesLog.append(i + 1).append(", ");
+            }
+        }
+        log.info(zeroParsePagesLog.toString());
+        if(successfulParseCount.get() == parseAttemptsCount.get()) {
+            log.info("All {} pages parsed successfully.", successfulParseCount);
+        } else {
+            log.info("Wines were successfully parsed from {} out of {} pages.", successfulParseCount, parseAttemptsCount);
         }
         return amWines;
     }
@@ -200,7 +225,7 @@ public class AmServiceImpl implements AmService {
                 Matcher matcher = pattern.matcher(element.data());
                 String value = matcher.find() ? matcher.group(1) : null;
                 if (value != null) {
-                    value = value.replaceAll("'", "\"");
+                    value = value.replace("'", "\"");
                     value = value.replaceAll("\\s", " ");
                     value = value.trim();
                 }
