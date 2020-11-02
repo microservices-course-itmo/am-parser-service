@@ -51,7 +51,17 @@ public class WineDto {
      * Объем бутылки.
      */
     private Double value;
-    
+
+    /**
+     * Цена за бутылку вина.
+     */
+    private Double price;
+
+    /**
+     * Бренд вина.
+     */
+    private String brand;
+
     /**
      * Сорта винограда.
      */

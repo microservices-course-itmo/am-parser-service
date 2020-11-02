@@ -170,6 +170,7 @@ public class AmServiceImpl implements AmService {
 
     /**
      * Получение списка вин в "сыром" виде() с заданной страницы.
+     *
      * @param page Номер страницы, с которой мы парсим и получаем вина.
      * @return Список вин
      */
@@ -192,6 +193,7 @@ public class AmServiceImpl implements AmService {
 
     /**
      * Получение информации о количестве страниц в каталоге.
+     *
      * @return Количество страниц каталога.
      */
     private Long getCatalogPagesAmount() {
