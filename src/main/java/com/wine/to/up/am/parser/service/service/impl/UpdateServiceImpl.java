@@ -121,38 +121,20 @@ public class UpdateServiceImpl implements UpdateService {
                 var isUpdated = updateWineEntity(wineEntity, country, brand, color, sugar, grapes, alco);
                 if (isUpdated) {
                     updatedWinesTotal++;
-                    wineRepository.save(new Wine(importId,
-                            name,
-                            pictureUrl,
-                            brand,
-                            country,
-                            value,
-                            alco,
-                            color,
-                            sugar,
-                            grapes,
-                            0.0, //todo добавить нормальную цену
-                            true,
-                            new Date()));
+                    wineRepository.save(Wine.newBuilder().bSetName(name).bSetImportId(importId).bSetPictureUrl(pictureUrl).bSetBrand(brand).
+                            bSetCountry(country).bSetVolume(value).bSetStrength(alco).bSetColor(color).
+                            bSetSugar(sugar).bSetGrapes(grapes).bSetPrice(0.0).bSetActual(true).bSetDateRec(new Date()).build());
+                    //todo добавить нормальную цену
                 } else {
                     wineEntity.setDateRec(new Date());
                     wineEntity.setActual(true);
                     wineRepository.save(wineEntity);
                 }
             } else {
-                wineRepository.save(new Wine(importId,
-                        name,
-                        pictureUrl,
-                        brand,
-                        country,
-                        value,
-                        alco,
-                        color,
-                        sugar,
-                        grapes,
-                        0.0, //todo добавить нормальную цену
-                        true,
-                        new Date()));
+                wineRepository.save(Wine.newBuilder().bSetName(name).bSetImportId(importId).bSetPictureUrl(pictureUrl).bSetBrand(brand).
+                        bSetCountry(country).bSetVolume(value).bSetStrength(alco).bSetColor(color).
+                        bSetSugar(sugar).bSetGrapes(grapes).bSetPrice(0.0).bSetActual(true).bSetDateRec(new Date()).build());
+                //todo добавить нормальную цену
                 createdWinesTotal++;
             }
         }

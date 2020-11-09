@@ -15,10 +15,10 @@ public class SampleRepositoryObjects {
 
     private static double winePrice = 1.0;
     public static Wine getSampleWineEntity() {
-        return new Wine("0", "wine", "http", getSampleBrandEntity(),
-                getSampleCountryEntity(), 0.0, 0.0, getSampleColorEntity(),
-                getSampleSugarEntity(), getSampleListGrapeEntity(), winePrice++,
-                true, new Date());
+        return Wine.newBuilder().bSetImportId("0").bSetName("wine").bSetPictureUrl("http").bSetBrand(getSampleBrandEntity()).
+                bSetCountry(getSampleCountryEntity()).bSetVolume(0.0).bSetStrength(0.0).bSetColor(getSampleColorEntity()).
+                bSetSugar(getSampleSugarEntity()).bSetGrapes(getSampleListGrapeEntity()).bSetPrice(winePrice++).
+                bSetActual(true).bSetDateRec(new Date()).build();
     }
 
     public static Brand getSampleBrandEntity() {
@@ -39,7 +39,7 @@ public class SampleRepositoryObjects {
 
     public static List<Grape> getSampleListGrapeEntity() {
         var list = new ArrayList<Grape>();
-        list.add(new Grape("0", "grape"));
+        list.add(getSampleGrapeEntity());
         return list;
     }
     public static Grape getSampleGrapeEntity() {

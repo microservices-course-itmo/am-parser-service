@@ -84,53 +84,83 @@ public class Wine {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateRec;
 
-    public Wine(String importId,
-                String pictureUrl,
-                Brand brand,
-                Country country,
-                double volume,
-                double strength,
-                Color color,
-                Sugar sugar,
-                List<Grape> grapes,
-                double price) {
-        this.importId = importId;
-        this.pictureUrl = pictureUrl;
-        this.brand = brand;
-        this.country = country;
-        this.volume = volume;
-        this.strength = strength;
-        this.color = color;
-        this.sugar = sugar;
-        this.grapes = grapes;
-        this.price = price;
+    public static Builder newBuilder() {
+        return new Wine().new Builder();
     }
 
-    public Wine(String importId,
-                String name,
-                String pictureUrl,
-                Brand brand,
-                Country country,
-                double volume,
-                double strength,
-                Color color,
-                Sugar sugar,
-                List<Grape> grapes,
-                double price,
-                boolean actual,
-                Date dateRec) {
-        this.importId = importId;
-        this.name = name;
-        this.pictureUrl = pictureUrl;
-        this.brand = brand;
-        this.country = country;
-        this.volume = volume;
-        this.strength = strength;
-        this.color = color;
-        this.sugar = sugar;
-        this.grapes = grapes;
-        this.price = price;
-        this.actual = actual;
-        this.dateRec = dateRec;
+    public class Builder {
+
+        private Builder() {}
+
+        public Builder bSetImportId(String importId) {
+            Wine.this.importId = importId;
+            return this;
+        }
+
+        public Builder bSetName(String name) {
+            Wine.this.name = name;
+            return this;
+        }
+
+        public Builder bSetPictureUrl(String pictureUrl) {
+            Wine.this.pictureUrl = pictureUrl;
+            return this;
+        }
+
+        public Builder bSetBrand(Brand brand) {
+            Wine.this.brand = brand;
+            return this;
+        }
+
+        public Builder bSetCountry(Country country) {
+            Wine.this.country = country;
+            return this;
+        }
+
+        public Builder bSetVolume(double volume) {
+            Wine.this.volume = volume;
+            return this;
+        }
+
+        public Builder bSetStrength(double strength) {
+            Wine.this.strength = strength;
+            return this;
+        }
+
+        public Builder bSetColor(Color color) {
+            Wine.this.color = color;
+            return this;
+        }
+
+        public Builder bSetSugar(Sugar sugar) {
+            Wine.this.sugar = sugar;
+            return this;
+        }
+
+        public Builder bSetGrapes(List<Grape> grapes) {
+            Wine.this.grapes = grapes;
+            return this;
+        }
+
+        public Builder bSetPrice(double price) {
+            Wine.this.price = price;
+            return this;
+        }
+
+        public Builder bSetActual(boolean actual) {
+            Wine.this.actual = actual;
+            return this;
+        }
+
+        public Builder bSetDateRec(Date dateRec) {
+            Wine.this.dateRec = dateRec;
+            return this;
+        }
+
+        public Wine build() {
+            return Wine.this;
+        }
+
     }
+
 }
