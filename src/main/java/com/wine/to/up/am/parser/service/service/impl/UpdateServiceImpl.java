@@ -121,38 +121,20 @@ public class UpdateServiceImpl implements UpdateService {
                 var isUpdated = updateWineEntity(wineEntity, country, brand, color, sugar, grapes, alco);
                 if (isUpdated) {
                     updatedWinesTotal++;
-                    wineRepository.save(new Wine(importId,
-                            name,
-                            pictureUrl,
-                            brand,
-                            country,
-                            value,
-                            alco,
-                            color,
-                            sugar,
-                            grapes,
-                            0.0, //todo добавить нормальную цену
-                            true,
-                            new Date()));
+                    wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
+                            country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                            price(0.0).actual(true).dateRec(new Date()).build());
+                    //todo добавить нормальную цену
                 } else {
                     wineEntity.setDateRec(new Date());
                     wineEntity.setActual(true);
                     wineRepository.save(wineEntity);
                 }
             } else {
-                wineRepository.save(new Wine(importId,
-                        name,
-                        pictureUrl,
-                        brand,
-                        country,
-                        value,
-                        alco,
-                        color,
-                        sugar,
-                        grapes,
-                        0.0, //todo добавить нормальную цену
-                        true,
-                        new Date()));
+                wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
+                        country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                        price(0.0).actual(true).dateRec(new Date()).build());
+                //todo добавить нормальную цену
                 createdWinesTotal++;
             }
         }

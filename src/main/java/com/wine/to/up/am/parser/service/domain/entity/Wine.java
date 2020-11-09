@@ -2,8 +2,10 @@ package com.wine.to.up.am.parser.service.domain.entity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 
@@ -26,7 +28,9 @@ import java.util.List;
 @Table(name = "wines")
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @ApiModel(description = "All details about the Wine")
 public class Wine {
 
@@ -84,53 +88,4 @@ public class Wine {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateRec;
 
-    public Wine(String importId,
-                String pictureUrl,
-                Brand brand,
-                Country country,
-                double volume,
-                double strength,
-                Color color,
-                Sugar sugar,
-                List<Grape> grapes,
-                double price) {
-        this.importId = importId;
-        this.pictureUrl = pictureUrl;
-        this.brand = brand;
-        this.country = country;
-        this.volume = volume;
-        this.strength = strength;
-        this.color = color;
-        this.sugar = sugar;
-        this.grapes = grapes;
-        this.price = price;
-    }
-
-    public Wine(String importId,
-                String name,
-                String pictureUrl,
-                Brand brand,
-                Country country,
-                double volume,
-                double strength,
-                Color color,
-                Sugar sugar,
-                List<Grape> grapes,
-                double price,
-                boolean actual,
-                Date dateRec) {
-        this.importId = importId;
-        this.name = name;
-        this.pictureUrl = pictureUrl;
-        this.brand = brand;
-        this.country = country;
-        this.volume = volume;
-        this.strength = strength;
-        this.color = color;
-        this.sugar = sugar;
-        this.grapes = grapes;
-        this.price = price;
-        this.actual = actual;
-        this.dateRec = dateRec;
-    }
 }
