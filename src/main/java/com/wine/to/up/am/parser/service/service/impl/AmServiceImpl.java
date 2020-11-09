@@ -20,12 +20,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -97,53 +92,41 @@ public class AmServiceImpl implements AmService {
         Long pages = getCatalogPagesAmount();
         log.info("The catalog contains {} pages", pages);
         List<AmWine> amWines = new CopyOnWriteArrayList<>();
-        AtomicLong page = new AtomicLong(1L);
+        long page = 1L;
 
-        AtomicInteger parseAttemptsCount = new AtomicInteger(0);
-        AtomicInteger successfulParseCount = new AtomicInteger(0);
+        int parseAttemptsCount = 0;
+        int successfulParseCount = 0;
         final boolean[] pagesProcessed = new boolean[pages.intValue()];
         final boolean[] pagesWithParsedWines = new boolean[pages.intValue()];
 
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
-        Callable<String> callableTask = () -> {
-            while (page.longValue() <= pages) {
-                parseAttemptsCount.getAndIncrement();
-                long pageCopy = page.get();
-                List<AmWine> newWines = getAmWines(page.getAndIncrement());
-                amWines.addAll(newWines);
-                pagesProcessed[(int) pageCopy - 1] = true;
-                if(!newWines.isEmpty()) {
-                    successfulParseCount.getAndIncrement();
-                    pagesWithParsedWines[(int) pageCopy - 1] = true;
-                }
+        while (page <= pages) {
+            parseAttemptsCount++;
+            long pageCopy = page;
+            List<AmWine> newWines = getAmWines(page);
+            page++;
+            amWines.addAll(newWines);
+            pagesProcessed[(int) pageCopy - 1] = true;
+            if (!newWines.isEmpty()) {
+                successfulParseCount++;
+                pagesWithParsedWines[(int) pageCopy - 1] = true;
             }
-            return "Task's execution";
-        };
-        List<Callable<String>> callableTasks = Collections.nCopies(20, callableTask);
-
-        try {
-            executorService.invokeAll(callableTasks);
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            log.error("Error in getAmWines method : ", e);
-        } finally {
-            executorService.shutdown();
         }
+
         StringBuilder lostPagesLog = new StringBuilder("Unprocessed pages: ");
-        for(int i = 0; i < pages; i++) {
-            if(!pagesProcessed[i]) {
+        for (int i = 0; i < pages; i++) {
+            if (!pagesProcessed[i]) {
                 lostPagesLog.append(i + 1).append(", ");
             }
         }
         log.info(lostPagesLog.toString());
         StringBuilder zeroParsePagesLog = new StringBuilder("Pages from which zero wines were parsed: ");
-        for(int i = 0; i < pages; i++) {
-            if(!pagesWithParsedWines[i]) {
+        for (int i = 0; i < pages; i++) {
+            if (!pagesWithParsedWines[i]) {
                 zeroParsePagesLog.append(i + 1).append(", ");
             }
         }
         log.info(zeroParsePagesLog.toString());
-        if(successfulParseCount.get() == parseAttemptsCount.get()) {
+        if (successfulParseCount == parseAttemptsCount) {
             log.info("All {} pages parsed successfully.", successfulParseCount);
         } else {
             log.info("Wines were successfully parsed from {} out of {} pages.", successfulParseCount, parseAttemptsCount);
