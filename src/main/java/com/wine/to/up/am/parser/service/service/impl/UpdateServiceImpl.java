@@ -115,16 +115,19 @@ public class UpdateServiceImpl implements UpdateService {
             var color = getColor(amWine.getProps().getColor());
             var sugar = getSugar(amWine.getProps().getSugar());
             var pictureUrl = amWine.getPictureUrl();
+            var price = getPrice(amWine.getPrice());
             var grapes = getGrapes(amWine.getProps().getGrapes());
             var value = getValue(amWine.getProps().getValue());
             if (wineEntity != null) {
-                var isUpdated = updateWineEntity(wineEntity, country, brand, color, sugar, grapes, alco);
+                var newWine = Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
+                        country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                        price(price).actual(true).dateRec(new Date()).build();
+                var isUpdated = updateWineEntity(wineEntity, newWine);
                 if (isUpdated) {
                     updatedWinesTotal++;
                     wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
                             country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
-                            price(0.0).actual(true).dateRec(new Date()).build());
-                    //todo добавить нормальную цену
+                            price(price).actual(true).dateRec(new Date()).build());
                 } else {
                     wineEntity.setDateRec(new Date());
                     wineEntity.setActual(true);
@@ -133,8 +136,7 @@ public class UpdateServiceImpl implements UpdateService {
             } else {
                 wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
                         country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
-                        price(0.0).actual(true).dateRec(new Date()).build());
-                //todo добавить нормальную цену
+                        price(price).actual(true).dateRec(new Date()).build());
                 createdWinesTotal++;
             }
         }
@@ -148,6 +150,13 @@ public class UpdateServiceImpl implements UpdateService {
 
     }
 
+    private double getPrice(Double price) {
+        if (price == null) {
+            price = 0.0;
+        }
+        return price;
+    }
+
     private double getValue(Double value) {
         if (value == null) {
             value = 0.0;
@@ -155,8 +164,8 @@ public class UpdateServiceImpl implements UpdateService {
         return value;
     }
 
-    private Brand getBrand(String brandImportId) {
-        return brandRepository.findByImportId(brandImportId);
+    private Brand getBrand(String brandName) {
+        return brandRepository.findByName(brandName);
     }
 
     private Country getCountry(String countryImportId) {
@@ -425,31 +434,44 @@ public class UpdateServiceImpl implements UpdateService {
         return isUpdated;
     }
 
-    private boolean updateWineEntity(Wine wineEntity, Country country, Brand brand, Color color, Sugar sugar,
-                                     ArrayList<Grape> grapes, Double alco) {
+    private boolean updateWineEntity(Wine wineEntity, Wine newWine) {
         boolean isUpdated = false;
-        if (updateCountry(wineEntity, country)) {
+        if (updateCountry(wineEntity, newWine.getCountry())) {
             isUpdated = true;
         }
 
-        if (updateBrand(wineEntity, brand)) {
+        if (updateBrand(wineEntity, newWine.getBrand())) {
             isUpdated = true;
         }
 
-        if (updateSugar(wineEntity, sugar)) {
+        if (updateSugar(wineEntity, newWine.getSugar())) {
             isUpdated = true;
         }
 
-        if (updateColor(wineEntity, color)) {
+        if (updateColor(wineEntity, newWine.getColor())) {
+            isUpdated = true;
+        }
+        var oldPrice = wineEntity.getPrice();
+        var price = newWine.getPrice();
+        if (oldPrice != price) {
+            wineEntity.setPrice(price);
+            isUpdated = true;
+        }
+        var oldName = wineEntity.getName();
+        var name = newWine.getName();
+        if (!Objects.equals(oldName, name)) {
+            wineEntity.setName(name);
             isUpdated = true;
         }
 
         var oldStrength = wineEntity.getStrength();
+        var alco = newWine.getStrength();
         if (oldStrength != (alco)) {
             wineEntity.setStrength(alco);
             isUpdated = true;
         }
-        if (updateGrapes(wineEntity, grapes)) {
+        var grapes = newWine.getGrapes();
+        if (updateGrapes(wineEntity, (ArrayList<Grape>) grapes)) {
             isUpdated = true;
         }
 
