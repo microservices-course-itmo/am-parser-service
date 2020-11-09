@@ -2,8 +2,10 @@ package com.wine.to.up.am.parser.service.domain.entity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.Setter;
 
 
@@ -26,7 +28,9 @@ import java.util.List;
 @Table(name = "wines")
 @Setter
 @Getter
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 @ApiModel(description = "All details about the Wine")
 public class Wine {
 
@@ -83,84 +87,5 @@ public class Wine {
     @Column(name = "date_rec")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateRec;
-
-    public static Builder newBuilder() {
-        return new Wine().new Builder();
-    }
-
-    public class Builder {
-
-        private Builder() {}
-
-        public Builder bSetImportId(String importId) {
-            Wine.this.importId = importId;
-            return this;
-        }
-
-        public Builder bSetName(String name) {
-            Wine.this.name = name;
-            return this;
-        }
-
-        public Builder bSetPictureUrl(String pictureUrl) {
-            Wine.this.pictureUrl = pictureUrl;
-            return this;
-        }
-
-        public Builder bSetBrand(Brand brand) {
-            Wine.this.brand = brand;
-            return this;
-        }
-
-        public Builder bSetCountry(Country country) {
-            Wine.this.country = country;
-            return this;
-        }
-
-        public Builder bSetVolume(double volume) {
-            Wine.this.volume = volume;
-            return this;
-        }
-
-        public Builder bSetStrength(double strength) {
-            Wine.this.strength = strength;
-            return this;
-        }
-
-        public Builder bSetColor(Color color) {
-            Wine.this.color = color;
-            return this;
-        }
-
-        public Builder bSetSugar(Sugar sugar) {
-            Wine.this.sugar = sugar;
-            return this;
-        }
-
-        public Builder bSetGrapes(List<Grape> grapes) {
-            Wine.this.grapes = grapes;
-            return this;
-        }
-
-        public Builder bSetPrice(double price) {
-            Wine.this.price = price;
-            return this;
-        }
-
-        public Builder bSetActual(boolean actual) {
-            Wine.this.actual = actual;
-            return this;
-        }
-
-        public Builder bSetDateRec(Date dateRec) {
-            Wine.this.dateRec = dateRec;
-            return this;
-        }
-
-        public Wine build() {
-            return Wine.this;
-        }
-
-    }
 
 }

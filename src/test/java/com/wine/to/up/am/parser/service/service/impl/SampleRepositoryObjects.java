@@ -15,10 +15,10 @@ public class SampleRepositoryObjects {
 
     private static double winePrice = 1.0;
     public static Wine getSampleWineEntity() {
-        return Wine.newBuilder().bSetImportId("0").bSetName("wine").bSetPictureUrl("http").bSetBrand(getSampleBrandEntity()).
-                bSetCountry(getSampleCountryEntity()).bSetVolume(0.0).bSetStrength(0.0).bSetColor(getSampleColorEntity()).
-                bSetSugar(getSampleSugarEntity()).bSetGrapes(getSampleListGrapeEntity()).bSetPrice(winePrice++).
-                bSetActual(true).bSetDateRec(new Date()).build();
+        return Wine.builder().importId("0").name("wine").pictureUrl("http").brand(getSampleBrandEntity()).
+                country(getSampleCountryEntity()).volume(0.0).strength(0.0).color(getSampleColorEntity()).
+                sugar(getSampleSugarEntity()).grapes(getSampleListGrapeEntity()).price(winePrice++).
+                actual(true).dateRec(new Date()).build();
     }
 
     public static Brand getSampleBrandEntity() {

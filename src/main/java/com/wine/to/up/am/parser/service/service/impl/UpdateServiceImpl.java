@@ -121,9 +121,9 @@ public class UpdateServiceImpl implements UpdateService {
                 var isUpdated = updateWineEntity(wineEntity, country, brand, color, sugar, grapes, alco);
                 if (isUpdated) {
                     updatedWinesTotal++;
-                    wineRepository.save(Wine.newBuilder().bSetName(name).bSetImportId(importId).bSetPictureUrl(pictureUrl).bSetBrand(brand).
-                            bSetCountry(country).bSetVolume(value).bSetStrength(alco).bSetColor(color).
-                            bSetSugar(sugar).bSetGrapes(grapes).bSetPrice(0.0).bSetActual(true).bSetDateRec(new Date()).build());
+                    wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
+                            country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                            price(0.0).actual(true).dateRec(new Date()).build());
                     //todo добавить нормальную цену
                 } else {
                     wineEntity.setDateRec(new Date());
@@ -131,9 +131,9 @@ public class UpdateServiceImpl implements UpdateService {
                     wineRepository.save(wineEntity);
                 }
             } else {
-                wineRepository.save(Wine.newBuilder().bSetName(name).bSetImportId(importId).bSetPictureUrl(pictureUrl).bSetBrand(brand).
-                        bSetCountry(country).bSetVolume(value).bSetStrength(alco).bSetColor(color).
-                        bSetSugar(sugar).bSetGrapes(grapes).bSetPrice(0.0).bSetActual(true).bSetDateRec(new Date()).build());
+                wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
+                        country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                        price(0.0).actual(true).dateRec(new Date()).build());
                 //todo добавить нормальную цену
                 createdWinesTotal++;
             }
