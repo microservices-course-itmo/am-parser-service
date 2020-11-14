@@ -1,6 +1,10 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
+import com.wine.to.up.am.parser.service.model.dto.AmWine;
+import com.wine.to.up.am.parser.service.model.dto.Dictionary;
+import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
+import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,6 +16,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.util.List;
 
 
 import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleAmWineList;
@@ -46,12 +51,12 @@ public class AmServiceImplTest {
     public void getWines() throws IOException {
         when(amServiceMock.getDictionary()).thenReturn(getSampleDictionary());
         when(amServiceMock.getAmWines()).thenReturn(getSampleAmWineList());
-        var document = getSampleDoc();
+        Document document = getSampleDoc();
         when(amClient.getMainPage()).thenReturn(document);
         when(amClient.getPage(any())).thenReturn(document);
-        var a = amService.getWines();
-        assertEquals(1, a.size());
-        var wine = a.get(0);
+        List<WineDto> wines = amService.getWines();
+        assertEquals(1, wines.size());
+        WineDto wine = wines.get(0);
         assertEquals("wine", wine.getName());
         assertEquals("http", wine.getPicture());
         assertEquals("color", wine.getColor());
@@ -65,19 +70,19 @@ public class AmServiceImplTest {
 
     @Test
     public void getAmWines() throws IOException {
-        var document = getSampleDoc();
+        Document document = getSampleDoc();
         when(amClient.getPage(any())).thenReturn(document);
         when(amClient.getMainPage()).thenReturn(document);
-        var listWines = amService.getAmWines();
+        List<AmWine> listWines = amService.getAmWines();
         assertEquals(1, listWines.size());
     }
 
     @Test
     public void getDictionary() throws IOException {
-        var document = getSampleDoc();
+        Document document = getSampleDoc();
         when(amClient.getPage(any())).thenReturn(document);
         when(amClient.getMainPage()).thenReturn(document);
-        var dict = amService.getDictionary();
+        Dictionary dict = amService.getDictionary();
         assertEquals(1, dict.getColors().size());
         assertEquals(1, dict.getBrands().size());
         assertEquals(1, dict.getCountries().size());

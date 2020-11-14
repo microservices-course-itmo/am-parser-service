@@ -25,7 +25,7 @@ import java.time.ZoneOffset;
 @Api(value = "Wine controller")
 public class WineController {
 
-    private static final String DURATION = "duration= ";
+    private static final String DURATION = " duration= ";
     private static final String SECONDS = " seconds";
 
     @Resource

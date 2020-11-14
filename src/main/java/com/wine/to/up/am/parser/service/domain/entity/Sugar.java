@@ -36,7 +36,6 @@ public class Sugar {
     @ApiModelProperty(notes = "The name of the sugar")
     private String name;
 
-    @Column(name = "actual")
     private Boolean actual;
 
     @Column(name = "date_rec")

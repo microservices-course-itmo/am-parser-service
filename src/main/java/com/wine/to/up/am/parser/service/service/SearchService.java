@@ -17,5 +17,9 @@ public interface SearchService {
      */
     List<WineDto> findAllLessByRub(Double price);
 
+    /**
+     * Получение всех вин из БД.
+     * @return Список всех вин в формате DTO.
+     */
     List<WineDto> findAll();
 }

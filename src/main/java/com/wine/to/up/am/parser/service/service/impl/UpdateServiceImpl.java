@@ -1,9 +1,19 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.*;
+import com.wine.to.up.am.parser.service.domain.entity.Country;
+import com.wine.to.up.am.parser.service.domain.entity.Brand;
+import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.domain.entity.Color;
+import com.wine.to.up.am.parser.service.domain.entity.Grape;
+import com.wine.to.up.am.parser.service.domain.entity.Sugar;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.*;
+import com.wine.to.up.am.parser.service.repository.BrandRepository;
+import com.wine.to.up.am.parser.service.repository.WineRepository;
+import com.wine.to.up.am.parser.service.repository.CountryRepository;
+import com.wine.to.up.am.parser.service.repository.GrapeRepository;
+import com.wine.to.up.am.parser.service.repository.SugarRepository;
+import com.wine.to.up.am.parser.service.repository.ColorRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,7 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -85,17 +99,16 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     public void updateWines() {
-        var wines = amService.getAmWines();
-        var received = wines.size();
+        List<AmWine> wines = amService.getAmWines();
+        int received = wines.size();
         log.info("Received {} wines", received);
 
-        var wineList = StreamSupport
+        List<Wine> wineList = StreamSupport
                 .stream(wineRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
 
         for (AmWine amWine : wines) {
-            var importId = amWine.getId();
-
+            String importId = amWine.getId();
             Wine wineEntity = null;
             for (Wine wine : wineList) {
                 if (wine.getImportId().equals(amWine.getId())) {
@@ -105,28 +118,25 @@ public class UpdateServiceImpl implements UpdateService {
             }
             wineList.remove(wineEntity);
 
-            var name = amWine.getName();
-            var brand = getBrand(amWine.getProps().getBrand());
-            var country = getCountry(amWine.getProps().getCountry());
-            var alco = amWine.getProps().getAlco();
-            if (alco == null) {
-                alco = 0.0;
-            }
-            var color = getColor(amWine.getProps().getColor());
-            var sugar = getSugar(amWine.getProps().getSugar());
-            var pictureUrl = amWine.getPictureUrl();
-            var price = getPrice(amWine.getPrice());
-            var grapes = getGrapes(amWine.getProps().getGrapes());
-            var value = getValue(amWine.getProps().getValue());
+            String name = amWine.getName();
+            Brand brand = getBrand(amWine.getProps().getBrand());
+            Country country = getCountry(amWine.getProps().getCountry());
+            double strength = getStrength(amWine.getProps().getAlco());
+            Color color = getColor(amWine.getProps().getColor());
+            Sugar sugar = getSugar(amWine.getProps().getSugar());
+            String pictureUrl = amWine.getPictureUrl();
+            double price = getPrice(amWine.getPrice());
+            ArrayList<Grape> grapes = getGrapes(amWine.getProps().getGrapes());
+            double volume = getVolume(amWine.getProps().getValue());
             if (wineEntity != null) {
-                var newWine = Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
-                        country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                Wine newWine = Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
+                        country(country).volume(volume).strength(strength).color(color).sugar(sugar).grapes(grapes).
                         price(price).actual(true).dateRec(new Date()).build();
-                var isUpdated = updateWineEntity(wineEntity, newWine);
+                boolean isUpdated = updateWineEntity(wineEntity, newWine);
                 if (isUpdated) {
                     updatedWinesTotal++;
                     wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
-                            country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                            country(country).volume(volume).strength(strength).color(color).sugar(sugar).grapes(grapes).
                             price(price).actual(true).dateRec(new Date()).build());
                 } else {
                     wineEntity.setDateRec(new Date());
@@ -135,7 +145,7 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             } else {
                 wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
-                        country(country).volume(value).strength(alco).color(color).sugar(sugar).grapes(grapes).
+                        country(country).volume(volume).strength(strength).color(color).sugar(sugar).grapes(grapes).
                         price(price).actual(true).dateRec(new Date()).build());
                 createdWinesTotal++;
             }
@@ -145,27 +155,23 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("updated {} wines", updatedWinesTotal);
         log.info("created {} wines", createdWinesTotal);
         log.info("deleted {} wines", deletedWinesTotal);
-        log.trace("{} wines are already in the database and they have not changed", received - createdWinesTotal
-                - updatedWinesTotal - deletedWinesTotal);
+        log.trace("{} wines are already in the database and they have not changed", received - createdWinesTotal - updatedWinesTotal - deletedWinesTotal);
+    }
 
+    private double getStrength(Double strength) {
+        return strength == null ? 0.0 : strength;
     }
 
     private double getPrice(Double price) {
-        if (price == null) {
-            price = 0.0;
-        }
-        return price;
+        return price == null ? 0.0 : price;
     }
 
-    private double getValue(Double value) {
-        if (value == null) {
-            value = 0.0;
-        }
-        return value;
+    private double getVolume(Double volume) {
+        return volume == null ? 0.0 : volume;
     }
 
     private Brand getBrand(String brandName) {
-        return brandRepository.findByName(brandName);
+        return brandName == null ? null : brandRepository.findByName(brandName);
     }
 
     private Country getCountry(String countryImportId) {
@@ -189,7 +195,7 @@ public class UpdateServiceImpl implements UpdateService {
                 .stream(brandRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
         for (Dictionary.CatalogProp prop : brands) {
-            var deletionComplete = brandList.removeIf(brand -> brand.getImportId().equals(prop.getImportId()));
+            boolean deletionComplete = brandList.removeIf(brand -> brand.getImportId().equals(prop.getImportId()));
             brandRepository.save(new Brand(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
                 updated++;
@@ -204,7 +210,7 @@ public class UpdateServiceImpl implements UpdateService {
                 brandRepository.save(brand);
                 updated++;
             } else {
-                var timeDifference = new Date().getTime() - brand.getDateRec().getTime();
+                long timeDifference = new Date().getTime() - brand.getDateRec().getTime();
                 if (timeDifference > 1000 * 3600 * 24 * 7) {
                     brandRepository.delete(brand);
                     deleted++;
@@ -228,7 +234,7 @@ public class UpdateServiceImpl implements UpdateService {
                 .stream(colorRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
         for (Dictionary.CatalogProp prop : colors) {
-            var deletionComplete = colorList.removeIf(color -> color.getImportId().equals(prop.getImportId()));
+            boolean deletionComplete = colorList.removeIf(color -> color.getImportId().equals(prop.getImportId()));
             colorRepository.save(new Color(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
                 updated++;
@@ -243,7 +249,7 @@ public class UpdateServiceImpl implements UpdateService {
                 colorRepository.save(color);
                 updated++;
             } else {
-                var timeDifference = new Date().getTime() - color.getDateRec().getTime();
+                long timeDifference = new Date().getTime() - color.getDateRec().getTime();
                 if (timeDifference > 1000 * 3600 * 24 * 7) {
                     colorRepository.delete(color);
                     deleted++;
@@ -267,7 +273,7 @@ public class UpdateServiceImpl implements UpdateService {
                 .stream(countryRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
         for (Dictionary.CatalogProp prop : countries) {
-            var deletionComplete = countryList.removeIf(country -> country.getImportId().equals(prop.getImportId()));
+            boolean deletionComplete = countryList.removeIf(country -> country.getImportId().equals(prop.getImportId()));
             countryRepository.save(new Country(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
                 updated++;
@@ -282,7 +288,7 @@ public class UpdateServiceImpl implements UpdateService {
                 countryRepository.save(country);
                 updated++;
             } else {
-                var timeDifference = new Date().getTime() - country.getDateRec().getTime();
+                long timeDifference = new Date().getTime() - country.getDateRec().getTime();
                 if (timeDifference > 1000 * 3600 * 24 * 7) {
                     countryRepository.delete(country);
                     deleted++;
@@ -306,7 +312,7 @@ public class UpdateServiceImpl implements UpdateService {
                 .stream(grapeRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
         for (Dictionary.CatalogProp prop : grapes) {
-            var deletionComplete = grapeList.removeIf(grape -> grape.getImportId().equals(prop.getImportId()));
+            boolean deletionComplete = grapeList.removeIf(grape -> grape.getImportId().equals(prop.getImportId()));
             grapeRepository.save(new Grape(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
                 updated++;
@@ -321,7 +327,7 @@ public class UpdateServiceImpl implements UpdateService {
                 grapeRepository.save(grape);
                 updated++;
             } else {
-                var timeDifference = new Date().getTime() - grape.getDateRec().getTime();
+                long timeDifference = new Date().getTime() - grape.getDateRec().getTime();
                 if (timeDifference > 1000 * 3600 * 24 * 7) {
                     grapeRepository.delete(grape);
                     deleted++;
@@ -336,9 +342,13 @@ public class UpdateServiceImpl implements UpdateService {
         deletedPropsTotal += deleted;
     }
 
+    /**
+     * Смена статуса вина или его удаление из БД(если оно неактуально больше недели).
+     * @param wineList Список вин.
+     */
     private void changeActual(List<Wine> wineList) {
-        var updated = 0;
-        var deleted = 0;
+        int updated = 0;
+        int deleted = 0;
         for (Wine wine : wineList) {
             if (Boolean.TRUE.equals(wine.getActual())) {
                 wine.setActual(false);
@@ -346,7 +356,7 @@ public class UpdateServiceImpl implements UpdateService {
                 wineRepository.save(wine);
                 updated++;
             } else {
-                var timeDifference = new Date().getTime() - wine.getDateRec().getTime();
+                long timeDifference = new Date().getTime() - wine.getDateRec().getTime();
                 if (timeDifference > 1000 * 3600 * 24 * 7) {
                     wineRepository.delete(wine);
                     deleted++;
@@ -366,7 +376,7 @@ public class UpdateServiceImpl implements UpdateService {
                 .stream(sugarRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
         for (Dictionary.CatalogProp prop : sugars) {
-            var deletionComplete = sugarList.removeIf(sugar -> sugar.getImportId().equals(prop.getImportId()));
+            boolean deletionComplete = sugarList.removeIf(sugar -> sugar.getImportId().equals(prop.getImportId()));
             sugarRepository.save(new Sugar(prop.getImportId(), prop.getValue(), true, new Date()));
             if (deletionComplete) {
                 updated++;
@@ -381,7 +391,7 @@ public class UpdateServiceImpl implements UpdateService {
                 sugarRepository.save(sugar);
                 updated++;
             } else {
-                var timeDifference = new Date().getTime() - sugar.getDateRec().getTime();
+                long timeDifference = new Date().getTime() - sugar.getDateRec().getTime();
                 if (timeDifference > 1000 * 3600 * 24 * 7) {
                     sugarRepository.delete(sugar);
                     deleted++;
@@ -401,17 +411,17 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     private boolean updateGrapes(Wine wineEntity, ArrayList<Grape> grapes) {
-        var isUpdated = false;
-        var oldGrapes = wineEntity.getGrapes();
+        boolean isUpdated = false;
+        List<Grape> oldGrapes = wineEntity.getGrapes();
         if (oldGrapes.size() != grapes.size()) {
             wineEntity.setGrapes(grapes);
             isUpdated = true;
         } else {
             for (int i = 0; i < oldGrapes.size(); i++) {
-                var oldGrape = oldGrapes.get(i);
-                var grape = grapes.get(i);
-                var grapeOldImportId = oldGrape == null ? null : oldGrape.getImportId();
-                var grapeNewImportId = grape == null ? null : grape.getImportId();
+                Grape oldGrape = oldGrapes.get(i);
+                Grape grape = grapes.get(i);
+                String grapeOldImportId = oldGrape == null ? null : oldGrape.getImportId();
+                String grapeNewImportId = grape == null ? null : grape.getImportId();
                 if (!Objects.equals(grapeOldImportId, grapeNewImportId)) {
                     wineEntity.setGrapes(grapes);
                     isUpdated = true;
@@ -423,10 +433,10 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     private boolean updateCountry(Wine wineEntity, Country country) {
-        var isUpdated = false;
-        var oldCountry = wineEntity.getCountry();
-        var countryOldImportId = oldCountry == null ? null : oldCountry.getImportId();
-        var countryNewImportId = country == null ? null : country.getImportId();
+        boolean isUpdated = false;
+        Country oldCountry = wineEntity.getCountry();
+        String countryOldImportId = oldCountry == null ? null : oldCountry.getImportId();
+        String countryNewImportId = country == null ? null : country.getImportId();
         if (!Objects.equals(countryOldImportId, countryNewImportId)) {
             wineEntity.setCountry(country);
             isUpdated = true;
@@ -439,38 +449,32 @@ public class UpdateServiceImpl implements UpdateService {
         if (updateCountry(wineEntity, newWine.getCountry())) {
             isUpdated = true;
         }
-
         if (updateBrand(wineEntity, newWine.getBrand())) {
             isUpdated = true;
         }
-
         if (updateSugar(wineEntity, newWine.getSugar())) {
             isUpdated = true;
         }
-
         if (updateColor(wineEntity, newWine.getColor())) {
             isUpdated = true;
         }
-        var oldPrice = wineEntity.getPrice();
-        var price = newWine.getPrice();
-        if (oldPrice != price) {
-            wineEntity.setPrice(price);
+        if (updatePrice(wineEntity, newWine.getPrice())) {
             isUpdated = true;
         }
-        var oldName = wineEntity.getName();
-        var name = newWine.getName();
-        if (!Objects.equals(oldName, name)) {
-            wineEntity.setName(name);
+        if (updateName(wineEntity, newWine.getName())) {
+            isUpdated = true;
+        }
+        if (updateStrength(wineEntity, newWine.getStrength())) {
+            isUpdated = true;
+        }
+        if (updateVolume(wineEntity, newWine.getVolume())) {
+            isUpdated = true;
+        }
+        if (updatePicture(wineEntity, newWine.getPictureUrl())) {
             isUpdated = true;
         }
 
-        var oldStrength = wineEntity.getStrength();
-        var alco = newWine.getStrength();
-        if (oldStrength != (alco)) {
-            wineEntity.setStrength(alco);
-            isUpdated = true;
-        }
-        var grapes = newWine.getGrapes();
+        List<Grape> grapes = newWine.getGrapes();
         if (updateGrapes(wineEntity, (ArrayList<Grape>) grapes)) {
             isUpdated = true;
         }
@@ -478,11 +482,61 @@ public class UpdateServiceImpl implements UpdateService {
         return isUpdated;
     }
 
+    private boolean updatePicture(Wine wineEntity, String pictureUrl) {
+        boolean isUpdated = false;
+        String oldPicture = wineEntity.getPictureUrl();
+        if (!Objects.equals(oldPicture, pictureUrl)) {
+            wineEntity.setPictureUrl(pictureUrl);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private boolean updateVolume(Wine wineEntity, double volume) {
+        boolean isUpdated = false;
+        double oldVolume = wineEntity.getVolume();
+        if (oldVolume != (volume)) {
+            wineEntity.setVolume(volume);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private boolean updateStrength(Wine wineEntity, double strength) {
+        boolean isUpdated = false;
+        double oldStrength = wineEntity.getStrength();
+        if (oldStrength != (strength)) {
+            wineEntity.setStrength(strength);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private boolean updateName(Wine wineEntity, String name) {
+        boolean isUpdated = false;
+        String oldName = wineEntity.getName();
+        if (!Objects.equals(oldName, name)) {
+            wineEntity.setName(name);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
+    private boolean updatePrice(Wine wineEntity, double price) {
+        boolean isUpdated = false;
+        double oldPrice = wineEntity.getPrice();
+        if (oldPrice != price) {
+            wineEntity.setPrice(price);
+            isUpdated = true;
+        }
+        return isUpdated;
+    }
+
     private boolean updateColor(Wine wineEntity, Color color) {
-        var isUpdated = false;
-        var oldColor = wineEntity.getColor();
-        var colorOldImportId = oldColor == null ? null : oldColor.getImportId();
-        var colorNewImportId = color == null ? null : color.getImportId();
+        boolean isUpdated = false;
+        Color oldColor = wineEntity.getColor();
+        String colorOldImportId = oldColor == null ? null : oldColor.getImportId();
+        String colorNewImportId = color == null ? null : color.getImportId();
         if (!Objects.equals(colorOldImportId, colorNewImportId)) {
             wineEntity.setColor(color);
             isUpdated = true;
@@ -491,10 +545,10 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     private boolean updateSugar(Wine wineEntity, Sugar sugar) {
-        var isUpdated = false;
-        var oldSugar = wineEntity.getSugar();
-        var sugarOldImportId = oldSugar == null ? null : oldSugar.getImportId();
-        var sugarNewImportId = sugar == null ? null : sugar.getImportId();
+        boolean isUpdated = false;
+        Sugar oldSugar = wineEntity.getSugar();
+        String sugarOldImportId = oldSugar == null ? null : oldSugar.getImportId();
+        String sugarNewImportId = sugar == null ? null : sugar.getImportId();
         if (!Objects.equals(sugarOldImportId, sugarNewImportId)) {
             wineEntity.setSugar(sugar);
             isUpdated = true;
@@ -503,10 +557,10 @@ public class UpdateServiceImpl implements UpdateService {
     }
 
     private boolean updateBrand(Wine wineEntity, Brand brand) {
-        var isUpdated = false;
-        var oldBrand = wineEntity.getBrand();
-        var brandOldImportId = oldBrand == null ? null : oldBrand.getImportId();
-        var brandNewImportId = brand == null ? null : brand.getImportId();
+        boolean isUpdated = false;
+        Brand oldBrand = wineEntity.getBrand();
+        String brandOldImportId = oldBrand == null ? null : oldBrand.getImportId();
+        String brandNewImportId = brand == null ? null : brand.getImportId();
         if (!Objects.equals(brandOldImportId, brandNewImportId)) {
             wineEntity.setBrand(brand);
             isUpdated = true;
@@ -514,11 +568,16 @@ public class UpdateServiceImpl implements UpdateService {
         return isUpdated;
     }
 
+    /**
+     * Получение сортов винограда по их importId в справочнике.
+     * @param newGrapes Список importId сортов винограда.
+     * @return Список сортов винограда.
+     */
     private ArrayList<Grape> getGrapes(List<String> newGrapes) {
-        var grapes = new ArrayList<Grape>();
+        ArrayList<Grape> grapes = new ArrayList<>();
         if (newGrapes != null) {
-            for (var grape : newGrapes) {
-                var newGrape = grape == null ? null : grapeRepository.findByImportId(grape);
+            for (String grape : newGrapes) {
+                Grape newGrape = grape == null ? null : grapeRepository.findByImportId(grape);
                 if (newGrape != null) {
                     grapes.add(newGrape);
                 }
@@ -526,5 +585,4 @@ public class UpdateServiceImpl implements UpdateService {
         }
         return grapes;
     }
-
 }

@@ -34,10 +34,8 @@ public class Color {
     private String importId;
 
     @ApiModelProperty(notes = "The name of the color")
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "actual")
     private Boolean actual;
 
     @Column(name = "date_rec")

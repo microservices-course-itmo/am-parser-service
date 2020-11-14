@@ -22,12 +22,12 @@ import static com.wine.to.up.am.parser.service.service.impl.SampleRepositoryObje
 public class SampleObjects {
 
     public static AmWine.Props getSampleProps() {
-        var props = new AmWine.Props();
+        AmWine.Props props = new AmWine.Props();
         props.setAlco(0.0);
         props.setBrand("brand");
         props.setColor(0L);
         props.setCountry("country");
-        var grapes = new ArrayList<String>();
+        ArrayList<String> grapes = new ArrayList<>();
         grapes.add("grape");
         props.setGrapes(grapes);
         props.setValue(0.0);
@@ -36,13 +36,13 @@ public class SampleObjects {
     }
 
     public static List<AmWine> getSampleAmWineList() {
-        var listWines = new ArrayList<AmWine>();
+        ArrayList<AmWine> listWines = new ArrayList<>();
         listWines.add(getSampleAmWine());
         return listWines;
     }
 
     public static AmWine getSampleAmWine() {
-        var amWine = new AmWine();
+        AmWine amWine = new AmWine();
 
         amWine.setId("0");
         amWine.setName("wine");
@@ -59,61 +59,61 @@ public class SampleObjects {
     }
 
     public static Dictionary.CatalogProp getSampleSugarCatalogProp() {
-        var sampleSugar = new Dictionary.CatalogProp();
+        Dictionary.CatalogProp sampleSugar = new Dictionary.CatalogProp();
         sampleSugar.setImportId("0");
         sampleSugar.setValue("0");
         return sampleSugar;
     }
 
     public static Dictionary.CatalogProp getSampleBrandCatalogProp() {
-        var sampleBrand = new Dictionary.CatalogProp();
+        Dictionary.CatalogProp sampleBrand = new Dictionary.CatalogProp();
         sampleBrand.setImportId("0");
         sampleBrand.setValue("brand");
         return sampleBrand;
     }
 
     public static Dictionary.CatalogProp getSampleCountryCatalogProp() {
-        var sampleCountry = new Dictionary.CatalogProp();
+        Dictionary.CatalogProp sampleCountry = new Dictionary.CatalogProp();
         sampleCountry.setImportId("0");
         sampleCountry.setValue("country");
         return sampleCountry;
     }
 
     public static Dictionary.CatalogProp getSampleGrapeCatalogProp() {
-        var sampleGrape = new Dictionary.CatalogProp();
+        Dictionary.CatalogProp sampleGrape = new Dictionary.CatalogProp();
         sampleGrape.setImportId("0");
         sampleGrape.setValue("grape");
         return sampleGrape;
     }
 
     public static Dictionary.CatalogProp getSampleColorCatalogProp() {
-        var sampleColor = new Dictionary.CatalogProp();
+        Dictionary.CatalogProp sampleColor = new Dictionary.CatalogProp();
         sampleColor.setImportId("0");
         sampleColor.setValue("color");
         return sampleColor;
     }
 
     public static Dictionary getSampleDictionary() {
-        var dictionary = new Dictionary();
+        Dictionary dictionary = new Dictionary();
 
-        var sugars = new HashMap<String, Dictionary.CatalogProp>();
-        var sampleSugar = getSampleSugarCatalogProp();
+        HashMap<String, Dictionary.CatalogProp> sugars = new HashMap<>();
+        Dictionary.CatalogProp sampleSugar = getSampleSugarCatalogProp();
         sugars.put("0", sampleSugar);
 
-        var colors = new HashMap<String, Dictionary.CatalogProp>();
-        var sampleColor = getSampleColorCatalogProp();
+        HashMap<String, Dictionary.CatalogProp> colors = new HashMap<>();
+        Dictionary.CatalogProp sampleColor = getSampleColorCatalogProp();
         colors.put("0", sampleColor);
 
-        var countries = new HashMap<String, Dictionary.CatalogProp>();
-        var sampleCountry = getSampleCountryCatalogProp();
+        HashMap<String, Dictionary.CatalogProp> countries = new HashMap<>();
+        Dictionary.CatalogProp sampleCountry = getSampleCountryCatalogProp();
         countries.put("0", sampleCountry);
 
-        var brands = new HashMap<String, Dictionary.CatalogProp>();
-        var sampleBrand = getSampleBrandCatalogProp();
+        HashMap<String, Dictionary.CatalogProp> brands = new HashMap<>();
+        Dictionary.CatalogProp sampleBrand = getSampleBrandCatalogProp();
         brands.put("0", sampleBrand);
 
-        var grapes = new HashMap<String, Dictionary.CatalogProp>();
-        var sampleGrape = getSampleGrapeCatalogProp();
+        HashMap<String, Dictionary.CatalogProp> grapes = new HashMap<>();
+        Dictionary.CatalogProp sampleGrape = getSampleGrapeCatalogProp();
         grapes.put("0", sampleGrape);
 
         dictionary.setBrands(brands);
@@ -125,7 +125,7 @@ public class SampleObjects {
     }
 
     public static List<Wine> getSampleWineList() {
-        var listWines = new ArrayList<Wine>();
+        ArrayList<Wine> listWines = new ArrayList<>();
         listWines.add(getSampleWineEntity());
         return listWines;
     }

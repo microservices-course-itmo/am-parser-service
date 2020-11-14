@@ -155,7 +155,7 @@ public class AmServiceImpl implements AmService {
      * Получение списка вин в "сыром" виде() с заданной страницы.
      *
      * @param page Номер страницы, с которой мы парсим и получаем вина.
-     * @return Список вин
+     * @return Список вин.
      */
     private List<AmWine> getAmWines(Long page) {
         final Document document = client.getPage(page);
@@ -198,6 +198,13 @@ public class AmServiceImpl implements AmService {
         }
     }
 
+    /**
+     * Получение нужной информации из HTML в виде строки.
+     * @param document Документ, в котором ведется поиск.
+     * @param elementName Имя HTML элемента, из которого извлекается информация.
+     * @param pattern Регулярное выражение, по которому ведется поиск.
+     * @return Необходимая информация(справочник или каталог вина).
+     */
     private String getRawValue(Document document, String elementName, Pattern pattern) {
         if (document == null) {
             return null;
