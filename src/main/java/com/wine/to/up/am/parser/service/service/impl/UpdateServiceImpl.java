@@ -1,30 +1,32 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.wine.to.up.am.parser.service.domain.entity.Country;
 import com.wine.to.up.am.parser.service.domain.entity.Brand;
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.domain.entity.Color;
+import com.wine.to.up.am.parser.service.domain.entity.Country;
+import com.wine.to.up.am.parser.service.domain.entity.DictionaryValue;
 import com.wine.to.up.am.parser.service.domain.entity.Grape;
 import com.wine.to.up.am.parser.service.domain.entity.Sugar;
+import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.repository.BrandRepository;
-import com.wine.to.up.am.parser.service.repository.WineRepository;
+import com.wine.to.up.am.parser.service.repository.ColorRepository;
 import com.wine.to.up.am.parser.service.repository.CountryRepository;
 import com.wine.to.up.am.parser.service.repository.GrapeRepository;
 import com.wine.to.up.am.parser.service.repository.SugarRepository;
-import com.wine.to.up.am.parser.service.repository.ColorRepository;
+import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -58,40 +60,53 @@ public class UpdateServiceImpl implements UpdateService {
     @Autowired
     private WineRepository wineRepository;
 
-    private int createdPropsTotal = 0;
-    private int createdWinesTotal = 0;
-    private int updatedPropsTotal = 0;
-    private int updatedWinesTotal = 0;
-    private int deletedPropsTotal = 0;
-    private int deletedWinesTotal = 0;
-
     /**
      * {@inheritDoc}
      */
     @Override
     public void updateDictionary() {
         final Dictionary dictionary = amService.getDictionary();
-        log.trace("Received {} brands", dictionary.getBrands().size());
-        log.trace("Received {} colors", dictionary.getColors().size());
-        log.trace("Received {} grapes", dictionary.getGrapes().size());
-        log.trace("Received {} sugars", dictionary.getSugars().size());
-        log.trace("Received {} countries", dictionary.getCountries().size());
-        log.info("Received {} dictionary entries", dictionary.getBrands().size() + dictionary.getColors().size() +
-                dictionary.getGrapes().size() + dictionary.getSugars().size() + dictionary.getCountries().size());
 
-        updatedPropsTotal = 0;
-        createdPropsTotal = 0;
-        deletedPropsTotal = 0;
+        updateInRepository(brandRepository, dictionary.getBrands(), Brand.class);
+        updateInRepository(colorRepository, dictionary.getColors(), Color.class);
+        updateInRepository(sugarRepository, dictionary.getSugars(), Sugar.class);
+        updateInRepository(grapeRepository, dictionary.getGrapes(), Grape.class);
+        updateInRepository(countryRepository, dictionary.getCountries(), Country.class);
+    }
 
-        updateBrands(dictionary.getBrands().values());
-        updateColors(dictionary.getColors().values());
-        updateCountries(dictionary.getCountries().values());
-        updateSugars(dictionary.getSugars().values());
-        updateGrapes(dictionary.getGrapes().values());
-
-        log.info("updated {} entries", updatedPropsTotal);
-        log.info("created {} entries", createdPropsTotal);
-        log.info("deleted {} entries", deletedPropsTotal);
+    private <T extends DictionaryValue, ID> void updateInRepository(CrudRepository<T, ID> repository,
+                                                                    Map<String, Dictionary.CatalogProp> map,
+                                                                    Class<T> aClass) {
+        int created = 0;
+        int updated = 0;
+        int markForDelete = 0;
+        List<T> entityList = StreamSupport.stream(repository.findAll().spliterator(), false).collect(Collectors.toList());
+        for (T entity : entityList) {
+            if (map.containsKey(entity.getImportId())) {
+                Dictionary.CatalogProp prop = map.get(entity.getImportId());
+                entity.setName(prop.getValue());
+                entity.setDateRec(new Date());
+                entity.setActual(true);
+                repository.save(entity);
+                map.remove(entity.getImportId());
+                updated++;
+            } else {
+                entity.setActual(false);
+                markForDelete++;
+            }
+        }
+        for (Dictionary.CatalogProp prop : map.values()) {
+            try {
+                repository.save(aClass.getConstructor(String.class, String.class, Boolean.class, Date.class)
+                        .newInstance(prop.getImportId(), prop.getValue(), true, new Date()));
+                created++;
+            } catch (Exception e) {
+                log.error("Couldn't instantiate {} with error: {}", aClass.getSimpleName(), e.getMessage());
+            }
+        }
+        log.info("created {} {}s", created, aClass.getSimpleName());
+        log.info("updated {} {}s", updated, aClass.getSimpleName());
+        log.info("mark for deleted {} {}s", markForDelete, aClass.getSimpleName());
     }
 
     /**
@@ -100,62 +115,63 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public void updateWines() {
         List<AmWine> wines = amService.getAmWines();
-        int received = wines.size();
-        log.info("Received {} wines", received);
-
-        List<Wine> wineList = StreamSupport
-                .stream(wineRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-
+        int created = 0;
+        int updated = 0;
+        int markForDeleted = 0;
+        Date now = new Date();
         for (AmWine amWine : wines) {
-            String importId = amWine.getId();
-            Wine wineEntity = null;
-            for (Wine wine : wineList) {
-                if (wine.getImportId().equals(amWine.getId())) {
-                    wineEntity = wine;
-                    break;
+            Wine wine = wineRepository.findByImportId(amWine.getId());
+            if (wine != null) {
+                wine.setName(amWine.getName());
+                wine.setPictureUrl(amWine.getPictureUrl());
+                wine.setBrand(brandRepository.findByImportId(amWine.getProps().getBrand()));
+                wine.setCountry(countryRepository.findByImportId(amWine.getProps().getCountry()));
+                wine.setVolume(amWine.getProps().getValue());
+                wine.setStrength(amWine.getProps().getAlco());
+                wine.setColor(colorRepository.findByImportId(amWine.getProps().getColor().toString()));
+                wine.setSugar(sugarRepository.findByImportId(amWine.getProps().getSugar().toString()));
+                List<String> grapes = amWine.getProps().getGrapes();
+                if (grapes != null && grapes.size() > 0) {
+                    wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
                 }
-            }
-            wineList.remove(wineEntity);
+                wine.setPrice(amWine.getPrice());
 
-            String name = amWine.getName();
-            Brand brand = getBrand(amWine.getProps().getBrand());
-            Country country = getCountry(amWine.getProps().getCountry());
-            double strength = getStrength(amWine.getProps().getAlco());
-            Color color = getColor(amWine.getProps().getColor());
-            Sugar sugar = getSugar(amWine.getProps().getSugar());
-            String pictureUrl = amWine.getPictureUrl();
-            double price = getPrice(amWine.getPrice());
-            ArrayList<Grape> grapes = getGrapes(amWine.getProps().getGrapes());
-            double volume = getVolume(amWine.getProps().getValue());
-            if (wineEntity != null) {
-                Wine newWine = Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
-                        country(country).volume(volume).strength(strength).color(color).sugar(sugar).grapes(grapes).
-                        price(price).actual(true).dateRec(new Date()).build();
-                boolean isUpdated = updateWineEntity(wineEntity, newWine);
-                if (isUpdated) {
-                    updatedWinesTotal++;
-                    wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
-                            country(country).volume(volume).strength(strength).color(color).sugar(sugar).grapes(grapes).
-                            price(price).actual(true).dateRec(new Date()).build());
-                } else {
-                    wineEntity.setDateRec(new Date());
-                    wineEntity.setActual(true);
-                    wineRepository.save(wineEntity);
-                }
+                wine.setActual(true);
+                wine.setDateRec(now);
+                wineRepository.save(wine);
+                updated ++;
             } else {
-                wineRepository.save(Wine.builder().name(name).importId(importId).pictureUrl(pictureUrl).brand(brand).
-                        country(country).volume(volume).strength(strength).color(color).sugar(sugar).grapes(grapes).
-                        price(price).actual(true).dateRec(new Date()).build());
-                createdWinesTotal++;
+                wine = Wine.builder()
+                        .importId(amWine.getId())
+                        .name(amWine.getName())
+                        .pictureUrl(amWine.getPictureUrl())
+                        .brand(brandRepository.findByImportId(amWine.getProps().getBrand()))
+                        .country(countryRepository.findByImportId(amWine.getProps().getCountry()))
+                        .volume(amWine.getProps().getValue())
+                        .strength(amWine.getProps().getAlco())
+                        .color(colorRepository.findByImportId(amWine.getProps().getColor().toString()))
+                        .sugar(sugarRepository.findByImportId(amWine.getProps().getSugar().toString()))
+                        .price(amWine.getPrice())
+                        .actual(true)
+                        .dateRec(now)
+                        .build();
+                List<String> grapes = amWine.getProps().getGrapes();
+                if (grapes != null && grapes.size() > 0) {
+                    wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
+                }
+                wineRepository.save(wine);
+                created ++;
             }
         }
-        changeActual(wineList);
-
-        log.info("updated {} wines", updatedWinesTotal);
-        log.info("created {} wines", createdWinesTotal);
-        log.info("deleted {} wines", deletedWinesTotal);
-        log.trace("{} wines are already in the database and they have not changed", received - createdWinesTotal - updatedWinesTotal - deletedWinesTotal);
+        List<Wine> wineForDeleted = wineRepository.findAllByDateRecIsNot(now);
+        for (Wine w : wineForDeleted) {
+            w.setActual(false);
+            wineRepository.save(w);
+            markForDeleted ++;
+        }
+        log.info("created {} Wines", created);
+        log.info("updated {} Wines", updated);
+        log.info("mark for deleted {} Wines", markForDeleted);
     }
 
     private double getStrength(Double strength) {
@@ -186,164 +202,9 @@ public class UpdateServiceImpl implements UpdateService {
         return sugarImportId == null ? null : sugarRepository.findByImportId(sugarImportId.toString());
     }
 
-    private void updateBrands(Collection<Dictionary.CatalogProp> brands) {
-        int created = 0;
-        int updated = 0;
-        int deleted = 0;
-
-        List<Brand> brandList = StreamSupport
-                .stream(brandRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        for (Dictionary.CatalogProp prop : brands) {
-            boolean deletionComplete = brandList.removeIf(brand -> brand.getImportId().equals(prop.getImportId()));
-            brandRepository.save(new Brand(prop.getImportId(), prop.getValue(), true, new Date()));
-            if (deletionComplete) {
-                updated++;
-            } else {
-                created++;
-            }
-        }
-        for (Brand brand : brandList) {
-            if (Boolean.TRUE.equals(brand.getActual())) {
-                brand.setActual(false);
-                brand.setDateRec(new Date());
-                brandRepository.save(brand);
-                updated++;
-            } else {
-                long timeDifference = new Date().getTime() - brand.getDateRec().getTime();
-                if (timeDifference > 1000 * 3600 * 24 * 7) {
-                    brandRepository.delete(brand);
-                    deleted++;
-                }
-            }
-        }
-        log.trace("updated {} brands", updated);
-        log.trace("created {} brands", created);
-        log.trace("deleted {} brands", deleted);
-        createdPropsTotal += created;
-        updatedPropsTotal += updated;
-        deletedPropsTotal += deleted;
-    }
-
-    private void updateColors(Collection<Dictionary.CatalogProp> colors) {
-        int created = 0;
-        int updated = 0;
-        int deleted = 0;
-
-        List<Color> colorList = StreamSupport
-                .stream(colorRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        for (Dictionary.CatalogProp prop : colors) {
-            boolean deletionComplete = colorList.removeIf(color -> color.getImportId().equals(prop.getImportId()));
-            colorRepository.save(new Color(prop.getImportId(), prop.getValue(), true, new Date()));
-            if (deletionComplete) {
-                updated++;
-            } else {
-                created++;
-            }
-        }
-        for (Color color : colorList) {
-            if (Boolean.TRUE.equals(color.getActual())) {
-                color.setActual(false);
-                color.setDateRec(new Date());
-                colorRepository.save(color);
-                updated++;
-            } else {
-                long timeDifference = new Date().getTime() - color.getDateRec().getTime();
-                if (timeDifference > 1000 * 3600 * 24 * 7) {
-                    colorRepository.delete(color);
-                    deleted++;
-                }
-            }
-        }
-        log.trace("updated {} colors", updated);
-        log.trace("created {} colors", created);
-        log.trace("deleted {} colors", deleted);
-        createdPropsTotal += created;
-        updatedPropsTotal += updated;
-        deletedPropsTotal += deleted;
-    }
-
-    private void updateCountries(Collection<Dictionary.CatalogProp> countries) {
-        int created = 0;
-        int updated = 0;
-        int deleted = 0;
-
-        List<Country> countryList = StreamSupport
-                .stream(countryRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        for (Dictionary.CatalogProp prop : countries) {
-            boolean deletionComplete = countryList.removeIf(country -> country.getImportId().equals(prop.getImportId()));
-            countryRepository.save(new Country(prop.getImportId(), prop.getValue(), true, new Date()));
-            if (deletionComplete) {
-                updated++;
-            } else {
-                created++;
-            }
-        }
-        for (Country country : countryList) {
-            if (Boolean.TRUE.equals(country.getActual())) {
-                country.setActual(false);
-                country.setDateRec(new Date());
-                countryRepository.save(country);
-                updated++;
-            } else {
-                long timeDifference = new Date().getTime() - country.getDateRec().getTime();
-                if (timeDifference > 1000 * 3600 * 24 * 7) {
-                    countryRepository.delete(country);
-                    deleted++;
-                }
-            }
-        }
-        log.trace("updated {} countries", updated);
-        log.trace("created {} countries", created);
-        log.trace("deleted {} countries", deleted);
-        createdPropsTotal += created;
-        updatedPropsTotal += updated;
-        deletedPropsTotal += deleted;
-    }
-
-    private void updateGrapes(Collection<Dictionary.CatalogProp> grapes) {
-        int created = 0;
-        int updated = 0;
-        int deleted = 0;
-
-        List<Grape> grapeList = StreamSupport
-                .stream(grapeRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        for (Dictionary.CatalogProp prop : grapes) {
-            boolean deletionComplete = grapeList.removeIf(grape -> grape.getImportId().equals(prop.getImportId()));
-            grapeRepository.save(new Grape(prop.getImportId(), prop.getValue(), true, new Date()));
-            if (deletionComplete) {
-                updated++;
-            } else {
-                created++;
-            }
-        }
-        for (Grape grape : grapeList) {
-            if (Boolean.TRUE.equals(grape.getActual())) {
-                grape.setActual(false);
-                grape.setDateRec(new Date());
-                grapeRepository.save(grape);
-                updated++;
-            } else {
-                long timeDifference = new Date().getTime() - grape.getDateRec().getTime();
-                if (timeDifference > 1000 * 3600 * 24 * 7) {
-                    grapeRepository.delete(grape);
-                    deleted++;
-                }
-            }
-        }
-        log.trace("updated {} grapes", updated);
-        log.trace("created {} grapes", created);
-        log.trace("deleted {} grapes", deleted);
-        createdPropsTotal += created;
-        updatedPropsTotal += updated;
-        deletedPropsTotal += deleted;
-    }
-
     /**
      * Смена статуса вина или его удаление из БД(если оно неактуально больше недели).
+     *
      * @param wineList Список вин.
      */
     private void changeActual(List<Wine> wineList) {
@@ -363,51 +224,8 @@ public class UpdateServiceImpl implements UpdateService {
                 }
             }
         }
-        updatedWinesTotal += updated;
-        deletedWinesTotal += deleted;
-    }
-
-    private void updateSugars(Collection<Dictionary.CatalogProp> sugars) {
-        int created = 0;
-        int updated = 0;
-        int deleted = 0;
-
-        List<Sugar> sugarList = StreamSupport
-                .stream(sugarRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
-        for (Dictionary.CatalogProp prop : sugars) {
-            boolean deletionComplete = sugarList.removeIf(sugar -> sugar.getImportId().equals(prop.getImportId()));
-            sugarRepository.save(new Sugar(prop.getImportId(), prop.getValue(), true, new Date()));
-            if (deletionComplete) {
-                updated++;
-            } else {
-                created++;
-            }
-        }
-        for (Sugar sugar : sugarList) {
-            if (Boolean.TRUE.equals(sugar.getActual())) {
-                sugar.setActual(false);
-                sugar.setDateRec(new Date());
-                sugarRepository.save(sugar);
-                updated++;
-            } else {
-                long timeDifference = new Date().getTime() - sugar.getDateRec().getTime();
-                if (timeDifference > 1000 * 3600 * 24 * 7) {
-                    sugarRepository.delete(sugar);
-                    deleted++;
-                }
-            }
-        }
-        log.trace("updated {} sugars", updated);
-        log.trace("created {} sugars", created);
-        log.trace("deleted {} sugars", deleted);
-        createdPropsTotal += created;
-        updatedPropsTotal += updated;
-        deletedPropsTotal += deleted;
-
-        log.info("updated {} entries", updatedPropsTotal);
-        log.info("created {} entries", createdPropsTotal);
-        log.info("deleted {} entries", deletedPropsTotal);
+//        updatedWinesTotal += updated;
+//        deletedWinesTotal += deleted;
     }
 
     private boolean updateGrapes(Wine wineEntity, ArrayList<Grape> grapes) {
@@ -570,6 +388,7 @@ public class UpdateServiceImpl implements UpdateService {
 
     /**
      * Получение сортов винограда по их importId в справочнике.
+     *
      * @param newGrapes Список importId сортов винограда.
      * @return Список сортов винограда.
      */
@@ -584,5 +403,16 @@ public class UpdateServiceImpl implements UpdateService {
             }
         }
         return grapes;
+    }
+
+    @Override
+    public void cleanDatabase() {
+        wineRepository.deleteAll();
+        brandRepository.deleteAll();
+        colorRepository.deleteAll();
+        countryRepository.deleteAll();
+        grapeRepository.deleteAll();
+        sugarRepository.deleteAll();
+        wineRepository.deleteAll();
     }
 }

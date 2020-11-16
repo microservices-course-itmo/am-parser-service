@@ -21,4 +21,6 @@ public interface RestService {
     void updateAll();
 
     void readAsFile(HttpServletResponse httpServletResponse) throws IOException;
+
+    void cleanDatabase();
 }

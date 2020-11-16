@@ -55,4 +55,9 @@ public class RestServiceImpl implements RestService {
         out.print(new ObjectMapper().writeValueAsString(wines));
         out.flush();
     }
+
+    @Override
+    public void cleanDatabase() {
+        updateService.cleanDatabase();
+    }
 }

@@ -22,7 +22,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @ApiModel(description = "All details about the Color")
-public class Color {
+public class Color implements DictionaryValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +47,7 @@ public class Color {
         this.name = name;
     }
 
-    public Color(String importId, String name, boolean actual, Date dateRec) {
+    public Color(String importId, String name, Boolean actual, Date dateRec) {
         this.importId = importId;
         this.name = name;
         this.actual = actual;

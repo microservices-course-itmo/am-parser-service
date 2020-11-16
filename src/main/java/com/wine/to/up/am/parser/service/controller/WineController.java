@@ -72,4 +72,10 @@ public class WineController {
     public void readAsFile(HttpServletResponse httpServletResponse) throws IOException {
         restService.readAsFile(httpServletResponse);
     }
+
+    @ApiOperation(value = "clean all database")
+    @PostMapping("/clean")
+    public void cleanDatabase() {
+        restService.cleanDatabase();
+    }
 }

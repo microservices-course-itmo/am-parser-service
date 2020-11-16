@@ -22,7 +22,7 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @ApiModel(description = "All details about the Sugar")
-public class Sugar {
+public class Sugar implements DictionaryValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +47,7 @@ public class Sugar {
         this.name = name;
     }
 
-    public Sugar(String importId, String name, boolean actual, Date dateRec) {
+    public Sugar(String importId, String name, Boolean actual, Date dateRec) {
         this.importId = importId;
         this.name = name;
         this.actual = actual;

@@ -22,7 +22,7 @@ import java.util.Date;
 @Getter
 @NoArgsConstructor
 @ApiModel(description = "All details about the Grape")
-public class Grape {
+public class Grape implements DictionaryValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,7 +47,7 @@ public class Grape {
         this.name = name;
     }
 
-    public Grape(String importId, String name, boolean actual, Date dateRec) {
+    public Grape(String importId, String name, Boolean actual, Date dateRec) {
         this.importId = importId;
         this.name = name;
         this.actual = actual;

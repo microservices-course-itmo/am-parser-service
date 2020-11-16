@@ -15,4 +15,6 @@ public interface UpdateService {
      * Получение вин и обновление информации в БД(добавление вина или изменение полей вина)
      */
     void updateWines();
+
+    void cleanDatabase();
 }
