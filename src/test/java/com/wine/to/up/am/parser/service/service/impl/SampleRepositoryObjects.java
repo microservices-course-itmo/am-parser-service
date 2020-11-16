@@ -38,7 +38,7 @@ public class SampleRepositoryObjects {
     }
 
     public static List<Grape> getSampleListGrapeEntity() {
-        var list = new ArrayList<Grape>();
+        ArrayList<Grape> list = new ArrayList<>();
         list.add(getSampleGrapeEntity());
         return list;
     }

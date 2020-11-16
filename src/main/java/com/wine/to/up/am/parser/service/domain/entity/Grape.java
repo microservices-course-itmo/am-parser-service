@@ -33,11 +33,9 @@ public class Grape {
     @ApiModelProperty(notes = "The import ID")
     private String importId;
 
-    @Column(name = "name")
     @ApiModelProperty(notes = "The name of the grape")
     private String name;
 
-    @Column(name = "actual")
     private Boolean actual;
 
     @Column(name = "date_rec")

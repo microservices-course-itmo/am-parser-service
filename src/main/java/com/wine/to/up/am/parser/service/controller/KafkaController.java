@@ -31,6 +31,9 @@ public class KafkaController {
 
     private static final String SHOP_LINK = "amwine.com";
 
+    /**
+     * Отправка всех вин из БД в Кафку.
+     */
     @PostMapping("/sendAllWines")
     public void sendAllWines() {
         long startTime = new Date().getTime();

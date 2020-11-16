@@ -81,7 +81,6 @@ public class Wine {
     @ApiModelProperty(notes = "The price of the bottle")
     private double price;
 
-    @Column(name = "actual")
     private Boolean actual;
 
     @Column(name = "date_rec")

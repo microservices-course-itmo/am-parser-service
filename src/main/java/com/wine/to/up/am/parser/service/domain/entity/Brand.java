@@ -34,10 +34,8 @@ public class Brand {
     private String importId;
 
     @ApiModelProperty(notes = "The name of the brand")
-    @Column(name = "name")
     private String name;
 
-    @Column(name = "actual")
     private Boolean actual;
 
     @Column(name = "date_rec")

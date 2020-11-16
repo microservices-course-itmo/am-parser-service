@@ -1,6 +1,7 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.repository.WineRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,9 +40,9 @@ public class SearchServiceImplTest {
         List<Wine> wines = getSampleWineList();
         when(wineRepositoryMock.findAllByPriceLessThan(5d)).thenReturn(wines);
         when(wineRepositoryMock.findAllByPriceLessThan(-5d)).thenReturn(new ArrayList<>());
-        var listWines = searchService.findAllLessByRub(5d);
+        List<WineDto> listWines = searchService.findAllLessByRub(5d);
         assertEquals(1, listWines.size());
-        var wine = listWines.get(0);
+        WineDto wine = listWines.get(0);
         assertEquals("wine", wine.getName());
         assertEquals("http", wine.getPicture());
         assertEquals("color", wine.getColor());
@@ -51,7 +52,7 @@ public class SearchServiceImplTest {
         assertEquals("grape", wine.getGrapes().get(0));
         assertEquals((Double) 0.0, wine.getAlco());
         assertEquals((Double) 0.0, wine.getValue());
-        var listWinesEmpty = searchService.findAllLessByRub(-5d);
+        List<WineDto> listWinesEmpty = searchService.findAllLessByRub(-5d);
         assertEquals(0, listWinesEmpty.size());
     }
 }
