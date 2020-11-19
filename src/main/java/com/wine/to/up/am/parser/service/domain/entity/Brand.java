@@ -27,7 +27,7 @@ public class Brand implements DictionaryValue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(notes = "The database generated brand ID")
-    private long id;
+    private Long id;
 
     @ApiModelProperty(notes = "The import ID")
     @Column(name = "import_id")

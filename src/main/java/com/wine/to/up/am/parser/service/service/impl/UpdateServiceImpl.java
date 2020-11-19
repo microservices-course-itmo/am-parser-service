@@ -80,13 +80,14 @@ public class UpdateServiceImpl implements UpdateService {
         int created = 0;
         int updated = 0;
         int markForDelete = 0;
-        List<T> entityList = StreamSupport.stream(repository.findAll().spliterator(), false).collect(Collectors.toList());
+        final List<T> entityList = StreamSupport.stream(repository.findAll().spliterator(), false).collect(Collectors.toList());
         for (T entity : entityList) {
             if (map.containsKey(entity.getImportId())) {
                 Dictionary.CatalogProp prop = map.get(entity.getImportId());
                 entity.setName(prop.getValue());
                 entity.setDateRec(new Date());
                 entity.setActual(true);
+
                 repository.save(entity);
                 map.remove(entity.getImportId());
                 updated++;
@@ -104,9 +105,10 @@ public class UpdateServiceImpl implements UpdateService {
                 log.error("Couldn't instantiate {} with error: {}", aClass.getSimpleName(), e.getMessage());
             }
         }
-        log.info("created {} {}s", created, aClass.getSimpleName());
-        log.info("updated {} {}s", updated, aClass.getSimpleName());
-        log.info("mark for deleted {} {}s", markForDelete, aClass.getSimpleName());
+        final String name = aClass.getSimpleName();
+        log.info("created {} {}s", created, name);
+        log.info("updated {} {}s", updated, name);
+        log.info("mark for deleted {} {}s", markForDelete, name);
     }
 
     /**
@@ -122,44 +124,11 @@ public class UpdateServiceImpl implements UpdateService {
         for (AmWine amWine : wines) {
             Wine wine = wineRepository.findByImportId(amWine.getId());
             if (wine != null) {
-                wine.setName(amWine.getName());
-                wine.setPictureUrl(amWine.getPictureUrl());
-                wine.setBrand(brandRepository.findByImportId(amWine.getProps().getBrand()));
-                wine.setCountry(countryRepository.findByImportId(amWine.getProps().getCountry()));
-                wine.setVolume(amWine.getProps().getValue());
-                wine.setStrength(amWine.getProps().getAlco());
-                wine.setColor(colorRepository.findByImportId(amWine.getProps().getColor().toString()));
-                wine.setSugar(sugarRepository.findByImportId(amWine.getProps().getSugar().toString()));
-                List<String> grapes = amWine.getProps().getGrapes();
-                if (grapes != null && grapes.size() > 0) {
-                    wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
-                }
-                wine.setPrice(amWine.getPrice());
-
-                wine.setActual(true);
-                wine.setDateRec(now);
-                wineRepository.save(wine);
+                saveWine(wine, amWine, now);
                 updated ++;
             } else {
-                wine = Wine.builder()
-                        .importId(amWine.getId())
-                        .name(amWine.getName())
-                        .pictureUrl(amWine.getPictureUrl())
-                        .brand(brandRepository.findByImportId(amWine.getProps().getBrand()))
-                        .country(countryRepository.findByImportId(amWine.getProps().getCountry()))
-                        .volume(amWine.getProps().getValue())
-                        .strength(amWine.getProps().getAlco())
-                        .color(colorRepository.findByImportId(amWine.getProps().getColor().toString()))
-                        .sugar(sugarRepository.findByImportId(amWine.getProps().getSugar().toString()))
-                        .price(amWine.getPrice())
-                        .actual(true)
-                        .dateRec(now)
-                        .build();
-                List<String> grapes = amWine.getProps().getGrapes();
-                if (grapes != null && grapes.size() > 0) {
-                    wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
-                }
-                wineRepository.save(wine);
+                wine = new Wine();
+                saveWine(wine, amWine, now);
                 created ++;
             }
         }
@@ -167,242 +136,49 @@ public class UpdateServiceImpl implements UpdateService {
         for (Wine w : wineForDeleted) {
             w.setActual(false);
             wineRepository.save(w);
-            markForDeleted ++;
+            markForDeleted++;
         }
         log.info("created {} Wines", created);
         log.info("updated {} Wines", updated);
         log.info("mark for deleted {} Wines", markForDeleted);
     }
 
-    private double getStrength(Double strength) {
-        return strength == null ? 0.0 : strength;
+    private void saveWine(Wine wine, AmWine amWine, Date date) {
+        wine.setImportId(amWine.getId());
+        wine.setName(amWine.getName());
+        wine.setPictureUrl(amWine.getPictureUrl());
+        wine.setPrice(amWine.getPrice());
+
+        fillPropsValue(wine, amWine);
+
+        wine.setActual(true);
+        wine.setDateRec(date);
+
+        wineRepository.save(wine);
     }
 
-    private double getPrice(Double price) {
-        return price == null ? 0.0 : price;
-    }
-
-    private double getVolume(Double volume) {
-        return volume == null ? 0.0 : volume;
-    }
-
-    private Brand getBrand(String brandName) {
-        return brandName == null ? null : brandRepository.findByName(brandName);
-    }
-
-    private Country getCountry(String countryImportId) {
-        return countryImportId == null ? null : countryRepository.findByImportId(countryImportId);
-    }
-
-    private Color getColor(Long colorImportId) {
-        return colorImportId == null ? null : colorRepository.findByImportId(colorImportId.toString());
-    }
-
-    private Sugar getSugar(Long sugarImportId) {
-        return sugarImportId == null ? null : sugarRepository.findByImportId(sugarImportId.toString());
-    }
-
-    /**
-     * Смена статуса вина или его удаление из БД(если оно неактуально больше недели).
-     *
-     * @param wineList Список вин.
-     */
-    private void changeActual(List<Wine> wineList) {
-        int updated = 0;
-        int deleted = 0;
-        for (Wine wine : wineList) {
-            if (Boolean.TRUE.equals(wine.getActual())) {
-                wine.setActual(false);
-                wine.setDateRec(new Date());
-                wineRepository.save(wine);
-                updated++;
-            } else {
-                long timeDifference = new Date().getTime() - wine.getDateRec().getTime();
-                if (timeDifference > 1000 * 3600 * 24 * 7) {
-                    wineRepository.delete(wine);
-                    deleted++;
-                }
+    private void fillPropsValue(Wine wine, AmWine amWine) {
+        if (amWine.getProps() != null) {
+            final AmWine.Props props = amWine.getProps();
+            if (props.getBrand() != null) {
+                wine.setBrand(brandRepository.findByImportId(amWine.getProps().getBrand()));
+            }
+            if (props.getCountry() != null) {
+                wine.setCountry(countryRepository.findByImportId(amWine.getProps().getCountry()));
+            }
+            wine.setVolume(props.getValue());
+            wine.setStrength(props.getAlco());
+            if (props.getColor() != null) {
+                wine.setColor(colorRepository.findByImportId(props.getColor().toString()));
+            }
+            if (props.getSugar() != null) {
+                wine.setSugar(sugarRepository.findByImportId(props.getSugar().toString()));
+            }
+            List<String> grapes = props.getGrapes();
+            if (grapes != null && grapes.size() > 0) {
+                wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
             }
         }
-//        updatedWinesTotal += updated;
-//        deletedWinesTotal += deleted;
-    }
-
-    private boolean updateGrapes(Wine wineEntity, ArrayList<Grape> grapes) {
-        boolean isUpdated = false;
-        List<Grape> oldGrapes = wineEntity.getGrapes();
-        if (oldGrapes.size() != grapes.size()) {
-            wineEntity.setGrapes(grapes);
-            isUpdated = true;
-        } else {
-            for (int i = 0; i < oldGrapes.size(); i++) {
-                Grape oldGrape = oldGrapes.get(i);
-                Grape grape = grapes.get(i);
-                String grapeOldImportId = oldGrape == null ? null : oldGrape.getImportId();
-                String grapeNewImportId = grape == null ? null : grape.getImportId();
-                if (!Objects.equals(grapeOldImportId, grapeNewImportId)) {
-                    wineEntity.setGrapes(grapes);
-                    isUpdated = true;
-                    break;
-                }
-            }
-        }
-        return isUpdated;
-    }
-
-    private boolean updateCountry(Wine wineEntity, Country country) {
-        boolean isUpdated = false;
-        Country oldCountry = wineEntity.getCountry();
-        String countryOldImportId = oldCountry == null ? null : oldCountry.getImportId();
-        String countryNewImportId = country == null ? null : country.getImportId();
-        if (!Objects.equals(countryOldImportId, countryNewImportId)) {
-            wineEntity.setCountry(country);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updateWineEntity(Wine wineEntity, Wine newWine) {
-        boolean isUpdated = false;
-        if (updateCountry(wineEntity, newWine.getCountry())) {
-            isUpdated = true;
-        }
-        if (updateBrand(wineEntity, newWine.getBrand())) {
-            isUpdated = true;
-        }
-        if (updateSugar(wineEntity, newWine.getSugar())) {
-            isUpdated = true;
-        }
-        if (updateColor(wineEntity, newWine.getColor())) {
-            isUpdated = true;
-        }
-        if (updatePrice(wineEntity, newWine.getPrice())) {
-            isUpdated = true;
-        }
-        if (updateName(wineEntity, newWine.getName())) {
-            isUpdated = true;
-        }
-        if (updateStrength(wineEntity, newWine.getStrength())) {
-            isUpdated = true;
-        }
-        if (updateVolume(wineEntity, newWine.getVolume())) {
-            isUpdated = true;
-        }
-        if (updatePicture(wineEntity, newWine.getPictureUrl())) {
-            isUpdated = true;
-        }
-
-        List<Grape> grapes = newWine.getGrapes();
-        if (updateGrapes(wineEntity, (ArrayList<Grape>) grapes)) {
-            isUpdated = true;
-        }
-
-        return isUpdated;
-    }
-
-    private boolean updatePicture(Wine wineEntity, String pictureUrl) {
-        boolean isUpdated = false;
-        String oldPicture = wineEntity.getPictureUrl();
-        if (!Objects.equals(oldPicture, pictureUrl)) {
-            wineEntity.setPictureUrl(pictureUrl);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updateVolume(Wine wineEntity, double volume) {
-        boolean isUpdated = false;
-        double oldVolume = wineEntity.getVolume();
-        if (oldVolume != (volume)) {
-            wineEntity.setVolume(volume);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updateStrength(Wine wineEntity, double strength) {
-        boolean isUpdated = false;
-        double oldStrength = wineEntity.getStrength();
-        if (oldStrength != (strength)) {
-            wineEntity.setStrength(strength);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updateName(Wine wineEntity, String name) {
-        boolean isUpdated = false;
-        String oldName = wineEntity.getName();
-        if (!Objects.equals(oldName, name)) {
-            wineEntity.setName(name);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updatePrice(Wine wineEntity, double price) {
-        boolean isUpdated = false;
-        double oldPrice = wineEntity.getPrice();
-        if (oldPrice != price) {
-            wineEntity.setPrice(price);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updateColor(Wine wineEntity, Color color) {
-        boolean isUpdated = false;
-        Color oldColor = wineEntity.getColor();
-        String colorOldImportId = oldColor == null ? null : oldColor.getImportId();
-        String colorNewImportId = color == null ? null : color.getImportId();
-        if (!Objects.equals(colorOldImportId, colorNewImportId)) {
-            wineEntity.setColor(color);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updateSugar(Wine wineEntity, Sugar sugar) {
-        boolean isUpdated = false;
-        Sugar oldSugar = wineEntity.getSugar();
-        String sugarOldImportId = oldSugar == null ? null : oldSugar.getImportId();
-        String sugarNewImportId = sugar == null ? null : sugar.getImportId();
-        if (!Objects.equals(sugarOldImportId, sugarNewImportId)) {
-            wineEntity.setSugar(sugar);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    private boolean updateBrand(Wine wineEntity, Brand brand) {
-        boolean isUpdated = false;
-        Brand oldBrand = wineEntity.getBrand();
-        String brandOldImportId = oldBrand == null ? null : oldBrand.getImportId();
-        String brandNewImportId = brand == null ? null : brand.getImportId();
-        if (!Objects.equals(brandOldImportId, brandNewImportId)) {
-            wineEntity.setBrand(brand);
-            isUpdated = true;
-        }
-        return isUpdated;
-    }
-
-    /**
-     * Получение сортов винограда по их importId в справочнике.
-     *
-     * @param newGrapes Список importId сортов винограда.
-     * @return Список сортов винограда.
-     */
-    private ArrayList<Grape> getGrapes(List<String> newGrapes) {
-        ArrayList<Grape> grapes = new ArrayList<>();
-        if (newGrapes != null) {
-            for (String grape : newGrapes) {
-                Grape newGrape = grape == null ? null : grapeRepository.findByImportId(grape);
-                if (newGrape != null) {
-                    grapes.add(newGrape);
-                }
-            }
-        }
-        return grapes;
     }
 
     @Override

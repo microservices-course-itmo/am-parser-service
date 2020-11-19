@@ -38,7 +38,7 @@ public class Wine {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     @ApiModelProperty(notes = "The database generated wine ID")
-    private long id;
+    private Long id;
 
     @Column(name = "import_id")
     @ApiModelProperty(notes = "The import ID")
@@ -62,10 +62,10 @@ public class Wine {
     private Country country;
 
     @ApiModelProperty(notes = "Volume of the bottle")
-    private double volume;
+    private Double volume;
 
     @ApiModelProperty(notes = "Percent of the alcohol")
-    private double strength;
+    private Double strength;
 
     @ManyToOne
     @JoinColumn(referencedColumnName = "id")
@@ -79,7 +79,7 @@ public class Wine {
     private List<Grape> grapes;
 
     @ApiModelProperty(notes = "The price of the bottle")
-    private double price;
+    private Double price;
 
     private Boolean actual;
 
