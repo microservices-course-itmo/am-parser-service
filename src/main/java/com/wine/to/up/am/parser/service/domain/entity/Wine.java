@@ -45,6 +45,7 @@ public class Wine {
     private String importId;
 
     @ApiModelProperty(notes = "The name of the wine")
+    @Column(nullable = false)
     private String name;
 
     @Column(name = "picture_url")
@@ -62,9 +63,11 @@ public class Wine {
     private Country country;
 
     @ApiModelProperty(notes = "Volume of the bottle")
+    @Column(nullable = true)
     private Double volume;
 
     @ApiModelProperty(notes = "Percent of the alcohol")
+    @Column(nullable = true)
     private Double strength;
 
     @ManyToOne
@@ -79,8 +82,10 @@ public class Wine {
     private List<Grape> grapes;
 
     @ApiModelProperty(notes = "The price of the bottle")
+    @Column(nullable = true)
     private Double price;
 
+    @Column(nullable = false)
     private Boolean actual;
 
     @Column(name = "date_rec")

@@ -161,7 +161,7 @@ public class UpdateServiceImpl implements UpdateService {
         if (amWine.getProps() != null) {
             final AmWine.Props props = amWine.getProps();
             if (props.getBrand() != null) {
-                wine.setBrand(brandRepository.findByImportId(amWine.getProps().getBrand()));
+                wine.setBrand(brandRepository.findByName(amWine.getProps().getBrand()));
             }
             if (props.getCountry() != null) {
                 wine.setCountry(countryRepository.findByImportId(amWine.getProps().getCountry()));
