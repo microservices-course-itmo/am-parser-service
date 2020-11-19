@@ -108,6 +108,7 @@ public class AmServiceImpl implements AmService {
             pagesProcessed[(int) pageCopy - 1] = true;
             if (!newWines.isEmpty()) {
                 successfulParseCount++;
+                log.info("Page {} parsed successfully", page);
                 pagesWithParsedWines[(int) pageCopy - 1] = true;
             }
         }

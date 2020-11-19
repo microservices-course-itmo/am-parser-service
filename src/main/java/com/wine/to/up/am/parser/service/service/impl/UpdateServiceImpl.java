@@ -145,18 +145,18 @@ public class UpdateServiceImpl implements UpdateService {
                         .importId(amWine.getId())
                         .name(amWine.getName())
                         .pictureUrl(amWine.getPictureUrl())
-                        .brand(brandRepository.findByImportId(amWine.getProps().getBrand()))
-                        .country(countryRepository.findByImportId(amWine.getProps().getCountry()))
-                        .volume(amWine.getProps().getValue())
-                        .strength(amWine.getProps().getAlco())
-                        .color(colorRepository.findByImportId(amWine.getProps().getColor().toString()))
-                        .sugar(sugarRepository.findByImportId(amWine.getProps().getSugar().toString()))
-                        .price(amWine.getPrice())
+                        .brand(amWine.getProps() != null ? brandRepository.findByImportId(amWine.getProps().getBrand()) : null)
+                        .country(amWine.getProps() != null ? countryRepository.findByImportId(amWine.getProps().getCountry()) : null)
+                        .volume(amWine.getProps() != null && amWine.getProps().getValue() != null ? amWine.getProps().getValue() : 0d)
+                        .strength(amWine.getProps() != null && amWine.getProps().getAlco() != null ? amWine.getProps().getAlco() : 0d)
+                        .color(amWine.getProps() != null && amWine.getProps().getColor() != null ? colorRepository.findByImportId(amWine.getProps().getColor().toString()) : null)
+                        .sugar(amWine.getProps() != null && amWine.getProps().getSugar() != null ? sugarRepository.findByImportId(amWine.getProps().getSugar().toString()) : null)
+                        .price(amWine.getPrice() != null ? amWine.getPrice() : 0d)
                         .actual(true)
                         .dateRec(now)
                         .build();
-                List<String> grapes = amWine.getProps().getGrapes();
-                if (grapes != null && grapes.size() > 0) {
+                List<String> grapes = amWine.getProps() != null ? amWine.getProps().getGrapes() : null;
+                if (grapes != null && !grapes.isEmpty()) {
                     wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
                 }
                 wineRepository.save(wine);
