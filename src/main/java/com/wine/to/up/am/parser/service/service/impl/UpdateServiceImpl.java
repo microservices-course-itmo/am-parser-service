@@ -18,16 +18,12 @@ import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -39,26 +35,35 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class UpdateServiceImpl implements UpdateService {
 
-    @Resource
-    private AmService amService;
+    private final AmService amService;
 
-    @Autowired
-    private BrandRepository brandRepository;
+    private final BrandRepository brandRepository;
 
-    @Autowired
-    private ColorRepository colorRepository;
+    private final ColorRepository colorRepository;
 
-    @Autowired
-    private CountryRepository countryRepository;
+    private final CountryRepository countryRepository;
 
-    @Autowired
-    private GrapeRepository grapeRepository;
+    private final GrapeRepository grapeRepository;
 
-    @Autowired
-    private SugarRepository sugarRepository;
+    private final SugarRepository sugarRepository;
 
-    @Autowired
-    private WineRepository wineRepository;
+    private final WineRepository wineRepository;
+
+    public UpdateServiceImpl(AmService amService,
+                             BrandRepository brandRepository,
+                             ColorRepository colorRepository,
+                             CountryRepository countryRepository,
+                             GrapeRepository grapeRepository,
+                             SugarRepository sugarRepository,
+                             WineRepository wineRepository) {
+        this.amService = amService;
+        this.brandRepository = brandRepository;
+        this.colorRepository = colorRepository;
+        this.countryRepository = countryRepository;
+        this.grapeRepository = grapeRepository;
+        this.sugarRepository = sugarRepository;
+        this.wineRepository = wineRepository;
+    }
 
     /**
      * {@inheritDoc}
@@ -74,7 +79,7 @@ public class UpdateServiceImpl implements UpdateService {
         updateInRepository(countryRepository, dictionary.getCountries(), Country.class);
     }
 
-    private <T extends DictionaryValue, ID> void updateInRepository(CrudRepository<T, ID> repository,
+    private <T extends DictionaryValue, S> void updateInRepository(CrudRepository<T, S> repository,
                                                                     Map<String, Dictionary.CatalogProp> map,
                                                                     Class<T> aClass) {
         int created = 0;
@@ -125,11 +130,11 @@ public class UpdateServiceImpl implements UpdateService {
             Wine wine = wineRepository.findByImportId(amWine.getId());
             if (wine != null) {
                 saveWine(wine, amWine, now);
-                updated ++;
+                updated++;
             } else {
                 wine = new Wine();
                 saveWine(wine, amWine, now);
-                created ++;
+                created++;
             }
         }
         List<Wine> wineForDeleted = wineRepository.findAllByDateRecIsNot(now);
@@ -175,7 +180,7 @@ public class UpdateServiceImpl implements UpdateService {
                 wine.setSugar(sugarRepository.findByImportId(props.getSugar().toString()));
             }
             List<String> grapes = props.getGrapes();
-            if (grapes != null && grapes.size() > 0) {
+            if (grapes != null && !grapes.isEmpty()) {
                 wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
             }
         }

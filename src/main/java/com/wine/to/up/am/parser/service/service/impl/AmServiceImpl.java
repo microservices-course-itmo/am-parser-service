@@ -16,7 +16,6 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -33,8 +32,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class AmServiceImpl implements AmService {
 
-    @Resource
-    private AmClient client;
+    private final AmClient client;
 
     private static final String DICT_NAME = "catalogProps";
 
@@ -56,7 +54,8 @@ public class AmServiceImpl implements AmService {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public AmServiceImpl() {
+    public AmServiceImpl(AmClient client) {
+        this.client = client;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 

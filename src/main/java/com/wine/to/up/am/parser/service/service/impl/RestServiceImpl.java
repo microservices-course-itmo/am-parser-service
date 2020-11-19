@@ -7,7 +7,6 @@ import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,11 +19,14 @@ import java.util.List;
 @Service
 public class RestServiceImpl implements RestService {
 
-    @Resource
-    private SearchService searchService;
+    private final SearchService searchService;
 
-    @Resource
-    private UpdateService updateService;
+    private final UpdateService updateService;
+
+    public RestServiceImpl(SearchService searchService, UpdateService updateService) {
+        this.searchService = searchService;
+        this.updateService = updateService;
+    }
 
     @Override
     public List<WineDto> findAllLessByRub(Double price) {

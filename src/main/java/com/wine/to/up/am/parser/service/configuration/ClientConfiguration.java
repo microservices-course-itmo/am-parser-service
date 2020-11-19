@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class ClientConfig {
+public class ClientConfiguration {
 
     @Bean
     public AmClient amClient() {
@@ -16,8 +16,8 @@ public class ClientConfig {
     }
 
     @Bean
-    public AmService amService() {
-        return new AmServiceImpl();
+    public AmService amService(AmClient amClient) {
+        return new AmServiceImpl(amClient);
     }
 
 }

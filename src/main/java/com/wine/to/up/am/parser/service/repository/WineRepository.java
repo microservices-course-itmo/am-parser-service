@@ -1,7 +1,7 @@
 package com.wine.to.up.am.parser.service.repository;
 
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -12,7 +12,7 @@ import java.util.List;
  * @since : 29.09.2020, вт
  **/
 @Repository
-public interface WineRepository extends CrudRepository<Wine, Long> {
+public interface WineRepository extends JpaRepository<Wine, Long> {
 
     List<Wine> findAllByPriceLessThan(Double price);
 

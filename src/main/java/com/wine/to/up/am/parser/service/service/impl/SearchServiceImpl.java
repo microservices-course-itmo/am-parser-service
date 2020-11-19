@@ -7,13 +7,11 @@ import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ColorConverter;
 import com.wine.to.up.am.parser.service.util.SugarConverter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 /**
  * @author : SSyrova
@@ -22,8 +20,11 @@ import java.util.stream.StreamSupport;
 @Service
 public class SearchServiceImpl implements SearchService {
 
-    @Autowired
-    private WineRepository wineRepository;
+    private final WineRepository wineRepository;
+
+    public SearchServiceImpl(WineRepository wineRepository) {
+        this.wineRepository = wineRepository;
+    }
 
     /**
      * {@inheritDoc}
@@ -48,9 +49,7 @@ public class SearchServiceImpl implements SearchService {
 
     @Override
     public List<WineDto> findAll() {
-        List<Wine> wines = StreamSupport
-                .stream(wineRepository.findAll().spliterator(), false)
-                .collect(Collectors.toList());
+        List<Wine> wines = wineRepository.findAll();
         return wines
                 .stream()
                 .map(e -> WineDto.builder()
