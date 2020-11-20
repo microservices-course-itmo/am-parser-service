@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
 import lombok.extern.slf4j.Slf4j;
@@ -16,13 +15,11 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * @author : SSyrova
@@ -57,30 +54,6 @@ public class AmServiceImpl implements AmService {
     public AmServiceImpl(AmClient client) {
         this.client = client;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<WineDto> getWines() {
-        Dictionary dictionary = getDictionary();
-        List<AmWine> wines = getAmWines();
-        List<WineDto> wineDtos = new ArrayList<>();
-        for (AmWine amWine : wines) {
-            WineDto wineDto = WineDto.builder()
-                    .name(amWine.getName())
-                    .picture(amWine.getPictureUrl())
-                    .alco(amWine.getProps().getAlco())
-                    .color(dictionary.getColors().get(amWine.getProps().getColor().toString()).getValue())
-                    .country(dictionary.getCountries().get(amWine.getProps().getCountry()).getValue())
-                    .grapes(amWine.getProps().getGrapes().stream().map(e -> dictionary.getGrapes().get(e).getValue()).collect(Collectors.toList()))
-                    .sugar(dictionary.getSugars().get(amWine.getProps().getSugar().toString()).getValue())
-                    .value(amWine.getProps().getValue())
-                    .build();
-            wineDtos.add(wineDto);
-        }
-        return wineDtos;
     }
 
     /**
