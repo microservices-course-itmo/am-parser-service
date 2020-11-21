@@ -8,7 +8,7 @@ import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.schema.ParserApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,11 +30,12 @@ public class KafkaController {
 
 
     private static final String SHOP_LINK = "amwine.com";
+    private static final int CHUNK_SIZE = 1000;
 
     /**
      * Отправка всех вин из БД в Кафку.
      */
-    @PostMapping("/sendAllWines")
+    @GetMapping("/sendAllWines")
     public void sendAllWines() {
         long startTime = new Date().getTime();
         log.info("Start method at {}", startTime);
@@ -45,13 +46,15 @@ public class KafkaController {
             for (WineDto wineDto : wineDtoList) {
                 wines.add(getProtobufWine(wineDto));
             }
+            List<List<ParserApi.Wine>> chunks = chunkify(wines, CHUNK_SIZE);
 
-            ParserApi.WineParsedEvent message = ParserApi.WineParsedEvent.newBuilder()
-                    .setShopLink(SHOP_LINK)
-                    .addAllWines(wines)
-                    .build();
-
-            kafkaMessageSender.sendMessage(message);
+            for(List<ParserApi.Wine> chunk : chunks) {
+                ParserApi.WineParsedEvent message = ParserApi.WineParsedEvent.newBuilder()
+                        .setShopLink(SHOP_LINK)
+                        .addAllWines(chunk)
+                        .build();
+                kafkaMessageSender.sendMessage(message);
+            }
         } catch (Exception exception) {
             log.error("Can't export wines list", exception);
         }
@@ -89,5 +92,16 @@ public class KafkaController {
         builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
         builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
         return builder.build();
+    }
+
+    public List<List<ParserApi.Wine>> chunkify(List<ParserApi.Wine> list, int chunkSize){
+        List<List<ParserApi.Wine>> chunks = new ArrayList<>();
+
+        for (int i = 0; i < list.size(); i += chunkSize) {
+            List<ParserApi.Wine> chunk = new ArrayList<>(list.subList(i, Math.min(list.size(), i + chunkSize)));
+            chunks.add(chunk);
+        }
+
+        return chunks;
     }
 }
