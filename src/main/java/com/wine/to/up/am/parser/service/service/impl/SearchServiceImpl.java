@@ -7,6 +7,7 @@ import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ColorConverter;
 import com.wine.to.up.am.parser.service.util.SugarConverter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
  * @author : SSyrova
  * @since : 08.10.2020, чт
  **/
-@Service
+@Slf4j
 public class SearchServiceImpl implements SearchService {
 
     private final WineRepository wineRepository;

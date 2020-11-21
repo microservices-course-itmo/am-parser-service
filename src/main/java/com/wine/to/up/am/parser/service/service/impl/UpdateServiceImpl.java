@@ -19,7 +19,6 @@ import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.repository.CrudRepository;
-import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
@@ -32,7 +31,6 @@ import java.util.stream.StreamSupport;
  * @author : SSyrova
  * @since : 08.10.2020, чт
  **/
-@Service
 @Slf4j
 public class UpdateServiceImpl implements UpdateService {
 

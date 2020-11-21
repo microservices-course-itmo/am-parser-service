@@ -8,36 +8,41 @@ import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
-import com.wine.to.up.am.parser.service.service.ProxyService;
+import com.wine.to.up.am.parser.service.util.Partition;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import javax.servlet.http.Part;
 import java.net.Proxy;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 
 /**
  * @author : SSyrova
  * @since : 08.10.2020, чт
  **/
-@Service
 @Slf4j
 public class AmServiceImpl implements AmService {
 
     private final AmClient client;
-
-    private final ProxyService proxyService;
 
     private static final String DICT_NAME = "catalogProps";
 
@@ -59,39 +64,69 @@ public class AmServiceImpl implements AmService {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public AmServiceImpl(AmClient client, ProxyService proxyService) {
+    public AmServiceImpl(AmClient client) {
         this.client = client;
-        this.proxyService = proxyService;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    /**
+    /** 15:14:40
      * {@inheritDoc}
      */
     public void parseAmWines(OnPageParseCallback callback) {
         Long pages = getCatalogPagesAmount();
-        AtomicLong page = new AtomicLong(1);
+        final int chunks = 50;
+        Partition<Long> partitions = new Partition<>(LongStream.range(0, pages).boxed().collect(Collectors.toList()), chunks);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(20);
-        Callable<String> callableTask = () -> {
-            while (page.longValue() <= pages) {
-                Long currentPage = page.getAndIncrement();
-                Proxy proxy = proxyService.nextProxy();
-                List<AmWine> wines = parseAmWines(currentPage, proxy);
-                if (wines != null && !wines.isEmpty()) {
-                    callback.handlePage(wines);
-                }
-            }
-            return "Task exec";
+        ExecutorService executorService = Executors.newFixedThreadPool(chunks);
+        AtomicInteger taskCounter = new AtomicInteger(1);
+        Callable<List<AmWine>> callableTask = () -> {
+            List<Long> chunkPages = partitions.get(taskCounter.getAndIncrement());
+            List<AmWine> amWines = new ArrayList<>();
+            chunkPages.forEach(e -> amWines.addAll(parseAmWines(e)));
+            return amWines;
         };
-        List<Callable<String>> callableTasks = Collections.nCopies(20, callableTask);
+        List<Callable<List<AmWine>>> callableTasks = Collections.nCopies(chunks, callableTask);
 
         try {
-            List<Future<String>> futures = executorService.invokeAll(callableTasks);
-        } catch (InterruptedException e) {
+            List<Future<List<AmWine>>> futures = executorService.invokeAll(callableTasks);
+            futures.forEach(future -> {
+                try {
+                    List<AmWine> amWines = future.get();
+                    if (amWines != null && !amWines.isEmpty()) {
+                        callback.handlePage(amWines);
+                    }
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            });
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
+
+//    public void parseAmWines(OnPageParseCallback callback) {
+//        Long pages = getCatalogPagesAmount();
+//        List<Long> range = LongStream.range(0, pages).boxed().collect(Collectors.toList());
+//
+//        List<Future<List<AmWine>>> futures = range.stream()
+//                .map(page -> CompletableFuture.supplyAsync(() -> parseAmWines(page)))
+//                .collect(Collectors.toList());
+//
+//        for (Future<List<AmWine>> future : futures) {
+//            try {
+//                List<AmWine> amWines = future.get();
+//                if (amWines != null && !amWines.isEmpty()) {
+//                    callback.handlePage(amWines);
+//                }
+//            } catch (ExecutionException e) {
+//                log.error("An exception occurred while checking proxy asynchronously", e);
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//            }
+//        }
+//    }
 
     public interface OnPageParseCallback {
 
@@ -121,8 +156,10 @@ public class AmServiceImpl implements AmService {
      * @param page Номер страницы, с которой мы парсим и получаем вина.
      * @return Список вин.
      */
-    private List<AmWine> parseAmWines(Long page, Proxy proxy) {
-        final Document document = client.getPage(page, proxy);
+    private List<AmWine> parseAmWines(Long page) {
+        log.debug("starting parse page {}", page);
+        final Document document = client.getPage(page);
+        log.debug("retrieve page {}", page);
         if (document == null) {
             return Collections.emptyList();
         }
@@ -164,9 +201,10 @@ public class AmServiceImpl implements AmService {
 
     /**
      * Получение нужной информации из HTML в виде строки.
-     * @param document Документ, в котором ведется поиск.
+     *
+     * @param document    Документ, в котором ведется поиск.
      * @param elementName Имя HTML элемента, из которого извлекается информация.
-     * @param pattern Регулярное выражение, по которому ведется поиск.
+     * @param pattern     Регулярное выражение, по которому ведется поиск.
      * @return Необходимая информация(справочник или каталог вина).
      */
     private String getRawValue(Document document, String elementName, Pattern pattern) {

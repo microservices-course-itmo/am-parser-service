@@ -5,6 +5,7 @@ import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.RestService;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +17,7 @@ import java.util.List;
  * @author : SSyrova
  * @since : 08.10.2020, чт
  **/
-@Service
+@Slf4j
 public class RestServiceImpl implements RestService {
 
     private final SearchService searchService;

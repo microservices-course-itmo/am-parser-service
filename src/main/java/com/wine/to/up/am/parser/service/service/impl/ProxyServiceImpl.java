@@ -7,6 +7,7 @@ import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -28,7 +29,6 @@ import java.util.stream.Collectors;
 
 import static java.net.Proxy.Type.SOCKS;
 
-@Service
 @Slf4j
 public class ProxyServiceImpl implements ProxyService {
 
@@ -77,6 +77,7 @@ public class ProxyServiceImpl implements ProxyService {
         }
     }
 
+    @PostConstruct
     public void initProxy() {
         log.info("Getting proxies");
         List<Proxy> alive = new ArrayList<>();
@@ -106,11 +107,15 @@ public class ProxyServiceImpl implements ProxyService {
     }
 
     public Proxy nextProxy() {
-        if (iterator.hasNext()) {
-            return iterator.next();
+        if (!proxyList.isEmpty()) {
+            if (iterator.hasNext()) {
+                return iterator.next();
+            } else {
+                iterator = proxyList.iterator();
+                return nextProxy();
+            }
         } else {
-            iterator = proxyList.iterator();
-            return nextProxy();
+            return Proxy.NO_PROXY;
         }
     }
 }

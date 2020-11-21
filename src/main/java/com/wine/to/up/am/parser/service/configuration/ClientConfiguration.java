@@ -13,19 +13,17 @@ import org.springframework.context.annotation.Configuration;
 public class ClientConfiguration {
 
     @Bean
-    public AmClient amClient() {
-        return new AmClientImpl();
+    public AmClient amClient(ProxyService proxyService) {
+        return new AmClientImpl(proxyService);
     }
 
     @Bean
-    public AmService amService(AmClient amClient, ProxyService proxyService) {
-        return new AmServiceImpl(amClient, proxyService);
+    public AmService amService(AmClient amClient) {
+        return new AmServiceImpl(amClient);
     }
 
     @Bean
     public ProxyService proxyService() {
-        final ProxyService proxyService = new ProxyServiceImpl();
-        proxyService.initProxy();
-        return proxyService;
+        return new ProxyServiceImpl();
     }
 }

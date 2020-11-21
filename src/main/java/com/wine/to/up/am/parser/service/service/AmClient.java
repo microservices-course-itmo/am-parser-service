@@ -17,8 +17,6 @@ public interface AmClient {
      */
     Document getPage(Long page);
 
-    Document getPage(Long page, Proxy proxy);
-
     /**
      * Получение главной страницы каталога.
      * Предполагается использовать этот метод для получения информации о том, сколько
