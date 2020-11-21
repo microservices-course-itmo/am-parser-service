@@ -8,6 +8,7 @@ import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
+import com.wine.to.up.am.parser.service.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -15,9 +16,14 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.net.Proxy;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +36,8 @@ import java.util.regex.Pattern;
 public class AmServiceImpl implements AmService {
 
     private final AmClient client;
+
+    private final ProxyService proxyService;
 
     private static final String DICT_NAME = "catalogProps";
 
@@ -51,59 +59,43 @@ public class AmServiceImpl implements AmService {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public AmServiceImpl(AmClient client) {
+    public AmServiceImpl(AmClient client, ProxyService proxyService) {
         this.client = client;
+        this.proxyService = proxyService;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
     /**
      * {@inheritDoc}
      */
-    @Override
-    public List<AmWine> getAmWines() {
+    public void parseAmWines(OnPageParseCallback callback) {
         Long pages = getCatalogPagesAmount();
-        log.info("The catalog contains {} pages", pages);
-        List<AmWine> amWines = new CopyOnWriteArrayList<>();
-        long page = 1L;
+        AtomicLong page = new AtomicLong(1);
 
-        int parseAttemptsCount = 0;
-        int successfulParseCount = 0;
-        final boolean[] pagesProcessed = new boolean[pages.intValue()];
-        final boolean[] pagesWithParsedWines = new boolean[pages.intValue()];
+        ExecutorService executorService = Executors.newFixedThreadPool(20);
+        Callable<String> callableTask = () -> {
+            while (page.longValue() <= pages) {
+                Long currentPage = page.getAndIncrement();
+                Proxy proxy = proxyService.nextProxy();
+                List<AmWine> wines = parseAmWines(currentPage, proxy);
+                if (wines != null && !wines.isEmpty()) {
+                    callback.handlePage(wines);
+                }
+            }
+            return "Task exec";
+        };
+        List<Callable<String>> callableTasks = Collections.nCopies(20, callableTask);
 
-        while (page <= pages) {
-            parseAttemptsCount++;
-            long pageCopy = page;
-            List<AmWine> newWines = getAmWines(page);
-            page++;
-            amWines.addAll(newWines);
-            pagesProcessed[(int) pageCopy - 1] = true;
-            if (!newWines.isEmpty()) {
-                successfulParseCount++;
-                pagesWithParsedWines[(int) pageCopy - 1] = true;
-            }
+        try {
+            List<Future<String>> futures = executorService.invokeAll(callableTasks);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
+    }
 
-        StringBuilder lostPagesLog = new StringBuilder("Unprocessed pages: ");
-        for (int i = 0; i < pages; i++) {
-            if (!pagesProcessed[i]) {
-                lostPagesLog.append(i + 1).append(", ");
-            }
-        }
-        log.info(lostPagesLog.toString());
-        StringBuilder zeroParsePagesLog = new StringBuilder("Pages from which zero wines were parsed: ");
-        for (int i = 0; i < pages; i++) {
-            if (!pagesWithParsedWines[i]) {
-                zeroParsePagesLog.append(i + 1).append(", ");
-            }
-        }
-        log.info(zeroParsePagesLog.toString());
-        if (successfulParseCount == parseAttemptsCount) {
-            log.info("All {} pages parsed successfully.", successfulParseCount);
-        } else {
-            log.info("Wines were successfully parsed from {} out of {} pages.", successfulParseCount, parseAttemptsCount);
-        }
-        return amWines;
+    public interface OnPageParseCallback {
+
+        void handlePage(List<AmWine> amWines);
     }
 
     /**
@@ -129,8 +121,8 @@ public class AmServiceImpl implements AmService {
      * @param page Номер страницы, с которой мы парсим и получаем вина.
      * @return Список вин.
      */
-    private List<AmWine> getAmWines(Long page) {
-        final Document document = client.getPage(page);
+    private List<AmWine> parseAmWines(Long page, Proxy proxy) {
+        final Document document = client.getPage(page, proxy);
         if (document == null) {
             return Collections.emptyList();
         }

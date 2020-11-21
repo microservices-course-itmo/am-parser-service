@@ -1,6 +1,7 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
 
+import com.wine.to.up.am.parser.service.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,7 +30,7 @@ import static java.net.Proxy.Type.SOCKS;
 
 @Service
 @Slf4j
-public class ProxyServiceImpl {
+public class ProxyServiceImpl implements ProxyService {
 
 
     @Value(value = "${am.site.base-url}")
@@ -102,5 +103,14 @@ public class ProxyServiceImpl {
 
         proxyList = new CopyOnWriteArrayList<>(alive);
         iterator = proxyList.iterator();
+    }
+
+    public Proxy nextProxy() {
+        if (iterator.hasNext()) {
+            return iterator.next();
+        } else {
+            iterator = proxyList.iterator();
+            return nextProxy();
+        }
     }
 }

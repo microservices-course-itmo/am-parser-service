@@ -1,9 +1,7 @@
 package com.wine.to.up.am.parser.service.service;
 
-import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-
-import java.util.List;
+import com.wine.to.up.am.parser.service.service.impl.AmServiceImpl;
 
 /**
  * @author : SSyrova
@@ -13,9 +11,8 @@ public interface AmService {
 
     /**
      * Метод получения вин путем получения HTML страниц и их парсинга.
-     * @return Список вин в "сыром" виде(вместо атрибутов - их id в справочнике).
      */
-    List<AmWine> getAmWines();
+    void parseAmWines(AmServiceImpl.OnPageParseCallback callback);
 
     /**
      * Метод получения справочной информации в виде словаря.

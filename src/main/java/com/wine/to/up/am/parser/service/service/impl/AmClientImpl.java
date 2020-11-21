@@ -7,6 +7,7 @@ import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.IOException;
+import java.net.Proxy;
 
 /**
  * @author : SSyrova
@@ -33,7 +34,12 @@ public class AmClientImpl implements AmClient {
      */
     @Override
     public Document getPage(Long page) {
-        return getPage(baseUrl + "?page=" + page);
+        return getPage(page, Proxy.NO_PROXY);
+    }
+
+    @Override
+    public Document getPage(Long page, Proxy proxy) {
+        return getPage(baseUrl + "?page=" + page, proxy);
     }
 
     /**
@@ -42,9 +48,13 @@ public class AmClientImpl implements AmClient {
      * @return страницу каталога
      */
     private Document getPage(String url) {
+        return getPage(url, Proxy.NO_PROXY);
+    }
+
+    private Document getPage(String url, Proxy proxy) {
         int attempt = 0;
         while (attempt < maxRetries) {
-            Document document = fetchPage(url);
+            Document document = fetchPage(url, proxy);
             if (document != null) {
                 return document;
             }
@@ -54,12 +64,12 @@ public class AmClientImpl implements AmClient {
         return null;
     }
 
-    private Document fetchPage(String url) {
+    private Document fetchPage(String url, Proxy proxy) {
         try {
             return Jsoup
                     .connect(url)
+                    .proxy(proxy)
                     .userAgent(userAgent)
-                    .referrer(referrer)
                     .get();
         } catch (IOException e) {
             return null;

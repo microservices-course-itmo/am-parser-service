@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -121,22 +122,25 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     public void updateWines() {
-        List<AmWine> wines = amService.getAmWines();
-        int created = 0;
-        int updated = 0;
+        AtomicInteger created = new AtomicInteger();
+        AtomicInteger updated = new AtomicInteger();
         int markForDeleted = 0;
         Date now = new Date();
-        for (AmWine amWine : wines) {
-            Wine wine = wineRepository.findByImportId(amWine.getId());
-            if (wine != null) {
-                saveWine(wine, amWine, now);
-                updated++;
-            } else {
-                wine = new Wine();
-                saveWine(wine, amWine, now);
-                created++;
+
+        amService.parseAmWines(amWines -> {
+            for (AmWine amWine : amWines) {
+                Wine wine = wineRepository.findByImportId(amWine.getId());
+                if (wine != null) {
+                    saveWine(wine, amWine, now);
+                    updated.getAndIncrement();
+                } else {
+                    wine = new Wine();
+                    saveWine(wine, amWine, now);
+                    created.getAndIncrement();
+                }
             }
-        }
+        });
+
         List<Wine> wineForDeleted = wineRepository.findAllByDateRecIsNot(now);
         for (Wine w : wineForDeleted) {
             w.setActual(false);
