@@ -5,14 +5,19 @@ import com.wine.to.up.am.parser.service.domain.entity.Color;
 import com.wine.to.up.am.parser.service.domain.entity.Country;
 import com.wine.to.up.am.parser.service.domain.entity.DictionaryValue;
 import com.wine.to.up.am.parser.service.domain.entity.Grape;
+import com.wine.to.up.am.parser.service.domain.entity.Producer;
+import com.wine.to.up.am.parser.service.domain.entity.Region;
 import com.wine.to.up.am.parser.service.domain.entity.Sugar;
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.repository.BrandRepository;
 import com.wine.to.up.am.parser.service.repository.ColorRepository;
 import com.wine.to.up.am.parser.service.repository.CountryRepository;
 import com.wine.to.up.am.parser.service.repository.GrapeRepository;
+import com.wine.to.up.am.parser.service.repository.ProducerRepository;
+import com.wine.to.up.am.parser.service.repository.RegionRepository;
 import com.wine.to.up.am.parser.service.repository.SugarRepository;
 import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
@@ -35,6 +40,8 @@ import java.util.stream.StreamSupport;
 @Slf4j
 public class UpdateServiceImpl implements UpdateService {
 
+    private static final String SITE_LINK = "https://amwine.ru";
+
     private final AmService amService;
 
     private final BrandRepository brandRepository;
@@ -49,13 +56,19 @@ public class UpdateServiceImpl implements UpdateService {
 
     private final WineRepository wineRepository;
 
+    private final RegionRepository regionRepository;
+
+    private final ProducerRepository producerRepository;
+
     public UpdateServiceImpl(AmService amService,
                              BrandRepository brandRepository,
                              ColorRepository colorRepository,
                              CountryRepository countryRepository,
                              GrapeRepository grapeRepository,
                              SugarRepository sugarRepository,
-                             WineRepository wineRepository) {
+                             WineRepository wineRepository,
+                             RegionRepository regionRepository,
+                             ProducerRepository producerRepository) {
         this.amService = amService;
         this.brandRepository = brandRepository;
         this.colorRepository = colorRepository;
@@ -63,6 +76,21 @@ public class UpdateServiceImpl implements UpdateService {
         this.grapeRepository = grapeRepository;
         this.sugarRepository = sugarRepository;
         this.wineRepository = wineRepository;
+        this.regionRepository = regionRepository;
+        this.producerRepository = producerRepository;
+    }
+
+    @Override
+    public void cleanDatabase() {
+        wineRepository.deleteAll();
+        brandRepository.deleteAll();
+        colorRepository.deleteAll();
+        countryRepository.deleteAll();
+        grapeRepository.deleteAll();
+        sugarRepository.deleteAll();
+        wineRepository.deleteAll();
+        producerRepository.deleteAll();
+        regionRepository.deleteAll();
     }
 
     /**
@@ -77,6 +105,8 @@ public class UpdateServiceImpl implements UpdateService {
         updateInRepository(sugarRepository, dictionary.getSugars(), Sugar.class);
         updateInRepository(grapeRepository, dictionary.getGrapes(), Grape.class);
         updateInRepository(countryRepository, dictionary.getCountries(), Country.class);
+        updateInRepository(regionRepository, dictionary.getRegions(), Region.class);
+        updateInRepository(producerRepository, dictionary.getProducers(), Producer.class);
     }
 
     private <T extends DictionaryValue, S> void updateInRepository(CrudRepository<T, S> repository,
@@ -148,11 +178,29 @@ public class UpdateServiceImpl implements UpdateService {
         log.info("mark for deleted {} Wines", markForDeleted);
     }
 
+    @Override
+    public void updateAdditionalProps() {
+        List<Wine> wines = wineRepository.findAll();
+        for (Wine wine : wines) {
+            String link = wine.getLink();
+            AdditionalProps props = amService.getAdditionalProps(link);
+            wine.setTaste(props.getTaste());
+            wine.setFlavor(props.getFlavor());
+            wine.setDescription(props.getDescription());
+            wine.setRating(props.getRating());
+            wine.setGastronomy(props.getGastronomy());
+            wine.setActual(true);
+            wine.setDateRec(new Date());
+            wineRepository.save(wine);
+        }
+    }
+
     private void saveWine(Wine wine, AmWine amWine, Date date) {
         wine.setImportId(amWine.getId());
         wine.setName(amWine.getName());
         wine.setPictureUrl(amWine.getPictureUrl());
         wine.setPrice(amWine.getPrice());
+        wine.setLink(SITE_LINK + amWine.getLink());
 
         fillPropsValue(wine, amWine);
 
@@ -160,6 +208,12 @@ public class UpdateServiceImpl implements UpdateService {
         wine.setDateRec(date);
 
         wineRepository.save(wine);
+    }
+
+    private void setRegion(Wine wine, AmWine.Props props) {
+        if (props.getRegion() != null) {
+            wine.setRegion(regionRepository.findByImportId(props.getRegion().toString()));
+        }
     }
 
     private void fillPropsValue(Wine wine, AmWine amWine) {
@@ -173,6 +227,11 @@ public class UpdateServiceImpl implements UpdateService {
             }
             wine.setVolume(props.getValue());
             wine.setStrength(props.getAlco());
+            wine.setOldPrice(props.getOldPrice());
+            setRegion(wine, props);
+            if (props.getProducer() != null) {
+                wine.setProducer(producerRepository.findByImportId(props.getProducer().toString()));
+            }
             if (props.getColor() != null) {
                 wine.setColor(colorRepository.findByImportId(props.getColor().toString()));
             }
@@ -184,16 +243,5 @@ public class UpdateServiceImpl implements UpdateService {
                 wine.setGrapes(grapeRepository.findAllByImportIdIn(grapes));
             }
         }
-    }
-
-    @Override
-    public void cleanDatabase() {
-        wineRepository.deleteAll();
-        brandRepository.deleteAll();
-        colorRepository.deleteAll();
-        countryRepository.deleteAll();
-        grapeRepository.deleteAll();
-        sugarRepository.deleteAll();
-        wineRepository.deleteAll();
     }
 }

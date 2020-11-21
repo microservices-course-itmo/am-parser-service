@@ -23,4 +23,11 @@ public interface AmClient {
      * @return главная страница каталога
      */
     Document getMainPage();
+
+    /**
+     * Получение страницы каталога
+     * @param url url, который используется для получения страницы.
+     * @return страницу каталога
+     */
+    Document getPageByUrl(String url);
 }

@@ -16,5 +16,10 @@ public interface UpdateService {
      */
     void updateWines();
 
+    /**
+     * Обновление дополнительных атрибутов, получаемых со страниц вина.
+     */
+    void updateAdditionalProps();
+
     void cleanDatabase();
 }

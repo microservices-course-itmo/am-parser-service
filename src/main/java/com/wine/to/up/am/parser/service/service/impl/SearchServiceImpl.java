@@ -22,6 +22,8 @@ public class SearchServiceImpl implements SearchService {
 
     private final WineRepository wineRepository;
 
+    private static final String SITE_LINK = "https://amwine.ru";
+
     public SearchServiceImpl(WineRepository wineRepository) {
         this.wineRepository = wineRepository;
     }
@@ -62,7 +64,16 @@ public class SearchServiceImpl implements SearchService {
                         .color(ColorConverter.getColor(e.getColor()))
                         .alco(e.getStrength())
                         .price(e.getPrice())
-                        .picture(e.getPictureUrl())
+                        .flavor(e.getFlavor())
+                        .description(e.getDescription())
+                        .rating(e.getRating())
+                        .taste(e.getTaste())
+                        .gastronomy(e.getGastronomy())
+                        .oldPrice(e.getOldPrice())
+                        .link(e.getLink())
+                        .region(e.getRegion() != null ? e.getRegion().getName() : null)
+                        .producer(e.getProducer() != null ? e.getProducer().getName() : null)
+                        .picture(SITE_LINK + e.getPictureUrl())
                         .build())
                 .collect(Collectors.toList());
     }

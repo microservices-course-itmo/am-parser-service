@@ -56,6 +56,17 @@ public class WineController {
         log.info("end UpdateCatalog method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
+    @ApiOperation(value = "Updating the catalog in the database")
+    @PostMapping("/wine/additional")
+    public void updateAdditionalWineProps() {
+        ZoneOffset zone = ZoneOffset.of("Z");
+        LocalDateTime startDate = LocalDateTime.now();
+        log.info("start UpdateAdditionalWineProps method at " + startDate);
+        restService.updateAdditionalProps();
+        LocalDateTime endDate = LocalDateTime.now();
+        log.info("end UpdateAdditionalWineProps method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
+    }
+
     @ApiOperation(value = "Updating all information in the database")
     @PostMapping("/all")
     public void updateAll() {

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
@@ -33,6 +34,10 @@ import java.util.stream.Collectors;
 public class AmServiceImpl implements AmService {
 
     private final AmClient client;
+
+    private static final String RATING_SCORE = "rating__score";
+
+    private static final String WINE_PROPERTY = "about-wine__block col-md-4";
 
     private static final String DICT_NAME = "catalogProps";
 
@@ -148,6 +153,50 @@ public class AmServiceImpl implements AmService {
             result = new Dictionary();
         }
         return result;
+    }
+
+    @Override
+    public AdditionalProps getAdditionalProps(String link) {
+        Document page = client.getPageByUrl(link);
+        return parseAdditionalProps(page);
+    }
+
+    private Double parseRating(Document page) {
+        return Double.parseDouble(page.getElementsByClass(RATING_SCORE).get(0).text());
+    }
+
+    private AdditionalProps parseAdditionalProps(Document page) {
+        AdditionalProps props = new AdditionalProps();
+        if (page == null) {
+            return props;
+        }
+
+        boolean isOtherVersion = false;
+        props.setRating(parseRating(page));
+        Elements properties = page.getElementsByClass(WINE_PROPERTY);
+        for (Element prop : properties) {
+            String title = prop.getElementsByTag("div").get(1).text();
+            String body = prop.getElementsByTag("p").get(0).text();
+            if (title.contains("Дегустационные характеристики")) {
+                isOtherVersion = true;
+            }
+            if (title.contains("О напитке")) {
+                props.setDescription(body);
+            }
+            if (title.contains("Вкус") && !isOtherVersion) {
+                props.setTaste(body);
+            }
+            if (title.contains("Вкус") && isOtherVersion) {
+                props.setGastronomy(body);
+            }
+            if (title.contains("Аромат")) {
+                props.setFlavor(body);
+            }
+            if (title.contains("Гастроном")) {
+                props.setGastronomy(body);
+            }
+        }
+        return props;
     }
 
     /**

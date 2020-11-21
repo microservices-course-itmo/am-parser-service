@@ -33,7 +33,7 @@ public class AmClientImpl implements AmClient {
      */
     @Override
     public Document getPage(Long page) {
-        return getPage(baseUrl + "?page=" + page);
+        return getPageByUrl(baseUrl + "?page=" + page);
     }
 
     /**
@@ -41,7 +41,7 @@ public class AmClientImpl implements AmClient {
      * @param url url, который используется для получения страницы.
      * @return страницу каталога
      */
-    private Document getPage(String url) {
+    public Document getPageByUrl(String url) {
         int attempt = 0;
         while (attempt < maxRetries) {
             Document document = fetchPage(url);
@@ -71,6 +71,6 @@ public class AmClientImpl implements AmClient {
      */
     @Override
     public Document getMainPage() {
-        return getPage(baseUrl);
+        return getPageByUrl(baseUrl);
     }
 }

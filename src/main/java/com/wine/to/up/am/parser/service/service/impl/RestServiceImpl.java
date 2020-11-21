@@ -50,6 +50,11 @@ public class RestServiceImpl implements RestService {
     }
 
     @Override
+    public void updateAdditionalProps() {
+        updateService.updateAdditionalProps();
+    }
+
+    @Override
     public void readAsFile(HttpServletResponse httpServletResponse) throws IOException {
         List<WineDto> wines = searchService.findAll();
         httpServletResponse.setContentType("application/json");
