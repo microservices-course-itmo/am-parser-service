@@ -27,7 +27,7 @@ public class Producer implements DictionaryValue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(notes = "The database generated producer ID")
-    private long id;
+    private Long id;
 
     @Column(name = "import_id")
     @ApiModelProperty(notes = "The import ID")

@@ -37,6 +37,16 @@ public class AmServiceImpl implements AmService {
 
     private static final String RATING_SCORE = "rating__score";
 
+    private static final String FLAVOR = "Аромат";
+
+    private static final String GASTRONOMY = "Гастроном";
+
+    private static final String TASTE = "Вкус";
+
+    private static final String DEGUSTATION = "Дегустационные характеристики";
+
+    private static final String DESCRIPTION = "Дегустационные характеристики";
+
     private static final String WINE_PROPERTY = "about-wine__block col-md-4";
 
     private static final String DICT_NAME = "catalogProps";
@@ -168,7 +178,7 @@ public class AmServiceImpl implements AmService {
     private AdditionalProps parseAdditionalProps(Document page) {
         AdditionalProps props = new AdditionalProps();
         if (page == null) {
-            return props;
+            return null;
         }
 
         boolean isOtherVersion = false;
@@ -177,22 +187,22 @@ public class AmServiceImpl implements AmService {
         for (Element prop : properties) {
             String title = prop.getElementsByTag("div").get(1).text();
             String body = prop.getElementsByTag("p").get(0).text();
-            if (title.contains("Дегустационные характеристики")) {
+            if (title.contains(DEGUSTATION)) {
                 isOtherVersion = true;
             }
-            if (title.contains("О напитке")) {
+            if (title.contains(DESCRIPTION)) {
                 props.setDescription(body);
             }
-            if (title.contains("Вкус") && !isOtherVersion) {
+            if (title.contains(TASTE) && !isOtherVersion) {
                 props.setTaste(body);
             }
-            if (title.contains("Вкус") && isOtherVersion) {
+            if (title.contains(TASTE) && isOtherVersion) {
                 props.setGastronomy(body);
             }
-            if (title.contains("Аромат")) {
+            if (title.contains(FLAVOR)) {
                 props.setFlavor(body);
             }
-            if (title.contains("Гастроном")) {
+            if (title.contains(GASTRONOMY)) {
                 props.setGastronomy(body);
             }
         }

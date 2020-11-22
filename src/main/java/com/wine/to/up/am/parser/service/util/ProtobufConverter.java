@@ -9,10 +9,6 @@ import java.util.List;
 
 public class ProtobufConverter {
 
-    private ProtobufConverter() {
-
-    };
-
     public static ParserApi.Wine getProtobufWine(WineDto wineDto) {
         ParserApi.Wine.Builder builder = ParserApi.Wine.newBuilder();
         List<String> regions = new ArrayList<>();

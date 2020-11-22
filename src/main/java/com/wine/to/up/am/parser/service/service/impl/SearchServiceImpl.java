@@ -7,6 +7,7 @@ import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ColorConverter;
 import com.wine.to.up.am.parser.service.util.SugarConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,7 +23,8 @@ public class SearchServiceImpl implements SearchService {
 
     private final WineRepository wineRepository;
 
-    private static final String SITE_LINK = "https://amwine.ru";
+    @Value(value = "${am.site.base-url}")
+    private String baseUrl;
 
     public SearchServiceImpl(WineRepository wineRepository) {
         this.wineRepository = wineRepository;
@@ -73,7 +75,7 @@ public class SearchServiceImpl implements SearchService {
                         .link(e.getLink())
                         .region(e.getRegion() != null ? e.getRegion().getName() : null)
                         .producer(e.getProducer() != null ? e.getProducer().getName() : null)
-                        .picture(SITE_LINK + e.getPictureUrl())
+                        .picture(baseUrl + e.getPictureUrl())
                         .build())
                 .collect(Collectors.toList());
     }

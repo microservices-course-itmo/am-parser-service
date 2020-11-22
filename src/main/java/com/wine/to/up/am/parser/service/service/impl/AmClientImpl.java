@@ -33,7 +33,7 @@ public class AmClientImpl implements AmClient {
      */
     @Override
     public Document getPage(Long page) {
-        return getPageByUrl(baseUrl + "?page=" + page);
+        return getPageByUrl(baseUrl + "/catalog/vino/?page=" + page);
     }
 
     /**
@@ -71,6 +71,6 @@ public class AmClientImpl implements AmClient {
      */
     @Override
     public Document getMainPage() {
-        return getPageByUrl(baseUrl);
+        return getPageByUrl(baseUrl + "/catalog/vino/");
     }
 }

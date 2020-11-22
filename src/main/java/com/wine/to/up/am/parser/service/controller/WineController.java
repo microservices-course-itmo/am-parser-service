@@ -56,7 +56,7 @@ public class WineController {
         log.info("end UpdateCatalog method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
-    @ApiOperation(value = "Updating the catalog in the database")
+    @ApiOperation(value = "Updating additional properties of wines in the database")
     @PostMapping("/wine/additional")
     public void updateAdditionalWineProps() {
         ZoneOffset zone = ZoneOffset.of("Z");
