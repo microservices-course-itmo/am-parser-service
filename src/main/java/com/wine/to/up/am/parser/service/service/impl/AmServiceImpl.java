@@ -4,11 +4,14 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.Summary;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,6 +37,8 @@ public class AmServiceImpl implements AmService {
 
     private final AmClient client;
 
+    private final AmServiceMetricsCollector metricsCollector;
+
     private static final String DICT_NAME = "catalogProps";
 
     private static final String WINDOW_PATTERN_START = ".*window\\.";
@@ -54,8 +59,9 @@ public class AmServiceImpl implements AmService {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public AmServiceImpl(AmClient client) {
+    public AmServiceImpl(AmClient client, AmServiceMetricsCollector metricsCollector) {
         this.client = client;
+        this.metricsCollector = metricsCollector;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -98,7 +104,11 @@ public class AmServiceImpl implements AmService {
         final boolean[] pagesProcessed = new boolean[pages.intValue()];
         final boolean[] pagesWithParsedWines = new boolean[pages.intValue()];
 
+        Gauge.Timer timerSinceLastParsing = null;
+
         while (page <= pages) {
+            metricsCollector.countParsingStart();
+            metricsCollector.incParsingInProgress();
             parseAttemptsCount++;
             long pageCopy = page;
             List<AmWine> newWines = getAmWines(page);
@@ -107,8 +117,16 @@ public class AmServiceImpl implements AmService {
             pagesProcessed[(int) pageCopy - 1] = true;
             if (!newWines.isEmpty()) {
                 successfulParseCount++;
+                metricsCollector.countParsingComplete("SUCCESS");
                 pagesWithParsedWines[(int) pageCopy - 1] = true;
+                if(timerSinceLastParsing != null) {
+                    timerSinceLastParsing.close();
+                }
+                timerSinceLastParsing = metricsCollector.countTimeSinceLastParsing();
+            } else {
+                metricsCollector.countParsingComplete("FAILED");
             }
+            metricsCollector.decParsingInProgress();
         }
 
         StringBuilder lostPagesLog = new StringBuilder("Unprocessed pages: ");
@@ -157,16 +175,21 @@ public class AmServiceImpl implements AmService {
      * @return Список вин.
      */
     private List<AmWine> getAmWines(Long page) {
+        Summary.Timer fetchTimer = metricsCollector.timeWinePageFetchingDuration();
         final Document document = client.getPage(page);
+        fetchTimer.close();
         if (document == null) {
             return Collections.emptyList();
         }
+        Summary.Timer parseTimer = metricsCollector.timeWinePageParsingDuration();
         String rawWines = getRawValue(document, PROD_NAME, PROD_PATTERN);
         try {
-            return rawWines != null ?
+            List<AmWine> res = rawWines != null ?
                     mapper.readValue(rawWines, new TypeReference<>() {
                     }) :
                     Collections.emptyList();
+            parseTimer.close();
+            return res;
         } catch (JsonProcessingException e) {
             log.error("Cannot parse wines with error: {}", e.getMessage());
             return Collections.emptyList();

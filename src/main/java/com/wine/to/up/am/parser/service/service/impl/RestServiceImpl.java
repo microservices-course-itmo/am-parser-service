@@ -1,10 +1,12 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.RestService;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
+import io.prometheus.client.Summary;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
@@ -23,9 +25,12 @@ public class RestServiceImpl implements RestService {
 
     private final UpdateService updateService;
 
-    public RestServiceImpl(SearchService searchService, UpdateService updateService) {
+    private final AmServiceMetricsCollector metricsCollector;
+
+    public RestServiceImpl(SearchService searchService, UpdateService updateService, AmServiceMetricsCollector amServiceMetricsCollector) {
         this.searchService = searchService;
         this.updateService = updateService;
+        this.metricsCollector = amServiceMetricsCollector;
     }
 
     @Override
@@ -40,7 +45,9 @@ public class RestServiceImpl implements RestService {
 
     @Override
     public void updateWines() {
+        Summary.Timer parsingTimer = metricsCollector.timeParsingDuration();
         updateService.updateWines();
+        parsingTimer.close();
     }
 
     @Override

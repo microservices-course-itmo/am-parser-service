@@ -1,9 +1,12 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.Summary;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +22,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleAmWineList;
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDictionary;
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDoc;
+import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -37,7 +38,11 @@ public class AmServiceImplTest {
 
 
     AmClient amClient = Mockito.mock(AmClient.class);
+    AmServiceMetricsCollector amServiceMetricsCollectorMock = Mockito.mock(AmServiceMetricsCollector.class);
     AmServiceImpl amServiceMock = Mockito.mock(AmServiceImpl.class);
+
+    static Summary sampleSummary = getSampleSummary();
+    static Gauge sampleGauge = getSampleGauge();
 
     @InjectMocks
     AmServiceImpl amService;
@@ -54,6 +59,10 @@ public class AmServiceImplTest {
         Document document = getSampleDoc();
         when(amClient.getMainPage()).thenReturn(document);
         when(amClient.getPage(any())).thenReturn(document);
+        when(amServiceMetricsCollectorMock.timeParsingDuration()).thenReturn(sampleSummary.startTimer());
+        when(amServiceMetricsCollectorMock.timeWinePageFetchingDuration()).thenReturn(sampleSummary.startTimer());
+        when(amServiceMetricsCollectorMock.timeWinePageParsingDuration()).thenReturn(sampleSummary.startTimer());
+        when(amServiceMetricsCollectorMock.countTimeSinceLastParsing()).thenReturn(sampleGauge.startTimer());
         List<WineDto> wines = amService.getWines();
         assertEquals(1, wines.size());
         WineDto wine = wines.get(0);
@@ -73,6 +82,10 @@ public class AmServiceImplTest {
         Document document = getSampleDoc();
         when(amClient.getPage(any())).thenReturn(document);
         when(amClient.getMainPage()).thenReturn(document);
+        when(amServiceMetricsCollectorMock.timeParsingDuration()).thenReturn(sampleSummary.startTimer());
+        when(amServiceMetricsCollectorMock.timeWinePageFetchingDuration()).thenReturn(sampleSummary.startTimer());
+        when(amServiceMetricsCollectorMock.timeWinePageParsingDuration()).thenReturn(sampleSummary.startTimer());
+        when(amServiceMetricsCollectorMock.countTimeSinceLastParsing()).thenReturn(sampleGauge.startTimer());
         List<AmWine> listWines = amService.getAmWines();
         assertEquals(1, listWines.size());
     }

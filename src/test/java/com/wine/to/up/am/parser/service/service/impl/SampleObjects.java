@@ -3,6 +3,8 @@ package com.wine.to.up.am.parser.service.service.impl;
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.Summary;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -128,5 +130,21 @@ public class SampleObjects {
         ArrayList<Wine> listWines = new ArrayList<>();
         listWines.add(getSampleWineEntity());
         return listWines;
+    }
+
+    public static Summary getSampleSummary() {
+        return Summary.build()
+                .namespace("am_parser_service")
+                .name("summary")
+                .help("help")
+                .register();
+    }
+
+    public static Gauge getSampleGauge() {
+        return Gauge.build()
+                .namespace("am_parser_service")
+                .name("gauge")
+                .help("help")
+                .register();
     }
 }
