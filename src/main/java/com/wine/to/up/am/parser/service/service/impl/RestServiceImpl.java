@@ -6,7 +6,6 @@ import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.RestService;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
-import io.prometheus.client.Summary;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletResponse;
@@ -45,15 +44,19 @@ public class RestServiceImpl implements RestService {
 
     @Override
     public void updateWines() {
-        Summary.Timer parsingTimer = metricsCollector.timeParsingDuration();
+        long parseStart = System.nanoTime();
         updateService.updateWines();
-        parsingTimer.close();
+        long parseEnd = System.nanoTime();
+        metricsCollector.timeParsingDuration(parseEnd - parseStart);
     }
 
     @Override
     public void updateAll() {
         updateService.updateDictionary();
+        long parseStart = System.nanoTime();
         updateService.updateWines();
+        long parseEnd = System.nanoTime();
+        metricsCollector.timeParsingDuration(parseEnd - parseStart);
     }
 
     @Override

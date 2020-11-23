@@ -7,9 +7,9 @@ import io.micrometer.core.instrument.Metrics;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Summary;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This Class expose methods for recording specific metrics
@@ -131,49 +131,69 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     }
 
     public void countParsingStart() {
-        //Metrics.counter(PARSING_STARTED).increment();
+        Metrics.counter(PARSING_STARTED).increment();
         prometheusParsingStartedCounter.inc();
     }
 
     public void countParsingComplete(String status) {
-        //Metrics.counter(PARSING_COMPLETE, PARSING_COMPLETE_STATUS, status).increment();
+        Metrics.counter(PARSING_COMPLETE, PARSING_COMPLETE_STATUS, status).increment();
         prometheusParsingCompleteCounter.labels(status).inc();
     }
 
     public void incParsingInProgress() {
         prometheusParsingInProgressGauge.inc();
+        AtomicInteger gauge = Metrics.gauge(PARSING_IN_PROGRESS, new AtomicInteger(0));
+        if(gauge != null) {
+            gauge.getAndIncrement();
+        }
     }
 
     public void decParsingInProgress() {
         prometheusParsingInProgressGauge.dec();
+        AtomicInteger gauge = Metrics.gauge(PARSING_IN_PROGRESS, new AtomicInteger(0));
+        if(gauge != null) {
+            gauge.getAndDecrement();
+        }
     }
 
-    public Summary.Timer timeParsingDuration() {
-        return prometheusParsingDurationSummary.startTimer();
+    public void timeParsingDuration(long nanoTime) {
+        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
+        prometheusParsingDurationSummary.observe(milliTime);
+        Metrics.summary(PARSING_DURATION).record(milliTime);
     }
 
-    public Gauge.Timer countTimeSinceLastParsing() {
-        return prometheusTimeSinceLastParsingGauge.startTimer();
+    public void countTimeSinceLastParsing(long nanoTime) {
+        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
+        prometheusTimeSinceLastParsingGauge.set(milliTime);
+        Metrics.summary(TIME_SINCE_LAST_PARSING).record(milliTime);
     }
 
-    public Summary.Timer timeWineDetailsFetchingDuration() {
-        return prometheusWineDetailsFetchingDurationSummary.startTimer();
+    public void timeWineDetailsFetchingDuration(long nanoTime) {
+        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
+        prometheusWineDetailsFetchingDurationSummary.observe(milliTime);
+        Metrics.summary(WINE_DETAILS_FETCHING_DURATION).record(milliTime);
     }
 
-    public Summary.Timer timeWinePageFetchingDuration() {
-        return prometheusWinePageFetchingDurationSummary.startTimer();
+    public void timeWinePageFetchingDuration(long nanoTime) {
+        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
+        prometheusWinePageFetchingDurationSummary.observe(milliTime);
+        Metrics.summary(WINE_PAGE_FETCHING_DURATION).record(milliTime);
     }
 
-    public Summary.Timer timeWineDetailsParsingDuration() {
-        return prometheusWineDetailsParsingDurationSummary.startTimer();
+    public void timeWineDetailsParsingDuration(long nanoTime) {
+        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
+        prometheusWineDetailsParsingDurationSummary.observe(milliTime);
+        Metrics.summary(WINE_DETAILS_PARSING_DURATION).record(milliTime);
     }
 
-    public Summary.Timer timeWinePageParsingDuration() {
-        return prometheusWinePageParsingDurationSummary.startTimer();
+    public void timeWinePageParsingDuration(long nanoTime) {
+        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
+        prometheusWinePageParsingDurationSummary.observe(milliTime);
+        Metrics.summary(WINE_PAGE_PARSING_DURATION).record(milliTime);
     }
 
     public void countWinesPublishedToKafka(double wineNum) {
-        //Metrics.counter(WINES_PUBLISHED_TO_KAFKA).increment();
+        Metrics.counter(WINES_PUBLISHED_TO_KAFKA).increment();
         prometheusWinesPublishedToKafkaCounter.inc(wineNum);
     }
 

@@ -10,8 +10,6 @@ import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
-import io.prometheus.client.Gauge;
-import io.prometheus.client.Summary;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -104,7 +102,7 @@ public class AmServiceImpl implements AmService {
         final boolean[] pagesProcessed = new boolean[pages.intValue()];
         final boolean[] pagesWithParsedWines = new boolean[pages.intValue()];
 
-        Gauge.Timer timerSinceLastParsing = null;
+        Long lastParse = null;
 
         while (page <= pages) {
             metricsCollector.countParsingStart();
@@ -119,10 +117,11 @@ public class AmServiceImpl implements AmService {
                 successfulParseCount++;
                 metricsCollector.countParsingComplete("SUCCESS");
                 pagesWithParsedWines[(int) pageCopy - 1] = true;
-                if(timerSinceLastParsing != null) {
-                    timerSinceLastParsing.close();
+                long currentParse = System.nanoTime();
+                if(lastParse != null) {
+                    metricsCollector.countTimeSinceLastParsing(currentParse - lastParse);
                 }
-                timerSinceLastParsing = metricsCollector.countTimeSinceLastParsing();
+                lastParse = currentParse;
             } else {
                 metricsCollector.countParsingComplete("FAILED");
             }
@@ -175,20 +174,22 @@ public class AmServiceImpl implements AmService {
      * @return Список вин.
      */
     private List<AmWine> getAmWines(Long page) {
-        Summary.Timer fetchTimer = metricsCollector.timeWinePageFetchingDuration();
+        long fetchStart = System.nanoTime();
         final Document document = client.getPage(page);
-        fetchTimer.close();
+        long fetchEnd = System.nanoTime();
+        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart);
         if (document == null) {
             return Collections.emptyList();
         }
-        Summary.Timer parseTimer = metricsCollector.timeWinePageParsingDuration();
+        long parseStart = System.nanoTime();
         String rawWines = getRawValue(document, PROD_NAME, PROD_PATTERN);
         try {
             List<AmWine> res = rawWines != null ?
                     mapper.readValue(rawWines, new TypeReference<>() {
                     }) :
                     Collections.emptyList();
-            parseTimer.close();
+            long parseEnd = System.nanoTime();
+            metricsCollector.timeWinePageParsingDuration(parseEnd - parseStart);
             return res;
         } catch (JsonProcessingException e) {
             log.error("Cannot parse wines with error: {}", e.getMessage());

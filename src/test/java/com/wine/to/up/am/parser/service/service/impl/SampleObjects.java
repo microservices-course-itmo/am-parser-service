@@ -132,19 +132,4 @@ public class SampleObjects {
         return listWines;
     }
 
-    public static Summary getSampleSummary() {
-        return Summary.build()
-                .namespace("am_parser_service")
-                .name("summary")
-                .help("help")
-                .register();
-    }
-
-    public static Gauge getSampleGauge() {
-        return Gauge.build()
-                .namespace("am_parser_service")
-                .name("gauge")
-                .help("help")
-                .register();
-    }
 }

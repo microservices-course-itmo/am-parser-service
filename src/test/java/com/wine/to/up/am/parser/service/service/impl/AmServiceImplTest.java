@@ -41,9 +41,6 @@ public class AmServiceImplTest {
     AmServiceMetricsCollector amServiceMetricsCollectorMock = Mockito.mock(AmServiceMetricsCollector.class);
     AmServiceImpl amServiceMock = Mockito.mock(AmServiceImpl.class);
 
-    static Summary sampleSummary = getSampleSummary();
-    static Gauge sampleGauge = getSampleGauge();
-
     @InjectMocks
     AmServiceImpl amService;
 
@@ -59,10 +56,6 @@ public class AmServiceImplTest {
         Document document = getSampleDoc();
         when(amClient.getMainPage()).thenReturn(document);
         when(amClient.getPage(any())).thenReturn(document);
-        when(amServiceMetricsCollectorMock.timeParsingDuration()).thenReturn(sampleSummary.startTimer());
-        when(amServiceMetricsCollectorMock.timeWinePageFetchingDuration()).thenReturn(sampleSummary.startTimer());
-        when(amServiceMetricsCollectorMock.timeWinePageParsingDuration()).thenReturn(sampleSummary.startTimer());
-        when(amServiceMetricsCollectorMock.countTimeSinceLastParsing()).thenReturn(sampleGauge.startTimer());
         List<WineDto> wines = amService.getWines();
         assertEquals(1, wines.size());
         WineDto wine = wines.get(0);
@@ -82,10 +75,6 @@ public class AmServiceImplTest {
         Document document = getSampleDoc();
         when(amClient.getPage(any())).thenReturn(document);
         when(amClient.getMainPage()).thenReturn(document);
-        when(amServiceMetricsCollectorMock.timeParsingDuration()).thenReturn(sampleSummary.startTimer());
-        when(amServiceMetricsCollectorMock.timeWinePageFetchingDuration()).thenReturn(sampleSummary.startTimer());
-        when(amServiceMetricsCollectorMock.timeWinePageParsingDuration()).thenReturn(sampleSummary.startTimer());
-        when(amServiceMetricsCollectorMock.countTimeSinceLastParsing()).thenReturn(sampleGauge.startTimer());
         List<AmWine> listWines = amService.getAmWines();
         assertEquals(1, listWines.size());
     }
