@@ -126,7 +126,7 @@ public class AmServiceImpl implements AmService {
             if (!newWines.isEmpty()) {
                 successfulParseCount++;
                 metricsCollector.countParsingComplete("SUCCESS");
-                eventLogger.info(AmServiceNotableEvents.I_WINES_PAGE_PARSED);
+                eventLogger.info(AmServiceNotableEvents.I_WINES_PAGE_PARSED, pageCopy);
                 pagesWithParsedWines[(int) pageCopy - 1] = true;
                 long currentParse = System.nanoTime();
                 if(lastParse != null) {
@@ -135,7 +135,7 @@ public class AmServiceImpl implements AmService {
                 lastParse = currentParse;
             } else {
                 metricsCollector.countParsingComplete("FAILED");
-                eventLogger.warn(AmServiceNotableEvents.W_WINE_PAGE_PARSING_FAILED, baseUrl + "?page=" + pageCopy);
+                eventLogger.warn(AmServiceNotableEvents.W_WINE_PAGE_PARSING_FAILED, pageCopy, baseUrl + "?page=" + pageCopy);
             }
             metricsCollector.decParsingInProgress();
         }

@@ -23,17 +23,6 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
 
     private static final String SERVICE_NAME = "am_parser_service";
 
-    private final Counter prometheusParsingStartedCounter;
-    private final Counter prometheusParsingCompleteCounter;
-    private final Gauge prometheusParsingInProgressGauge;
-    private final Summary prometheusParsingDurationSummary;
-    private final Gauge prometheusTimeSinceLastParsingGauge;
-    private final Summary prometheusWineDetailsFetchingDurationSummary;
-    private final Summary prometheusWinePageFetchingDurationSummary;
-    private final Summary prometheusWineDetailsParsingDurationSummary;
-    private final Summary prometheusWinePageParsingDurationSummary;
-    private final Counter prometheusWinesPublishedToKafkaCounter;
-
     private static final String PARSING_STARTED = "parsing_started_total";
     private static final String PARSING_COMPLETE = "parsing_complete_total";
     private static final String PARSING_IN_PROGRESS = "parsing_in_progress";
@@ -47,87 +36,64 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
 
     private static final String PARSING_COMPLETE_STATUS = "status";
 
+    private static final Counter prometheusParsingStartedCounter = Counter.build()
+            .namespace(SERVICE_NAME)
+            .name(PARSING_STARTED)
+            .help("Total number of parsing processes ever started")
+            .register();
+    private static final Counter prometheusParsingCompleteCounter = Counter.build()
+            .namespace(SERVICE_NAME)
+            .name(PARSING_COMPLETE)
+            .help("Total number of parsing processes ever completed")
+            .labelNames(PARSING_COMPLETE_STATUS)
+            .register();
+    private static final Gauge prometheusParsingInProgressGauge = Gauge.build()
+            .namespace(SERVICE_NAME)
+            .name(PARSING_IN_PROGRESS)
+            .help("Total number of parsing processes currently in progress")
+            .register();
+    private static final Summary prometheusParsingDurationSummary = Summary.build()
+            .namespace(SERVICE_NAME)
+            .name(PARSING_DURATION)
+            .help("The duration of every parsing process completed so far")
+            .register();
+    private static final Gauge prometheusTimeSinceLastParsingGauge = Gauge.build()
+            .namespace(SERVICE_NAME)
+            .name(TIME_SINCE_LAST_PARSING)
+            .help("The amount of time since the last successfully completed parsing process")
+            .register();
+    private static final Summary prometheusWineDetailsFetchingDurationSummary = Summary.build()
+            .namespace(SERVICE_NAME)
+            .name(WINE_DETAILS_FETCHING_DURATION)
+            .help("The duration of every fetching of a wine details page")
+            .register();
+    private static final Summary prometheusWinePageFetchingDurationSummary = Summary.build()
+            .namespace(SERVICE_NAME)
+            .name(WINE_PAGE_FETCHING_DURATION)
+            .help("The duration of every parsing of a wine details page")
+            .register();
+    private static final Summary prometheusWineDetailsParsingDurationSummary = Summary.build()
+            .namespace(SERVICE_NAME)
+            .name(WINE_DETAILS_PARSING_DURATION)
+            .help("The duration of every parsing of a wine details page")
+            .register();
+    private static final Summary prometheusWinePageParsingDurationSummary = Summary.build()
+            .namespace(SERVICE_NAME)
+            .name(WINE_PAGE_PARSING_DURATION)
+            .help("The duration of every parsing of a wines page")
+            .register();
+    private static final Counter prometheusWinesPublishedToKafkaCounter = Counter.build()
+            .namespace(SERVICE_NAME)
+            .name(WINES_PUBLISHED_TO_KAFKA)
+            .help("Number of wines that have been sent to Kafka")
+            .register();
+
     public AmServiceMetricsCollector() {
         this(SERVICE_NAME);
     }
 
     private AmServiceMetricsCollector(String serviceName) {
         super(serviceName);
-        this.prometheusParsingStartedCounter = createAndRegisterCounter(
-                PARSING_STARTED,
-                "Total number of parsing processes ever started"
-        );
-
-        this.prometheusParsingCompleteCounter = createAndRegisterCounterLabeled(
-                PARSING_COMPLETE,
-                "Total number of parsing processes ever completed",
-                PARSING_COMPLETE_STATUS
-        );
-        this.prometheusParsingInProgressGauge = createAndRegisterGauge(
-                PARSING_IN_PROGRESS,
-                "Total number of parsing processes currently in progress"
-        );
-        this.prometheusParsingDurationSummary = createAndRegisterSummary(
-                PARSING_DURATION,
-                "The duration of every parsing process completed so far"
-        );
-        this.prometheusTimeSinceLastParsingGauge = createAndRegisterGauge(
-                TIME_SINCE_LAST_PARSING,
-                "The amount of time since the last successfully completed parsing process"
-        );
-        this.prometheusWineDetailsFetchingDurationSummary = createAndRegisterSummary(
-                WINE_DETAILS_FETCHING_DURATION,
-                "The duration of every fetching of a wine details page"
-        );
-        this.prometheusWinePageFetchingDurationSummary = createAndRegisterSummary(
-                WINE_PAGE_FETCHING_DURATION,
-                "The duration of every fetching of a wines page"
-        );
-        this.prometheusWineDetailsParsingDurationSummary = createAndRegisterSummary(
-                WINE_DETAILS_PARSING_DURATION,
-                "The duration of every parsing of a wine details page"
-        );
-        this.prometheusWinePageParsingDurationSummary = createAndRegisterSummary(
-                WINE_PAGE_PARSING_DURATION,
-                "The duration of every parsing of a wines page"
-        );
-        this.prometheusWinesPublishedToKafkaCounter = createAndRegisterCounter(
-                WINES_PUBLISHED_TO_KAFKA,
-                "Number of wines that have been sent to Kafka"
-        );
-    }
-
-    private Counter createAndRegisterCounter(String name, String help) {
-        return Counter.build()
-                .namespace(SERVICE_NAME)
-                .name(name)
-                .help(help)
-                .register();
-    }
-
-    private Counter createAndRegisterCounterLabeled(String name, String help, String... labels) {
-        return Counter.build()
-                .namespace(SERVICE_NAME)
-                .name(name)
-                .help(help)
-                .labelNames(labels)
-                .register();
-    }
-
-    private Gauge createAndRegisterGauge(String name, String help) {
-        return Gauge.build()
-                .namespace(SERVICE_NAME)
-                .name(name)
-                .help(help)
-                .register();
-    }
-
-    private Summary createAndRegisterSummary(String name, String help) {
-        return Summary.build()
-                .namespace(SERVICE_NAME)
-                .name(name)
-                .help(help)
-                .register();
     }
 
     public void countParsingStart() {
