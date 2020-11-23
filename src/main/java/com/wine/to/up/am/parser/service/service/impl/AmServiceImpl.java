@@ -196,7 +196,13 @@ public class AmServiceImpl implements AmService {
 
     @Override
     public AdditionalProps getAdditionalProps(String link) {
+        long fetchStart = System.nanoTime();
         Document page = client.getPageByUrl(link);
+        long fetchEnd = System.nanoTime();
+        metricsCollector.timeWineDetailsFetchingDuration(fetchEnd - fetchStart);
+        if(page == null) {
+            eventLogger.info(AmServiceNotableEvents.W_WINE_DETAILS_PARSING_FAILED, link);
+        }
         return parseAdditionalProps(page);
     }
 
@@ -210,6 +216,7 @@ public class AmServiceImpl implements AmService {
             return null;
         }
 
+        long parseStart = System.nanoTime();
         boolean isOtherVersion = false;
         props.setRating(parseRating(page));
         Elements properties = page.getElementsByClass(WINE_PROPERTY);
@@ -235,6 +242,8 @@ public class AmServiceImpl implements AmService {
                 props.setGastronomy(body);
             }
         }
+        long parseEnd = System.nanoTime();
+        metricsCollector.timeWineDetailsParsingDuration(parseEnd - parseStart);
         return props;
     }
 

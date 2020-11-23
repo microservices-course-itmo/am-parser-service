@@ -9,6 +9,7 @@ import com.wine.to.up.am.parser.service.domain.entity.Producer;
 import com.wine.to.up.am.parser.service.domain.entity.Region;
 import com.wine.to.up.am.parser.service.domain.entity.Sugar;
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.logging.AmServiceNotableEvents;
 import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
@@ -22,6 +23,8 @@ import com.wine.to.up.am.parser.service.repository.SugarRepository;
 import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
+import com.wine.to.up.commonlib.annotations.InjectEventLogger;
+import com.wine.to.up.commonlib.logging.EventLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.repository.CrudRepository;
@@ -45,6 +48,9 @@ public class UpdateServiceImpl implements UpdateService {
     private String baseUrl;
 
     private final AmService amService;
+
+    @InjectEventLogger
+    private EventLogger eventLogger;
 
     private final BrandRepository brandRepository;
 
@@ -195,6 +201,7 @@ public class UpdateServiceImpl implements UpdateService {
                 wine.setActual(true);
                 wine.setDateRec(new Date());
                 wineRepository.save(wine);
+                eventLogger.info(AmServiceNotableEvents.I_WINE_DETAILS_PARSED, link);
             }
         }
     }
