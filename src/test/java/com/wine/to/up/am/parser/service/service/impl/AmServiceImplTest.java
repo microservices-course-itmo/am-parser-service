@@ -5,8 +5,7 @@ import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
-import io.prometheus.client.Gauge;
-import io.prometheus.client.Summary;
+import com.wine.to.up.commonlib.logging.EventLogger;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +38,7 @@ public class AmServiceImplTest {
 
     AmClient amClient = Mockito.mock(AmClient.class);
     AmServiceMetricsCollector amServiceMetricsCollectorMock = Mockito.mock(AmServiceMetricsCollector.class);
+    EventLogger eventLoggerMock = Mockito.mock(EventLogger.class);
     AmServiceImpl amServiceMock = Mockito.mock(AmServiceImpl.class);
 
     @InjectMocks

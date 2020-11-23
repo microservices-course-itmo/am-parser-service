@@ -5,15 +5,19 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
+import com.wine.to.up.am.parser.service.logging.AmServiceNotableEvents;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
+import com.wine.to.up.commonlib.annotations.InjectEventLogger;
+import com.wine.to.up.commonlib.logging.EventLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -36,6 +40,12 @@ public class AmServiceImpl implements AmService {
     private final AmClient client;
 
     private final AmServiceMetricsCollector metricsCollector;
+
+    @InjectEventLogger
+    private EventLogger eventLogger;
+
+    @Value(value = "${am.site.base-url}")
+    private String baseUrl;
 
     private static final String DICT_NAME = "catalogProps";
 
@@ -116,6 +126,7 @@ public class AmServiceImpl implements AmService {
             if (!newWines.isEmpty()) {
                 successfulParseCount++;
                 metricsCollector.countParsingComplete("SUCCESS");
+                eventLogger.info(AmServiceNotableEvents.I_WINES_PAGE_PARSED);
                 pagesWithParsedWines[(int) pageCopy - 1] = true;
                 long currentParse = System.nanoTime();
                 if(lastParse != null) {
@@ -124,6 +135,7 @@ public class AmServiceImpl implements AmService {
                 lastParse = currentParse;
             } else {
                 metricsCollector.countParsingComplete("FAILED");
+                eventLogger.warn(AmServiceNotableEvents.W_WINE_PAGE_PARSING_FAILED, baseUrl + "?page=" + pageCopy);
             }
             metricsCollector.decParsingInProgress();
         }
