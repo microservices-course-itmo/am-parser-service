@@ -70,6 +70,24 @@ public class Wine {
     @Column(nullable = true)
     private Double strength;
 
+    @Column(nullable = true)
+    private String link;
+
+    @Column(nullable = true)
+    private String description;
+
+    @Column(nullable = true)
+    private String taste;
+
+    @Column(nullable = true)
+    private String flavor;
+
+    @Column(nullable = true)
+    private String gastronomy;
+
+    @Column(nullable = true)
+    private Double rating;
+
     @ManyToOne
     @JoinColumn(referencedColumnName = "id")
     private Color color;
@@ -78,12 +96,23 @@ public class Wine {
     @JoinColumn(referencedColumnName = "id")
     private Sugar sugar;
 
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "id")
+    private Region region;
+
+    @ManyToOne
+    @JoinColumn(referencedColumnName = "id")
+    private Producer producer;
+
     @ManyToMany(fetch = FetchType.EAGER)
     private List<Grape> grapes;
 
     @ApiModelProperty(notes = "The price of the bottle")
     @Column(nullable = true)
     private Double price;
+
+    @Column(nullable = true, name = "old_price")
+    private Double oldPrice;
 
     @Column(nullable = false)
     private Boolean actual;

@@ -33,6 +33,12 @@ public class Dictionary {
     @JsonProperty("country")
     private Map<String, CatalogProp> countries;
     @JsonDeserialize(using = CatalogPropDeserializer.class)
+    @JsonProperty("region")
+    private Map<String, CatalogProp> regions;
+    @JsonDeserialize(using = CatalogPropDeserializer.class)
+    @JsonProperty("producer")
+    private Map<String, CatalogProp> producers;
+    @JsonDeserialize(using = CatalogPropDeserializer.class)
     @JsonProperty("grape_sort")
     private Map<String, CatalogProp> grapes;
     @JsonDeserialize(using = CatalogPropDeserializer.class)
@@ -45,6 +51,8 @@ public class Dictionary {
         countries = new HashMap<>();
         grapes = new HashMap<>();
         sugars = new HashMap<>();
+        regions = new HashMap<>();
+        producers = new HashMap<>();
     }
 
     @Getter

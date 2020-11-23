@@ -20,6 +20,8 @@ public interface RestService {
 
     void updateAll();
 
+    void updateAdditionalProps();
+
     void readAsFile(HttpServletResponse httpServletResponse) throws IOException;
 
     void cleanDatabase();

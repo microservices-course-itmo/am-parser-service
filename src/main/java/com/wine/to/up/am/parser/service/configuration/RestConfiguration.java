@@ -5,6 +5,8 @@ import com.wine.to.up.am.parser.service.repository.BrandRepository;
 import com.wine.to.up.am.parser.service.repository.ColorRepository;
 import com.wine.to.up.am.parser.service.repository.CountryRepository;
 import com.wine.to.up.am.parser.service.repository.GrapeRepository;
+import com.wine.to.up.am.parser.service.repository.ProducerRepository;
+import com.wine.to.up.am.parser.service.repository.RegionRepository;
 import com.wine.to.up.am.parser.service.repository.SugarRepository;
 import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.AmService;
@@ -33,7 +35,9 @@ public class RestConfiguration {
                                        CountryRepository countryRepository,
                                        GrapeRepository grapeRepository,
                                        SugarRepository sugarRepository,
-                                       WineRepository wineRepository) {
+                                       WineRepository wineRepository,
+                                       RegionRepository regionRepository,
+                                       ProducerRepository producerRepository) {
         return new UpdateServiceImpl(amService,
                 metricsCollector,
                 brandRepository,
@@ -41,7 +45,9 @@ public class RestConfiguration {
                 countryRepository,
                 grapeRepository,
                 sugarRepository,
-                wineRepository);
+                wineRepository,
+                regionRepository,
+                producerRepository);
     }
 
     @Bean

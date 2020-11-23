@@ -17,8 +17,8 @@ import java.io.IOException;
 @Slf4j
 public class AmClientImpl implements AmClient {
 
-    @Value(value = "${am.site.base-url}")
-    private String baseUrl;
+    @Value(value = "${am.site.catalog-url}")
+    private String catalogUrl;
 
     @Value(value = "${am.site.user-agent}")
     private String userAgent;
@@ -40,7 +40,7 @@ public class AmClientImpl implements AmClient {
      */
     @Override
     public Document getPage(Long page) {
-        return getPage(baseUrl + "?page=" + page);
+        return getPageByUrl(catalogUrl + "?page=" + page);
     }
 
     /**
@@ -48,7 +48,7 @@ public class AmClientImpl implements AmClient {
      * @param url url, который используется для получения страницы.
      * @return страницу каталога
      */
-    private Document getPage(String url) {
+    public Document getPageByUrl(String url) {
         int attempt = 0;
         while (attempt < maxRetries) {
             Document document = fetchPage(url);
@@ -84,6 +84,6 @@ public class AmClientImpl implements AmClient {
      */
     @Override
     public Document getMainPage() {
-        return getPage(baseUrl);
+        return getPageByUrl(catalogUrl);
     }
 }
