@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.logging.AmServiceNotableEvents;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
@@ -46,6 +47,20 @@ public class AmServiceImpl implements AmService {
 
     @Value(value = "${am.site.base-url}")
     private String baseUrl;
+
+    private static final String RATING_SCORE = "rating__score";
+
+    private static final String FLAVOR = "Аромат";
+
+    private static final String GASTRONOMY = "Гастроном";
+
+    private static final String TASTE = "Вкус";
+
+    private static final String DEGUSTATION = "Дегустационные характеристики";
+
+    private static final String DESCRIPTION = "Дегустационные характеристики";
+
+    private static final String WINE_PROPERTY = "about-wine__block col-md-4";
 
     private static final String DICT_NAME = "catalogProps";
 
@@ -177,6 +192,50 @@ public class AmServiceImpl implements AmService {
             result = new Dictionary();
         }
         return result;
+    }
+
+    @Override
+    public AdditionalProps getAdditionalProps(String link) {
+        Document page = client.getPageByUrl(link);
+        return parseAdditionalProps(page);
+    }
+
+    private Double parseRating(Document page) {
+        return Double.parseDouble(page.getElementsByClass(RATING_SCORE).get(0).text());
+    }
+
+    private AdditionalProps parseAdditionalProps(Document page) {
+        AdditionalProps props = new AdditionalProps();
+        if (page == null) {
+            return null;
+        }
+
+        boolean isOtherVersion = false;
+        props.setRating(parseRating(page));
+        Elements properties = page.getElementsByClass(WINE_PROPERTY);
+        for (Element prop : properties) {
+            String title = prop.getElementsByTag("div").get(1).text();
+            String body = prop.getElementsByTag("p").get(0).text();
+            if (title.contains(DEGUSTATION)) {
+                isOtherVersion = true;
+            }
+            if (title.contains(DESCRIPTION)) {
+                props.setDescription(body);
+            }
+            if (title.contains(TASTE) && !isOtherVersion) {
+                props.setTaste(body);
+            }
+            if (title.contains(TASTE) && isOtherVersion) {
+                props.setGastronomy(body);
+            }
+            if (title.contains(FLAVOR)) {
+                props.setFlavor(body);
+            }
+            if (title.contains(GASTRONOMY)) {
+                props.setGastronomy(body);
+            }
+        }
+        return props;
     }
 
     /**

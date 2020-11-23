@@ -58,6 +58,51 @@ public class WineDto {
     private Double price;
 
     /**
+     * Старая цена за бутылку вина.
+     */
+    private Double oldPrice;
+
+    /**
+     * Ссылка на винную позицию.
+     */
+    private String link;
+
+    /**
+     * Регион производства бутылки вина.
+     */
+    private String region;
+
+    /**
+     * Производитель вина.
+     */
+    private String producer;
+
+    /**
+     * Описание вина.
+     */
+    private String description;
+
+    /**
+     * Описание аромата вина.
+     */
+    private String flavor;
+
+    /**
+     * Описание гастрономических сочетаний вина.
+     */
+    private String gastronomy;
+
+    /**
+     * Описание вкуса вина.
+     */
+    private String taste;
+
+    /**
+     * Рейтинг вина на сайте.
+     */
+    private Double rating;
+
+    /**
      * Бренд вина.
      */
     private String brand;
