@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.domain.entity.Brand;
 import com.wine.to.up.am.parser.service.domain.entity.Color;
 import com.wine.to.up.am.parser.service.domain.entity.Country;
@@ -46,6 +47,8 @@ public class UpdateServiceImpl implements UpdateService {
 
     private final AmService amService;
 
+    private final AmServiceMetricsCollector metricsCollector;
+
     private final BrandRepository brandRepository;
 
     private final ColorRepository colorRepository;
@@ -63,6 +66,7 @@ public class UpdateServiceImpl implements UpdateService {
     private final ProducerRepository producerRepository;
 
     public UpdateServiceImpl(AmService amService,
+                             AmServiceMetricsCollector metricsCollector,
                              BrandRepository brandRepository,
                              ColorRepository colorRepository,
                              CountryRepository countryRepository,
@@ -72,6 +76,7 @@ public class UpdateServiceImpl implements UpdateService {
                              RegionRepository regionRepository,
                              ProducerRepository producerRepository) {
         this.amService = amService;
+        this.metricsCollector = metricsCollector;
         this.brandRepository = brandRepository;
         this.colorRepository = colorRepository;
         this.countryRepository = countryRepository;
@@ -163,10 +168,12 @@ public class UpdateServiceImpl implements UpdateService {
             if (wine != null) {
                 saveWine(wine, amWine, now);
                 updated++;
+                metricsCollector.countNumberOfWinesUpdated();
             } else {
                 wine = new Wine();
                 saveWine(wine, amWine, now);
                 created++;
+                metricsCollector.countNumberOfWinesCreated();
             }
         }
         List<Wine> wineForDeleted = wineRepository.findAllByDateRecIsNot(now);
@@ -174,6 +181,7 @@ public class UpdateServiceImpl implements UpdateService {
             w.setActual(false);
             wineRepository.save(w);
             markForDeleted++;
+            metricsCollector.countNumberOfWinesDeleted();
         }
         log.info("created {} Wines", created);
         log.info("updated {} Wines", updated);

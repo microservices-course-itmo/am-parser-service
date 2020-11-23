@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.configuration;
 
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.impl.AmClientImpl;
@@ -16,8 +17,8 @@ public class ClientConfiguration {
     }
 
     @Bean
-    public AmService amService(AmClient amClient) {
-        return new AmServiceImpl(amClient);
+    public AmService amService(AmClient amClient, AmServiceMetricsCollector amServiceMetricsCollector) {
+        return new AmServiceImpl(amClient, amServiceMetricsCollector);
     }
 
 }

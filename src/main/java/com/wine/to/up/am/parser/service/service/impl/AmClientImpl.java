@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -28,6 +29,12 @@ public class AmClientImpl implements AmClient {
     @Value(value = "${am.site.max-retries}")
     private Integer maxRetries;
 
+    private AmServiceMetricsCollector metricsCollector;
+
+//    public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
+//        this.metricsCollector = metricsCollector;
+//    }
+
     /**
      * {@inheritDoc}
      */
@@ -49,6 +56,12 @@ public class AmClientImpl implements AmClient {
                 return document;
             }
             attempt ++;
+        }
+        if (attempt >= 5){
+            metricsCollector.isBanned(1);
+        }
+        else {
+            metricsCollector.isBanned(0);
         }
         log.error("Cannot get document by '{}' url in {} attempts", url, attempt);
         return null;
