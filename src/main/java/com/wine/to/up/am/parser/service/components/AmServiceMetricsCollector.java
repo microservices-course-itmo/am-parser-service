@@ -1,10 +1,13 @@
 package com.wine.to.up.am.parser.service.components;
 
 import com.wine.to.up.commonlib.metrics.CommonMetricsCollector;
+import io.micrometer.core.instrument.Metrics;
 import io.prometheus.client.Counter;
 import io.prometheus.client.Gauge;
 import io.prometheus.client.Summary;
 import org.springframework.stereotype.Component;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * This Class expose methods for recording specific metrics
@@ -34,6 +37,10 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     private static final Gauge winesParsedUnsuccessfulGauge = Gauge.build()
             .name(WINES_PARSED_UNSUCCESSFUL)
             .help("Number of unsuccessfully parsed wines")
+            .register();
+    private static final Gauge isBannedGauge = Gauge.build()
+            .name(IS_BANNED)
+            .help("Is banned host's IP")
             .register();
     private static final Counter numberOfWinesCreatedCounter = Counter.build()
             .name(NUMBER_OF_WINES_CREATED)
@@ -65,42 +72,43 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     }
 
     public void parsedWinesSuccess(int countParsedWinesSuccess) {
-//        Metrics.gauge(PARSED_WINES_SUCCESS, countParsedWinesSuccess);
+        Metrics.gauge(PARSED_WINES_SUCCESS, countParsedWinesSuccess);
         parsedWinesSuccessGauge.set(countParsedWinesSuccess);
     }
 
     public void winesParsedUnsuccessful(int countParsedWinesUnsuccessful) {
-//        Metrics.gauge(WINES_PARSED_UNSUCCESSFUL, countParsedWinesUnsuccessful);
+        Metrics.gauge(WINES_PARSED_UNSUCCESSFUL, countParsedWinesUnsuccessful);
         winesParsedUnsuccessfulGauge.set(countParsedWinesUnsuccessful);
     }
 
+    public void isBanned(int bool) {
+        Metrics.gauge(IS_BANNED, bool);
+        isBannedGauge.set(bool);
+    }
+
     public void countNumberOfWinesCreated() {
-//        Metrics.counter(NUMBER_OF_WINES_CREATED).increment();
+        Metrics.counter(NUMBER_OF_WINES_CREATED).increment();
         numberOfWinesCreatedCounter.inc();
     }
 
     public void countNumberOfWinesUpdated() {
-//        Metrics.counter(NUMBER_OF_WINES_UPDATED).increment();
+        Metrics.counter(NUMBER_OF_WINES_UPDATED).increment();
         numberOfWinesUpdatedCounter.inc();
     }
 
     public void countNumberOfWinesDeleted() {
-//        Metrics.counter(NUMBER_OF_WINES_DELETED).increment();
+        Metrics.counter(NUMBER_OF_WINES_DELETED).increment();
         numberOfWinesDeletedCounter.inc();
     }
 
     public void percentageOfUnsuccessfullyParsedWines(int percentUnsuccessfullyParsedWines){
-//        Metrics.gauge(PARSED_WINES_SUCCESS, percentUnsuccessfullyParsedWines);
+        Metrics.gauge(PARSED_WINES_SUCCESS, percentUnsuccessfullyParsedWines);
         percentageOfUnsuccessfullyParsedWinesGauge.set(percentUnsuccessfullyParsedWines);
     }
 
-    public Summary.Timer jobExecutionTime() {
-        return jobExecutionTimeSummary.startTimer();
+    public void jobExecutionTime(long nanoTime) {
+        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
+        jobExecutionTimeSummary.observe(milliTime);
+        Metrics.summary(JOB_EXECUTION_TIME).record(milliTime);
     }
-
-//    public void jobExecutionTime(double time){
-//        // need to choose one: summary or timer
-//        Metrics.summary(JOB_EXECUTION_TIME).record(time);
-//        Metrics.timer(JOB_EXECUTION_TIME).record((long)time, TimeUnit.MILLISECONDS);
-//    }
 }

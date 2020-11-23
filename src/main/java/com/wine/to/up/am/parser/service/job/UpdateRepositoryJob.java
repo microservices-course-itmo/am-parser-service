@@ -24,7 +24,7 @@ public class UpdateRepositoryJob {
     @Resource
     private UpdateService updateService;
 
-    private final AmServiceMetricsCollector metricsCollector;
+    private AmServiceMetricsCollector metricsCollector;
 
     public UpdateRepositoryJob(AmServiceMetricsCollector metricsCollector) {
         this.metricsCollector = metricsCollector;
@@ -37,12 +37,13 @@ public class UpdateRepositoryJob {
     public void runJob() {
         ZoneOffset zone = ZoneOffset.of("Z");
         LocalDateTime startDate = LocalDateTime.now();
-        Summary.Timer jobTimer = metricsCollector.jobExecutionTime();
+        long jobStart = System.nanoTime();
         log.info("start ActualizeWineJob run job method at " + startDate);
         updateService.updateDictionary();
         updateService.updateWines();
         LocalDateTime endDate = LocalDateTime.now();
-        jobTimer.observeDuration();
+        long jobEnd = System.nanoTime();
+        metricsCollector.jobExecutionTime(jobEnd - jobStart);
         log.info("end ActualizeWineJob run job method at " + endDate + " duration = " + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + " seconds");
     }
 
