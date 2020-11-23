@@ -17,11 +17,6 @@ public class ClientConfiguration {
     }
 
     @Bean
-    public AmServiceMetricsCollector amServiceMetricsCollector() {
-        return new AmServiceMetricsCollector();
-    }
-
-    @Bean
     public AmService amService(AmClient amClient, AmServiceMetricsCollector amServiceMetricsCollector) {
         return new AmServiceImpl(amClient, amServiceMetricsCollector);
     }
