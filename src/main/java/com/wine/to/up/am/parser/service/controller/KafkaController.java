@@ -2,12 +2,10 @@ package com.wine.to.up.am.parser.service.controller;
 
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.SearchService;
-import com.wine.to.up.am.parser.service.util.ColorConverter;
-import com.wine.to.up.am.parser.service.util.SugarConverter;
+import com.wine.to.up.am.parser.service.util.ProtobufConverter;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.schema.ParserApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,7 +41,7 @@ public class KafkaController {
             List<WineDto> wineDtoList = searchService.findAll();
             List<ParserApi.Wine> wines = new ArrayList<>();
             for (WineDto wineDto : wineDtoList) {
-                wines.add(getProtobufWine(wineDto));
+                wines.add(ProtobufConverter.getProtobufWine(wineDto));
             }
 
             ParserApi.WineParsedEvent message = ParserApi.WineParsedEvent.newBuilder()
@@ -57,37 +55,5 @@ public class KafkaController {
         }
 
         log.info("End method at {}; duration = {}", new Date().getTime(), (new Date().getTime() - startTime));
-    }
-
-    public ParserApi.Wine getProtobufWine(WineDto wineDto) {
-        ParserApi.Wine.Builder builder = ParserApi.Wine.newBuilder();
-        if (StringUtils.hasText(wineDto.getName())) {
-            builder.setName(wineDto.getName());
-        }
-        if (StringUtils.hasText(wineDto.getPicture())) {
-            builder.setImage(wineDto.getPicture());
-        }
-        if (StringUtils.hasText(wineDto.getCountry())) {
-            builder.setCountry(wineDto.getCountry());
-        }
-        if (wineDto.getAlco() != null) {
-            builder.setStrength(wineDto.getAlco().floatValue());
-        }
-        if (wineDto.getValue() != null) {
-            builder.setCapacity(wineDto.getValue().floatValue());
-        }
-        if (wineDto.getGrapes() != null && !wineDto.getGrapes().isEmpty()) {
-            builder.addAllGrapeSort(wineDto.getGrapes());
-        }
-        if (wineDto.getPrice() != null) {
-            builder.setOldPrice(wineDto.getPrice().floatValue());
-        }
-        if (StringUtils.hasText(wineDto.getBrand())) {
-            builder.setBrand(wineDto.getBrand());
-        }
-
-        builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
-        builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
-        return builder.build();
     }
 }

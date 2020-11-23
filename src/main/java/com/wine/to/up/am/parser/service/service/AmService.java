@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.service;
 
+import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
@@ -29,4 +30,10 @@ public interface AmService {
      * @return Словарь справочной информации.
      */
     Dictionary getDictionary();
+
+    /**
+     * Метод получения дополнителных атрибутов вина.
+     * @return Дополнительные атрибуты.
+     */
+    AdditionalProps getAdditionalProps(String link);
 }

@@ -22,6 +22,7 @@ public class AmWine {
     private String id;
     private Long sort;
     private String name;
+    private String link;
     private Props props;
     private Double price;
     @JsonProperty("preview_picture")
@@ -37,6 +38,10 @@ public class AmWine {
         private Double alco;
         private Double value;
         private String brand;
+        @JsonProperty("old_price_77")
+        private Double oldPrice;
+        private Long region;
+        private Long producer;
         @JsonProperty("grape_sort")
         private List<String> grapes;
     }
