@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.configuration;
 
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.repository.BrandRepository;
 import com.wine.to.up.am.parser.service.repository.ColorRepository;
 import com.wine.to.up.am.parser.service.repository.CountryRepository;
@@ -26,6 +27,7 @@ public class RestConfiguration {
 
     @Bean
     public UpdateService updateService(AmService amService,
+                                       AmServiceMetricsCollector metricsCollector,
                                        BrandRepository brandRepository,
                                        ColorRepository colorRepository,
                                        CountryRepository countryRepository,
@@ -33,6 +35,7 @@ public class RestConfiguration {
                                        SugarRepository sugarRepository,
                                        WineRepository wineRepository) {
         return new UpdateServiceImpl(amService,
+                metricsCollector,
                 brandRepository,
                 colorRepository,
                 countryRepository,

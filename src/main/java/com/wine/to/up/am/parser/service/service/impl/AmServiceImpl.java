@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
@@ -34,6 +35,8 @@ public class AmServiceImpl implements AmService {
 
     private final AmClient client;
 
+    private final AmServiceMetricsCollector metricsCollector;
+
     private static final String DICT_NAME = "catalogProps";
 
     private static final String WINDOW_PATTERN_START = ".*window\\.";
@@ -54,8 +57,9 @@ public class AmServiceImpl implements AmService {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public AmServiceImpl(AmClient client) {
+    public AmServiceImpl(AmClient client, AmServiceMetricsCollector metricsCollector) {
         this.client = client;
+        this.metricsCollector = metricsCollector;
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
@@ -102,6 +106,9 @@ public class AmServiceImpl implements AmService {
             parseAttemptsCount++;
             long pageCopy = page;
             List<AmWine> newWines = getAmWines(page);
+            metricsCollector.parsedWinesSuccess(newWines.size());
+            metricsCollector.winesParsedUnsuccessful(18 - newWines.size());
+            metricsCollector.percentageOfUnsuccessfullyParsedWines(newWines.size() / 18);
             page++;
             amWines.addAll(newWines);
             pagesProcessed[(int) pageCopy - 1] = true;
