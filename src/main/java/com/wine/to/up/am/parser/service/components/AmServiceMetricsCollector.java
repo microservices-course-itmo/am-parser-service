@@ -37,53 +37,43 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     private static final String PARSING_COMPLETE_STATUS = "status";
 
     private static final Counter prometheusParsingStartedCounter = Counter.build()
-            .namespace(SERVICE_NAME)
             .name(PARSING_STARTED)
             .help("Total number of parsing processes ever started")
             .register();
     private static final Counter prometheusParsingCompleteCounter = Counter.build()
-            .namespace(SERVICE_NAME)
             .name(PARSING_COMPLETE)
             .help("Total number of parsing processes ever completed")
             .labelNames(PARSING_COMPLETE_STATUS)
             .register();
     private static final Gauge prometheusParsingInProgressGauge = Gauge.build()
-            .namespace(SERVICE_NAME)
             .name(PARSING_IN_PROGRESS)
             .help("Total number of parsing processes currently in progress")
             .register();
     private static final Summary prometheusParsingDurationSummary = Summary.build()
-            .namespace(SERVICE_NAME)
             .name(PARSING_DURATION)
             .help("The duration of every parsing process completed so far")
             .register();
     private static final Gauge prometheusTimeSinceLastParsingGauge = Gauge.build()
-            .namespace(SERVICE_NAME)
             .name(TIME_SINCE_LAST_PARSING)
             .help("The amount of time since the last successfully completed parsing process")
             .register();
     private static final Summary prometheusWineDetailsFetchingDurationSummary = Summary.build()
-            .namespace(SERVICE_NAME)
             .name(WINE_DETAILS_FETCHING_DURATION)
             .help("The duration of every fetching of a wine details page")
             .register();
     private static final Summary prometheusWinePageFetchingDurationSummary = Summary.build()
-            .namespace(SERVICE_NAME)
             .name(WINE_PAGE_FETCHING_DURATION)
             .help("The duration of every parsing of a wine details page")
             .register();
     private static final Summary prometheusWineDetailsParsingDurationSummary = Summary.build()
-            .namespace(SERVICE_NAME)
             .name(WINE_DETAILS_PARSING_DURATION)
             .help("The duration of every parsing of a wine details page")
             .register();
     private static final Summary prometheusWinePageParsingDurationSummary = Summary.build()
-            .namespace(SERVICE_NAME)
             .name(WINE_PAGE_PARSING_DURATION)
             .help("The duration of every parsing of a wines page")
             .register();
     private static final Counter prometheusWinesPublishedToKafkaCounter = Counter.build()
-            .namespace(SERVICE_NAME)
             .name(WINES_PUBLISHED_TO_KAFKA)
             .help("Number of wines that have been sent to Kafka")
             .register();
