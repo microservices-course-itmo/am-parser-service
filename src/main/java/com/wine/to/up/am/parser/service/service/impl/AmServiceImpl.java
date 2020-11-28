@@ -6,15 +6,20 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
+import com.wine.to.up.am.parser.service.logging.AmServiceNotableEvents;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
+import com.wine.to.up.commonlib.annotations.InjectEventLogger;
+import com.wine.to.up.commonlib.logging.EventLogger;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -35,6 +40,14 @@ import java.util.stream.Collectors;
 public class AmServiceImpl implements AmService {
 
     private final AmClient client;
+
+    private final AmServiceMetricsCollector metricsCollector;
+
+    @InjectEventLogger
+    private EventLogger eventLogger;
+
+    @Value(value = "${am.site.base-url}")
+    private String baseUrl;
 
     private static final String RATING_SCORE = "rating__score";
 
@@ -131,7 +144,11 @@ public class AmServiceImpl implements AmService {
         final boolean[] pagesProcessed = new boolean[pages.intValue()];
         final boolean[] pagesWithParsedWines = new boolean[pages.intValue()];
 
+        Long lastParse = null;
+
         while (page <= pages) {
+            metricsCollector.countParsingStart();
+            metricsCollector.incParsingInProgress();
             parseAttemptsCount++;
             long pageCopy = page;
             List<AmWine> newWines = getAmWines(page);
@@ -143,8 +160,19 @@ public class AmServiceImpl implements AmService {
             pagesProcessed[(int) pageCopy - 1] = true;
             if (!newWines.isEmpty()) {
                 successfulParseCount++;
+                metricsCollector.countParsingComplete("SUCCESS");
+                eventLogger.info(AmServiceNotableEvents.I_WINES_PAGE_PARSED, pageCopy);
                 pagesWithParsedWines[(int) pageCopy - 1] = true;
+                long currentParse = System.nanoTime();
+                if(lastParse != null) {
+                    metricsCollector.countTimeSinceLastParsing(currentParse - lastParse);
+                }
+                lastParse = currentParse;
+            } else {
+                metricsCollector.countParsingComplete("FAILED");
+                eventLogger.warn(AmServiceNotableEvents.W_WINE_PAGE_PARSING_FAILED, pageCopy, baseUrl + "?page=" + pageCopy);
             }
+            metricsCollector.decParsingInProgress();
         }
 
         StringBuilder lostPagesLog = new StringBuilder("Unprocessed pages: ");
@@ -188,7 +216,13 @@ public class AmServiceImpl implements AmService {
 
     @Override
     public AdditionalProps getAdditionalProps(String link) {
+        long fetchStart = System.nanoTime();
         Document page = client.getPageByUrl(link);
+        long fetchEnd = System.nanoTime();
+        metricsCollector.timeWineDetailsFetchingDuration(fetchEnd - fetchStart);
+        if(page == null) {
+            eventLogger.info(AmServiceNotableEvents.W_WINE_DETAILS_PARSING_FAILED, link);
+        }
         return parseAdditionalProps(page);
     }
 
@@ -202,6 +236,7 @@ public class AmServiceImpl implements AmService {
             return null;
         }
 
+        long parseStart = System.nanoTime();
         boolean isOtherVersion = false;
         props.setRating(parseRating(page));
         Elements properties = page.getElementsByClass(WINE_PROPERTY);
@@ -227,6 +262,8 @@ public class AmServiceImpl implements AmService {
                 props.setGastronomy(body);
             }
         }
+        long parseEnd = System.nanoTime();
+        metricsCollector.timeWineDetailsParsingDuration(parseEnd - parseStart);
         return props;
     }
 
@@ -237,16 +274,23 @@ public class AmServiceImpl implements AmService {
      * @return Список вин.
      */
     private List<AmWine> getAmWines(Long page) {
+        long fetchStart = System.nanoTime();
         final Document document = client.getPage(page);
+        long fetchEnd = System.nanoTime();
+        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart);
         if (document == null) {
             return Collections.emptyList();
         }
+        long parseStart = System.nanoTime();
         String rawWines = getRawValue(document, PROD_NAME, PROD_PATTERN);
         try {
-            return rawWines != null ?
+            List<AmWine> res = rawWines != null ?
                     mapper.readValue(rawWines, new TypeReference<>() {
                     }) :
                     Collections.emptyList();
+            long parseEnd = System.nanoTime();
+            metricsCollector.timeWinePageParsingDuration(parseEnd - parseStart);
+            return res;
         } catch (JsonProcessingException e) {
             log.error("Cannot parse wines with error: {}", e.getMessage());
             return Collections.emptyList();

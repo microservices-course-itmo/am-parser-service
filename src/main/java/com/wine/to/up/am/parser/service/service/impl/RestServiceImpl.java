@@ -1,6 +1,7 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.RestService;
 import com.wine.to.up.am.parser.service.service.SearchService;
@@ -23,9 +24,12 @@ public class RestServiceImpl implements RestService {
 
     private final UpdateService updateService;
 
-    public RestServiceImpl(SearchService searchService, UpdateService updateService) {
+    private final AmServiceMetricsCollector metricsCollector;
+
+    public RestServiceImpl(SearchService searchService, UpdateService updateService, AmServiceMetricsCollector amServiceMetricsCollector) {
         this.searchService = searchService;
         this.updateService = updateService;
+        this.metricsCollector = amServiceMetricsCollector;
     }
 
     @Override
@@ -40,13 +44,19 @@ public class RestServiceImpl implements RestService {
 
     @Override
     public void updateWines() {
+        long parseStart = System.nanoTime();
         updateService.updateWines();
+        long parseEnd = System.nanoTime();
+        metricsCollector.timeParsingDuration(parseEnd - parseStart);
     }
 
     @Override
     public void updateAll() {
         updateService.updateDictionary();
+        long parseStart = System.nanoTime();
         updateService.updateWines();
+        long parseEnd = System.nanoTime();
+        metricsCollector.timeParsingDuration(parseEnd - parseStart);
     }
 
     @Override

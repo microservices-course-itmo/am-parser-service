@@ -3,6 +3,8 @@ package com.wine.to.up.am.parser.service.service.impl;
 import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
+import io.prometheus.client.Gauge;
+import io.prometheus.client.Summary;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 
@@ -129,4 +131,5 @@ public class SampleObjects {
         listWines.add(getSampleWineEntity());
         return listWines;
     }
+
 }

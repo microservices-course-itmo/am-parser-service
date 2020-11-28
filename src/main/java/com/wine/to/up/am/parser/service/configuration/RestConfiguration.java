@@ -51,8 +51,8 @@ public class RestConfiguration {
     }
 
     @Bean
-    public RestService restService(SearchService searchService, UpdateService updateService) {
-        return new RestServiceImpl(searchService, updateService);
+    public RestService restService(SearchService searchService, UpdateService updateService, AmServiceMetricsCollector metricsCollector) {
+        return new RestServiceImpl(searchService, updateService, metricsCollector);
     }
 
 }
