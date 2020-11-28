@@ -29,6 +29,7 @@ public class RestConfiguration {
 
     @Bean
     public UpdateService updateService(AmService amService,
+                                       AmServiceMetricsCollector metricsCollector,
                                        BrandRepository brandRepository,
                                        ColorRepository colorRepository,
                                        CountryRepository countryRepository,
@@ -38,6 +39,7 @@ public class RestConfiguration {
                                        RegionRepository regionRepository,
                                        ProducerRepository producerRepository) {
         return new UpdateServiceImpl(amService,
+                metricsCollector,
                 brandRepository,
                 colorRepository,
                 countryRepository,
