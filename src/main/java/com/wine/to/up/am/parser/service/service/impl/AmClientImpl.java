@@ -53,16 +53,12 @@ public class AmClientImpl implements AmClient {
         while (attempt < maxRetries) {
             Document document = fetchPage(url);
             if (document != null) {
+                metricsCollector.isBanned(0);
                 return document;
             }
             attempt ++;
         }
-        if (attempt >= 5){
-            metricsCollector.isBanned(1);
-        }
-        else {
-            metricsCollector.isBanned(0);
-        }
+        metricsCollector.isBanned(1);
         log.error("Cannot get document by '{}' url in {} attempts", url, attempt);
         return null;
     }

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
-import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.logging.AmServiceNotableEvents;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
@@ -48,22 +47,6 @@ public class AmServiceImpl implements AmService {
 
     @Value(value = "${am.site.base-url}")
     private String baseUrl;
-
-    private static final String RATING_SCORE = "rating__score";
-
-    private static final String FLAVOR = "Аромат";
-
-    private static final String GASTRONOMY = "Гастроном";
-
-    private static final String TASTE = "Вкус";
-
-    private static final String DEGUSTATION = "Дегустационные характеристики";
-
-    private static final String DESCRIPTION = "Дегустационные характеристики";
-
-    private static final String WINE_PROPERTY = "about-wine__block col-md-4";
-
-    private final AmServiceMetricsCollector metricsCollector;
 
     private static final String RATING_SCORE = "rating__score";
 
