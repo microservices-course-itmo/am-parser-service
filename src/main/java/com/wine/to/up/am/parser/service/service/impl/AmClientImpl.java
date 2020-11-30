@@ -31,9 +31,9 @@ public class AmClientImpl implements AmClient {
 
     private AmServiceMetricsCollector metricsCollector;
 
-//    public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
-//        this.metricsCollector = metricsCollector;
-//    }
+    public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
+        this.metricsCollector = metricsCollector;
+    }
 
     /**
      * {@inheritDoc}
