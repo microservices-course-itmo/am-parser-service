@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 public class ClientConfiguration {
 
     @Bean
-    public AmClient amClient() {
-        return new AmClientImpl();
+    public AmClient amClient(AmServiceMetricsCollector amServiceMetricsCollector) {
+        return new AmClientImpl(amServiceMetricsCollector);
     }
 
     @Bean

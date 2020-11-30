@@ -29,11 +29,13 @@ public class AmClientImpl implements AmClient {
     @Value(value = "${am.site.max-retries}")
     private Integer maxRetries;
 
+    private int failedFetches = 0;
+
     private AmServiceMetricsCollector metricsCollector;
 
-//    public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
-//        this.metricsCollector = metricsCollector;
-//    }
+    public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
+        this.metricsCollector = metricsCollector;
+    }
 
     /**
      * {@inheritDoc}
@@ -54,11 +56,15 @@ public class AmClientImpl implements AmClient {
             Document document = fetchPage(url);
             if (document != null) {
                 metricsCollector.isBanned(0);
+                failedFetches = 0;
                 return document;
             }
             attempt ++;
         }
-        metricsCollector.isBanned(1);
+        failedFetches++;
+        if(failedFetches >= 5) {
+            metricsCollector.isBanned(1);
+        }
         log.error("Cannot get document by '{}' url in {} attempts", url, attempt);
         return null;
     }
