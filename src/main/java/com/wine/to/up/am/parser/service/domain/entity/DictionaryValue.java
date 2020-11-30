@@ -3,7 +3,7 @@ package com.wine.to.up.am.parser.service.domain.entity;
 import java.util.Date;
 
 /**
- * @author : skorz
+ * @author : SSyrova
  * @since : 16.11.2020, пн
  **/
 public interface DictionaryValue {

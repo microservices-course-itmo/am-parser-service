@@ -48,6 +48,20 @@ public class AmServiceImpl implements AmService {
     @Value(value = "${am.site.base-url}")
     private String baseUrl;
 
+    private static final String RATING_SCORE = "rating__score";
+
+    private static final String FLAVOR = "Аромат";
+
+    private static final String GASTRONOMY = "Гастроном";
+
+    private static final String TASTE = "Вкус";
+
+    private static final String DEGUSTATION = "Дегустационные характеристики";
+
+    private static final String DESCRIPTION = "Дегустационные характеристики";
+
+    private static final String WINE_PROPERTY = "about-wine__block col-md-4";
+
     private static final String DICT_NAME = "catalogProps";
 
     private static final String WINDOW_PATTERN_START = ".*window\\.";
