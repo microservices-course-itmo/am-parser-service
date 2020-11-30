@@ -55,4 +55,22 @@ public class SearchServiceImplTest {
         List<WineDto> listWinesEmpty = searchService.findAllLessByRub(-5d);
         assertEquals(0, listWinesEmpty.size());
     }
+
+    @Test
+    public void findAll() {
+        var wines = getSampleWineList();
+        when(wineRepositoryMock.findAll()).thenReturn(wines);
+        var listWines = searchService.findAll();
+        assertEquals(1, listWines.size());
+        var wine = listWines.get(0);
+        assertEquals("wine", wine.getName());
+        assertEquals("nullhttp", wine.getPicture());
+        assertEquals("color", wine.getColor());
+        assertEquals("sugar", wine.getSugar());
+        assertEquals("country", wine.getCountry());
+        assertEquals(1, wine.getGrapes().size());
+        assertEquals("grape", wine.getGrapes().get(0));
+        assertEquals((Double) 0.0, wine.getAlco());
+        assertEquals((Double) 0.0, wine.getValue());
+    }
 }

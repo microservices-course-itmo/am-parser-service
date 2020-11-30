@@ -40,6 +40,7 @@ public class AmServiceImplTest {
     AmServiceMetricsCollector amServiceMetricsCollectorMock = Mockito.mock(AmServiceMetricsCollector.class);
     EventLogger eventLoggerMock = Mockito.mock(EventLogger.class);
     AmServiceImpl amServiceMock = Mockito.mock(AmServiceImpl.class);
+    AmServiceMetricsCollector metricsCollector = Mockito.mock(AmServiceMetricsCollector.class);
 
     @InjectMocks
     AmServiceImpl amService;
