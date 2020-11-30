@@ -35,6 +35,7 @@ public class AmClientImpl implements AmClient {
 
     public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
         this.metricsCollector = metricsCollector;
+        metricsCollector.isBanned(0);
     }
 
     /**
@@ -62,7 +63,7 @@ public class AmClientImpl implements AmClient {
             attempt ++;
         }
         failedFetches++;
-        if(failedFetches >= 5) {
+        if(failedFetches >= 5 || url.equals(catalogUrl)) {
             metricsCollector.isBanned(1);
         }
         log.error("Cannot get document by '{}' url in {} attempts", url, attempt);
