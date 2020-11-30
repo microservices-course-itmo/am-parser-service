@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.controller;
 
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ProtobufConverter;
@@ -26,6 +27,8 @@ public class KafkaController {
     private KafkaMessageSender<ParserApi.WineParsedEvent> kafkaMessageSender;
     @Resource
     private SearchService searchService;
+    @Resource
+    private AmServiceMetricsCollector amServiceMetricsCollector;
 
 
     private static final String SHOP_LINK = "amwine.com";
@@ -44,6 +47,7 @@ public class KafkaController {
             for (WineDto wineDto : wineDtoList) {
                 wines.add(ProtobufConverter.getProtobufWine(wineDto));
             }
+            amServiceMetricsCollector.countWinesPublishedToKafka(wines.size());
             List<List<ParserApi.Wine>> chunks = chunkify(wines, CHUNK_SIZE);
 
             for(List<ParserApi.Wine> chunk : chunks) {

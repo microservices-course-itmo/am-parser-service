@@ -5,6 +5,7 @@ import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.AmClient;
+import com.wine.to.up.commonlib.logging.EventLogger;
 import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,9 +21,7 @@ import java.io.IOException;
 import java.util.List;
 
 
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleAmWineList;
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDictionary;
-import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.getSampleDoc;
+import static com.wine.to.up.am.parser.service.service.impl.SampleObjects.*;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -38,6 +37,8 @@ public class AmServiceImplTest {
 
 
     AmClient amClient = Mockito.mock(AmClient.class);
+    AmServiceMetricsCollector amServiceMetricsCollectorMock = Mockito.mock(AmServiceMetricsCollector.class);
+    EventLogger eventLoggerMock = Mockito.mock(EventLogger.class);
     AmServiceImpl amServiceMock = Mockito.mock(AmServiceImpl.class);
     AmServiceMetricsCollector metricsCollector = Mockito.mock(AmServiceMetricsCollector.class);
 

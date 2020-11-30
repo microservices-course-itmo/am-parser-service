@@ -30,6 +30,8 @@ public class AmClientImpl implements AmClient {
     @Value(value = "${am.site.max-retries}")
     private Integer maxRetries;
 
+    private int failedFetches = 0;
+
     private final ProxyService proxyService;
 
     private AmServiceMetricsCollector metricsCollector;
@@ -61,17 +63,18 @@ public class AmClientImpl implements AmClient {
         while (attempt < maxRetries) {
             Document document = fetchPage(url);
             if (document != null) {
+                metricsCollector.isBanned(0);
+                failedFetches = 0;
                 return document;
             }
             attempt ++;
         }
-        if (attempt >= 5){
+        failedFetches++;
+        if(failedFetches >= 5 || url.equals(catalogUrl)) {
+            log.warn("The service appears to have been banned!");
             metricsCollector.isBanned(1);
         }
-        else {
-            metricsCollector.isBanned(0);
-        }
-        log.error("Cannot get document by '{}' url in {} attempts", url, attempt);
+        log.error("Cannot get document by '{}' url in {} attempts, there have been {} failed fetches in a row", url, attempt, failedFetches);
         return null;
     }
 
