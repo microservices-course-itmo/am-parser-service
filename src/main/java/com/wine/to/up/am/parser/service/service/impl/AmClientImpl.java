@@ -67,7 +67,7 @@ public class AmClientImpl implements AmClient {
             log.warn("The service appears to have been banned!");
             metricsCollector.isBanned(1);
         }
-        log.error("Cannot get document by '{}' url in {} attempts", url, attempt);
+        log.error("Cannot get document by '{}' url in {} attempts, there have been {} failed fetches in a row", url, attempt, failedFetches);
         return null;
     }
 
