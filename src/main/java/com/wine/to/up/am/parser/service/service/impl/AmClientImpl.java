@@ -35,7 +35,7 @@ public class AmClientImpl implements AmClient {
 
     public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
         this.metricsCollector = metricsCollector;
-        metricsCollector.isBanned(0);
+        metricsCollector.isBanned(-1);
     }
 
     /**
