@@ -1,6 +1,5 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wine.to.up.am.parser.service.service.ProxyClient;
@@ -12,6 +11,7 @@ import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.PostConstruct;
@@ -35,6 +35,9 @@ public class ProxyClientImpl implements ProxyClient {
     @Value("${proxy.api-url}")
     private String apiUrl;
 
+    @Value(value = "${am.site.catalog-url}")
+    private String catalogUrl;
+
     private final OkHttpClient client = new OkHttpClient();
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -55,13 +58,33 @@ public class ProxyClientImpl implements ProxyClient {
                 return Collections.emptyList();
             }
             ProxyResponse proxyResponse = mapper.readValue(response.body().bytes(), ProxyResponse.class);
-            return proxyResponse.data.stream()
+            List<Proxy> proxyList = proxyResponse.data.stream()
                     .map(proxy -> new Proxy(Proxy.Type.HTTP,
                             new InetSocketAddress(proxy.ip, proxy.port)))
+                    .filter(this::isProxyAlive)
                     .collect(Collectors.toList());
+            if(!proxyList.isEmpty()) {
+                log.info("Valid proxy count : {}", proxyList.size());
+                return proxyList;
+            } else {
+                log.info("Trying again with proxy");
+                return getProxies();
+            }
         } catch (IOException e) {
             log.info("Cannot retrieve proxies: {}", e.getMessage());
             return Collections.emptyList();
+        }
+    }
+
+    private Boolean isProxyAlive(Proxy proxyAddress) {
+
+        try {
+            Jsoup.connect(catalogUrl).proxy(proxyAddress).timeout(20000).get();
+
+            log.trace("{} OK", proxyAddress);
+            return true;
+        } catch (Exception e) {
+            return false;
         }
     }
 

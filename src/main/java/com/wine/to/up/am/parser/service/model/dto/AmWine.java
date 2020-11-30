@@ -22,6 +22,7 @@ public class AmWine {
     private String id;
     private Long sort;
     private String name;
+    private Boolean available;
     private String link;
     private Props props;
     private Double price;
