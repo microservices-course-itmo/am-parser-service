@@ -1,6 +1,7 @@
 package com.wine.to.up.am.parser.service.controller;
 
 import com.wine.to.up.am.parser.service.service.RestService;
+import com.wine.to.up.am.parser.service.util.TrackExecutionTime;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
@@ -12,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 
 /**
  * @author : SSyrova
@@ -25,9 +24,6 @@ import java.time.ZoneOffset;
 @Api(value = "Wine controller")
 public class WineController {
 
-    private static final String DURATION = " duration= ";
-    private static final String SECONDS = " seconds";
-
     @Resource
     private RestService restService;
 
@@ -36,56 +32,42 @@ public class WineController {
      */
     @ApiOperation(value = "Updating the dictionary in the database")
     @PostMapping("/dictionary")
+    @TrackExecutionTime
     public void updateDictionary() {
-        ZoneOffset zone = ZoneOffset.of("Z");
-        LocalDateTime startDate = LocalDateTime.now();
-        log.info("start UpdateDictionary method at " + startDate);
         restService.updateDictionary();
-        LocalDateTime endDate = LocalDateTime.now();
-        log.info("end UpdateDictionary method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
     @ApiOperation(value = "Updating the catalog in the database")
     @PostMapping("/wine")
+    @TrackExecutionTime
     public void updateCatalog() {
-        ZoneOffset zone = ZoneOffset.of("Z");
-        LocalDateTime startDate = LocalDateTime.now();
-        log.info("start UpdateCatalog method at " + startDate);
         restService.updateWines();
-        LocalDateTime endDate = LocalDateTime.now();
-        log.info("end UpdateCatalog method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
     @ApiOperation(value = "Updating additional properties of wines in the database")
     @PostMapping("/wine/additional")
+    @TrackExecutionTime
     public void updateAdditionalWineProps() {
-        ZoneOffset zone = ZoneOffset.of("Z");
-        LocalDateTime startDate = LocalDateTime.now();
-        log.info("start UpdateAdditionalWineProps method at " + startDate);
         restService.updateAdditionalProps();
-        LocalDateTime endDate = LocalDateTime.now();
-        log.info("end UpdateAdditionalWineProps method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
     @ApiOperation(value = "Updating all information in the database")
     @PostMapping("/all")
+    @TrackExecutionTime
     public void updateAll() {
-        ZoneOffset zone = ZoneOffset.of("Z");
-        LocalDateTime startDate = LocalDateTime.now();
-        log.info("start UpdateAll method at " + startDate);
         restService.updateAll();
-        LocalDateTime endDate = LocalDateTime.now();
-        log.info("end UpdateAll method at " + endDate + DURATION + (endDate.toEpochSecond(zone) - startDate.toEpochSecond(zone)) + SECONDS);
     }
 
     @ApiOperation(value = "get all wines in file")
     @GetMapping("/file")
+    @TrackExecutionTime
     public void readAsFile(HttpServletResponse httpServletResponse) throws IOException {
         restService.readAsFile(httpServletResponse);
     }
 
     @ApiOperation(value = "clean all database")
     @PostMapping("/clean")
+    @TrackExecutionTime
     public void cleanDatabase() {
         restService.cleanDatabase();
     }

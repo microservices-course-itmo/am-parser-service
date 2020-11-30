@@ -2,6 +2,7 @@ package com.wine.to.up.am.parser.service.job;
 
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.service.UpdateService;
+import com.wine.to.up.am.parser.service.util.TrackExecutionTime;
 import io.prometheus.client.Summary;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;

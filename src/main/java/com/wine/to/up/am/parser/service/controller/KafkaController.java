@@ -3,6 +3,7 @@ package com.wine.to.up.am.parser.service.controller;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ProtobufConverter;
+import com.wine.to.up.am.parser.service.util.TrackExecutionTime;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.schema.ParserApi;
 import lombok.extern.slf4j.Slf4j;
@@ -34,9 +35,8 @@ public class KafkaController {
      * Отправка всех вин из БД в Кафку.
      */
     @GetMapping("/sendAllWines")
+    @TrackExecutionTime
     public void sendAllWines() {
-        long startTime = new Date().getTime();
-        log.info("Start method at {}", startTime);
 
         try {
             List<WineDto> wineDtoList = searchService.findAll();
@@ -57,7 +57,6 @@ public class KafkaController {
             log.error("Can't export wines list", exception);
         }
 
-        log.info("End method at {}; duration = {}", new Date().getTime(), (new Date().getTime() - startTime));
     }
 
     public List<List<ParserApi.Wine>> chunkify(List<ParserApi.Wine> list, int chunkSize){
