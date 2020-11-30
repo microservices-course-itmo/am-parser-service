@@ -205,20 +205,10 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     }
 
     public void isBanned(int bool) {
-        Metrics.gauge(IS_BANNED, bool);
-        int val = (int)Math.round(isBannedGauge.get());
-        if (bool == 0) {
-            if (val == -1) {
-                isBannedGauge.inc();
-            } else if (val == 1) {
-                isBannedGauge.dec();
-            }
-        } else if (bool == 1) {
-            if (val == -1) {
-                isBannedGauge.inc(2);
-            } else if (val == 0) {
-                isBannedGauge.inc();
-            }
+        isBannedGauge.set(bool);
+        AtomicInteger gauge = Metrics.gauge(IS_BANNED, new AtomicInteger(0));
+        if(gauge != null) {
+            gauge.getAndSet(bool);
         }
     }
 
