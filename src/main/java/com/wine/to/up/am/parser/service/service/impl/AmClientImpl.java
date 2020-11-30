@@ -2,6 +2,7 @@ package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.service.AmClient;
+import com.wine.to.up.am.parser.service.service.ProxyService;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,7 +30,14 @@ public class AmClientImpl implements AmClient {
     @Value(value = "${am.site.max-retries}")
     private Integer maxRetries;
 
+    private final ProxyService proxyService;
+
     private AmServiceMetricsCollector metricsCollector;
+
+    public AmClientImpl(ProxyService proxyService, AmServiceMetricsCollector amServiceMetricsCollector) {
+        this.proxyService = proxyService;
+        this.metricsCollector = amServiceMetricsCollector;
+    }
 
 //    public AmClientImpl(AmServiceMetricsCollector metricsCollector) {
 //        this.metricsCollector = metricsCollector;
@@ -72,7 +80,7 @@ public class AmClientImpl implements AmClient {
             return Jsoup
                     .connect(url)
                     .userAgent(userAgent)
-                    .referrer(referrer)
+                    .proxy(proxyService.getProxy())
                     .get();
         } catch (IOException e) {
             return null;
