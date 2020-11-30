@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * This Class expose methods for recording specific metrics
@@ -48,6 +49,7 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
             .name(PARSING_IN_PROGRESS)
             .help("Total number of parsing processes currently in progress")
             .register();
+    private static final AtomicInteger micrometerParsingInProgressGauge = Metrics.gauge(PARSING_IN_PROGRESS, new AtomicInteger(0));
     private static final Summary prometheusParsingDurationSummary = Summary.build()
             .name(PARSING_DURATION)
             .help("The duration of every parsing process completed so far")
@@ -56,6 +58,7 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
             .name(TIME_SINCE_LAST_PARSING)
             .help("The amount of time since the last successfully completed parsing process")
             .register();
+    private static final AtomicLong micrometerTimeSinceLastParsingGauge = Metrics.gauge(TIME_SINCE_LAST_PARSING, new AtomicLong(0));
     private static final Summary prometheusWineDetailsFetchingDurationSummary = Summary.build()
             .name(WINE_DETAILS_FETCHING_DURATION)
             .help("The duration of every fetching of a wine details page")
@@ -86,35 +89,39 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     private static final String PERCENTAGE_OF_UNSUCCESSFULLY_PARSED_WINES = "percentage_of_unsuccessfully_parsed_wines";
     private static final String JOB_EXECUTION_TIME = "job_execution_time";
 
-    private static final Gauge parsedWinesSuccessGauge = Gauge.build()
+    private static final Gauge prometheusParsedWinesSuccessGauge = Gauge.build()
             .name(PARSED_WINES_SUCCESS)
             .help("Number of successfully parsed wines")
             .register();
-    private static final Gauge winesParsedUnsuccessfulGauge = Gauge.build()
+    private static final AtomicInteger micrometerParsedWinesSuccessGauge = Metrics.gauge(PARSED_WINES_SUCCESS, new AtomicInteger(0));
+    private static final Gauge prometheusWinesParsedUnsuccessfulGauge = Gauge.build()
             .name(WINES_PARSED_UNSUCCESSFUL)
             .help("Number of unsuccessfully parsed wines")
             .register();
-    private static final Gauge isBannedGauge = Gauge.build()
+    private static final AtomicInteger micrometerWinesParsedUnsuccessfulGauge = Metrics.gauge(WINES_PARSED_UNSUCCESSFUL, new AtomicInteger(0));
+    private static final Gauge prometheusIsBannedGauge = Gauge.build()
             .name(IS_BANNED)
             .help("Is banned host's IP")
             .register();
-    private static final Counter numberOfWinesCreatedCounter = Counter.build()
+    private static final AtomicInteger micrometerIsBannedGauge = Metrics.gauge(IS_BANNED, new AtomicInteger(0));
+    private static final Counter prometheusNumberOfWinesCreatedCounter = Counter.build()
             .name(NUMBER_OF_WINES_CREATED)
             .help("Number of created wines during 1 parsing")
             .register();
-    private static final Counter numberOfWinesUpdatedCounter = Counter.build()
+    private static final Counter prometheusNumberOfWinesUpdatedCounter = Counter.build()
             .name(NUMBER_OF_WINES_UPDATED)
             .help("Number of updated wines during 1 parsing")
             .register();
-    private static final Counter numberOfWinesDeletedCounter = Counter.build()
+    private static final Counter prometheusNumberOfWinesDeletedCounter = Counter.build()
             .name(NUMBER_OF_WINES_DELETED)
             .help("Number of deleted wines during 1 parsing (due to irrelevance)")
             .register();
-    private static final Gauge percentageOfUnsuccessfullyParsedWinesGauge = Gauge.build()
+    private static final Gauge prometheusPercentageOfUnsuccessfullyParsedWinesGauge = Gauge.build()
             .name(PERCENTAGE_OF_UNSUCCESSFULLY_PARSED_WINES)
             .help("Percent of unsuccessfully parsed wines")
             .register();
-    private static final Summary jobExecutionTimeSummary = Summary.build()
+    private static final AtomicInteger micrometerPercentageOfUnsuccessfullyParsedWinesGauge = Metrics.gauge(PERCENTAGE_OF_UNSUCCESSFULLY_PARSED_WINES, new AtomicInteger(0));
+    private static final Summary prometheusJobExecutionTimeSummary = Summary.build()
             .name(JOB_EXECUTION_TIME)
             .help("Job execution time")
             .register();
@@ -139,18 +146,12 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
 
     public void incParsingInProgress() {
         prometheusParsingInProgressGauge.inc();
-        AtomicInteger gauge = Metrics.gauge(PARSING_IN_PROGRESS, new AtomicInteger(0));
-        if(gauge != null) {
-            gauge.getAndIncrement();
-        }
+        micrometerParsingInProgressGauge.getAndIncrement();
     }
 
     public void decParsingInProgress() {
         prometheusParsingInProgressGauge.dec();
-        AtomicInteger gauge = Metrics.gauge(PARSING_IN_PROGRESS, new AtomicInteger(0));
-        if(gauge != null) {
-            gauge.getAndDecrement();
-        }
+        micrometerParsingInProgressGauge.getAndDecrement();
     }
 
     public void timeParsingDuration(long nanoTime) {
@@ -162,7 +163,7 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     public void countTimeSinceLastParsing(long nanoTime) {
         long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
         prometheusTimeSinceLastParsingGauge.set(milliTime);
-        Metrics.summary(TIME_SINCE_LAST_PARSING).record(milliTime);
+        micrometerTimeSinceLastParsingGauge.set(milliTime);
     }
 
     public void timeWineDetailsFetchingDuration(long nanoTime) {
@@ -195,46 +196,43 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     }
 
     public void parsedWinesSuccess(int countParsedWinesSuccess) {
-        Metrics.gauge(PARSED_WINES_SUCCESS, countParsedWinesSuccess);
-        parsedWinesSuccessGauge.set(countParsedWinesSuccess);
+        prometheusParsedWinesSuccessGauge.set(countParsedWinesSuccess);
+        micrometerParsedWinesSuccessGauge.set(countParsedWinesSuccess);
     }
 
     public void winesParsedUnsuccessful(int countParsedWinesUnsuccessful) {
-        Metrics.gauge(WINES_PARSED_UNSUCCESSFUL, countParsedWinesUnsuccessful);
-        winesParsedUnsuccessfulGauge.set(countParsedWinesUnsuccessful);
+        prometheusWinesParsedUnsuccessfulGauge.set(countParsedWinesUnsuccessful);
+        micrometerWinesParsedUnsuccessfulGauge.set(countParsedWinesUnsuccessful);
     }
 
     public void isBanned(int bool) {
-        isBannedGauge.set(bool);
-        AtomicInteger gauge = Metrics.gauge(IS_BANNED, new AtomicInteger(0));
-        if(gauge != null) {
-            gauge.getAndSet(bool);
-        }
+        prometheusIsBannedGauge.set(bool);
+        micrometerIsBannedGauge.set(bool);
     }
 
     public void countNumberOfWinesCreated() {
         Metrics.counter(NUMBER_OF_WINES_CREATED).increment();
-        numberOfWinesCreatedCounter.inc();
+        prometheusNumberOfWinesCreatedCounter.inc();
     }
 
     public void countNumberOfWinesUpdated() {
         Metrics.counter(NUMBER_OF_WINES_UPDATED).increment();
-        numberOfWinesUpdatedCounter.inc();
+        prometheusNumberOfWinesUpdatedCounter.inc();
     }
 
     public void countNumberOfWinesDeleted() {
         Metrics.counter(NUMBER_OF_WINES_DELETED).increment();
-        numberOfWinesDeletedCounter.inc();
+        prometheusNumberOfWinesDeletedCounter.inc();
     }
 
     public void percentageOfUnsuccessfullyParsedWines(int percentUnsuccessfullyParsedWines){
-        Metrics.gauge(PARSED_WINES_SUCCESS, percentUnsuccessfullyParsedWines);
-        percentageOfUnsuccessfullyParsedWinesGauge.set(percentUnsuccessfullyParsedWines);
+        prometheusPercentageOfUnsuccessfullyParsedWinesGauge.set(percentUnsuccessfullyParsedWines);
+        micrometerPercentageOfUnsuccessfullyParsedWinesGauge.set(percentUnsuccessfullyParsedWines);
     }
 
     public void jobExecutionTime(long nanoTime) {
         long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
-        jobExecutionTimeSummary.observe(milliTime);
+        prometheusJobExecutionTimeSummary.observe(milliTime);
         Metrics.summary(JOB_EXECUTION_TIME).record(milliTime);
     }
   
