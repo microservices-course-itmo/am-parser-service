@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProtobufConverter {
+    private ProtobufConverter() {}
 
     public static ParserApi.Wine getProtobufWine(WineDto wineDto) {
         ParserApi.Wine.Builder builder = ParserApi.Wine.newBuilder();
@@ -16,6 +17,7 @@ public class ProtobufConverter {
             regions.add(wineDto.getRegion());
         }
         builder.addAllRegion(regions);
+        checkNotNullFields(builder, wineDto);
         if (StringUtils.hasText(wineDto.getName())) {
             builder.setName(wineDto.getName());
         }
@@ -24,24 +26,6 @@ public class ProtobufConverter {
         }
         if (StringUtils.hasText(wineDto.getCountry())) {
             builder.setCountry(wineDto.getCountry());
-        }
-        if (wineDto.getAlco() != null) {
-            builder.setStrength(wineDto.getAlco().floatValue());
-        }
-        if (wineDto.getValue() != null) {
-            builder.setCapacity(wineDto.getValue().floatValue());
-        }
-        if (wineDto.getGrapes() != null && !wineDto.getGrapes().isEmpty()) {
-            builder.addAllGrapeSort(wineDto.getGrapes());
-        }
-        if (wineDto.getPrice() != null) {
-            builder.setNewPrice(wineDto.getPrice().floatValue());
-        }
-        if (wineDto.getOldPrice() != null) {
-            builder.setOldPrice(wineDto.getOldPrice().floatValue());
-        }
-        if (wineDto.getRating() != null) {
-            builder.setRating(wineDto.getRating().floatValue());
         }
         if (StringUtils.hasText(wineDto.getProducer())) {
             builder.setManufacturer(wineDto.getProducer());
@@ -68,5 +52,26 @@ public class ProtobufConverter {
         builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
         builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
         return builder.build();
+    }
+
+    private static void checkNotNullFields(ParserApi.Wine.Builder builder, WineDto wineDto) {
+        if (wineDto.getAlco() != null) {
+            builder.setStrength(wineDto.getAlco().floatValue());
+        }
+        if (wineDto.getValue() != null) {
+            builder.setCapacity(wineDto.getValue().floatValue());
+        }
+        if (wineDto.getGrapes() != null && !wineDto.getGrapes().isEmpty()) {
+            builder.addAllGrapeSort(wineDto.getGrapes());
+        }
+        if (wineDto.getPrice() != null) {
+            builder.setNewPrice(wineDto.getPrice().floatValue());
+        }
+        if (wineDto.getOldPrice() != null) {
+            builder.setOldPrice(wineDto.getOldPrice().floatValue());
+        }
+        if (wineDto.getRating() != null) {
+            builder.setRating(wineDto.getRating().floatValue());
+        }
     }
 }
