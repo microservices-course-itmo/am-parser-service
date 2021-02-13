@@ -1,7 +1,5 @@
 package com.wine.to.up.am.parser.service.service;
 
-import org.springframework.beans.factory.annotation.Value;
-
 import java.net.Proxy;
 
 /**

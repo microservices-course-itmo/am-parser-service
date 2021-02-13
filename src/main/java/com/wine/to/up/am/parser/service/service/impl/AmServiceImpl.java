@@ -224,30 +224,34 @@ public class AmServiceImpl implements AmService {
         props.setRating(parseRating(page));
         Elements properties = page.getElementsByClass(WINE_PROPERTY);
         for (Element prop : properties) {
-            String title = prop.getElementsByTag("div").get(1).text();
-            String body = prop.getElementsByTag("p").get(0).text();
-            if (title.contains(DEGUSTATION)) {
-                isOtherVersion = true;
-            }
-            if (title.contains(DESCRIPTION)) {
-                props.setDescription(body);
-            }
-            if (title.contains(TASTE) && !isOtherVersion) {
-                props.setTaste(body);
-            }
-            if (title.contains(TASTE) && isOtherVersion) {
-                props.setGastronomy(body);
-            }
-            if (title.contains(FLAVOR)) {
-                props.setFlavor(body);
-            }
-            if (title.contains(GASTRONOMY)) {
-                props.setGastronomy(body);
-            }
+            handleProp(prop, isOtherVersion, props);
         }
         long parseEnd = System.nanoTime();
         metricsCollector.timeWineDetailsParsingDuration(parseEnd - parseStart);
         return props;
+    }
+
+    private void handleProp(Element prop, boolean isOtherVersion, AdditionalProps props) {
+        String title = prop.getElementsByTag("div").get(1).text();
+        String body = prop.getElementsByTag("p").get(0).text();
+        if (title.contains(DEGUSTATION)) {
+            isOtherVersion = true;
+        }
+        if (title.contains(DESCRIPTION)) {
+            props.setDescription(body);
+        }
+        if (title.contains(TASTE) && !isOtherVersion) {
+            props.setTaste(body);
+        }
+        if (title.contains(TASTE) && isOtherVersion) {
+            props.setGastronomy(body);
+        }
+        if (title.contains(FLAVOR)) {
+            props.setFlavor(body);
+        }
+        if (title.contains(GASTRONOMY)) {
+            props.setGastronomy(body);
+        }
     }
 
     /**

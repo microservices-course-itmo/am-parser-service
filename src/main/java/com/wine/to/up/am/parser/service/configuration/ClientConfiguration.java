@@ -9,7 +9,6 @@ import com.wine.to.up.am.parser.service.service.impl.AmClientImpl;
 import com.wine.to.up.am.parser.service.service.impl.AmServiceImpl;
 import com.wine.to.up.am.parser.service.service.impl.ProxyClientImpl;
 import com.wine.to.up.am.parser.service.service.impl.ProxyServiceImpl;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
