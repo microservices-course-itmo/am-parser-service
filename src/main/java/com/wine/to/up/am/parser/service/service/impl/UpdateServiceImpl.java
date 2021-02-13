@@ -131,7 +131,7 @@ public class UpdateServiceImpl implements UpdateService {
                             color,
                             sugar,
                             grapes,
-                            0.0, //todo добавить нормальную цену
+                            0.0,
                             true,
                             new Date()));
                 } else {
@@ -150,7 +150,7 @@ public class UpdateServiceImpl implements UpdateService {
                         color,
                         sugar,
                         grapes,
-                        0.0, //todo добавить нормальную цену
+                        0.0,
                         true,
                         new Date()));
                 createdWinesTotal++;

@@ -12,4 +12,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class AmServiceMetricsCollector extends CommonMetricsCollector {
+    public AmServiceMetricsCollector() {
+        super("am-parser-service");
+    }
 }

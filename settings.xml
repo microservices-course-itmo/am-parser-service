@@ -29,7 +29,7 @@
           <snapshots />
           <id>snapshots</id>
           <name>libs-snapshot</name>
-          <url>http://77.234.215.138:48082/artifactory/libs-snapshot</url>
+          <url>http://77.234.215.138:18082/artifactory/libs-snapshot</url>
         </repository>
       </repositories>
       <pluginRepositories>
@@ -45,7 +45,7 @@
           <snapshots />
           <id>snapshots</id>
           <name>libs-snapshot</name>
-          <url>http://77.234.215.138:48082/artifactory/libs-snapshot</url>
+          <url>http://77.234.215.138:18082/artifactory/libs-snapshot</url>
         </pluginRepository>
       </pluginRepositories>
       <id>artifactory</id>
