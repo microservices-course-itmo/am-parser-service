@@ -1,27 +1,12 @@
 package com.wine.to.up.am.parser.service.service.impl;
 
 import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
-import com.wine.to.up.am.parser.service.domain.entity.Brand;
-import com.wine.to.up.am.parser.service.domain.entity.Color;
-import com.wine.to.up.am.parser.service.domain.entity.Country;
-import com.wine.to.up.am.parser.service.domain.entity.DictionaryValue;
-import com.wine.to.up.am.parser.service.domain.entity.Grape;
-import com.wine.to.up.am.parser.service.domain.entity.Producer;
-import com.wine.to.up.am.parser.service.domain.entity.Region;
-import com.wine.to.up.am.parser.service.domain.entity.Sugar;
-import com.wine.to.up.am.parser.service.domain.entity.Wine;
+import com.wine.to.up.am.parser.service.domain.entity.*;
 import com.wine.to.up.am.parser.service.logging.AmServiceNotableEvents;
 import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
-import com.wine.to.up.am.parser.service.repository.BrandRepository;
-import com.wine.to.up.am.parser.service.repository.ColorRepository;
-import com.wine.to.up.am.parser.service.repository.CountryRepository;
-import com.wine.to.up.am.parser.service.repository.GrapeRepository;
-import com.wine.to.up.am.parser.service.repository.ProducerRepository;
-import com.wine.to.up.am.parser.service.repository.RegionRepository;
-import com.wine.to.up.am.parser.service.repository.SugarRepository;
-import com.wine.to.up.am.parser.service.repository.WineRepository;
+import com.wine.to.up.am.parser.service.repository.*;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
 import com.wine.to.up.commonlib.annotations.InjectEventLogger;
@@ -233,7 +218,7 @@ public class UpdateServiceImpl implements UpdateService {
         if (amWine.getProps() != null) {
             final AmWine.Props props = amWine.getProps();
             if (props.getBrand() != null) {
-                wine.setBrand(brandRepository.findByName(amWine.getProps().getBrand()));
+                wine.setBrand(brandRepository.findFirstByName(amWine.getProps().getBrand()));
             }
             if (props.getCountry() != null) {
                 wine.setCountry(countryRepository.findByImportId(amWine.getProps().getCountry()));
