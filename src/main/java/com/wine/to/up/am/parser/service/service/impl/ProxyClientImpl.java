@@ -51,6 +51,7 @@ public class ProxyClientImpl implements ProxyClient {
     public List<Proxy> getProxies() {
         HttpUrl.Builder builder = HttpUrl.parse(apiUrl).newBuilder();
         builder.addQueryParameter("key", apiKey);
+        builder.addQueryParameter("type", "1");
         Request request = new Request.Builder().url(builder.build()).build();
         try {
             Response response = client.newCall(request).execute();
@@ -79,7 +80,7 @@ public class ProxyClientImpl implements ProxyClient {
     private Boolean isProxyAlive(Proxy proxyAddress) {
 
         try {
-            Jsoup.connect(catalogUrl).proxy(proxyAddress).timeout(20000).get();
+            Jsoup.connect(catalogUrl).proxy(proxyAddress).timeout(10000).get();
 
             log.trace("{} OK", proxyAddress);
             return true;
