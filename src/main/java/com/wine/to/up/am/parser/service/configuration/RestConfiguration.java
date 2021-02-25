@@ -55,4 +55,9 @@ public class RestConfiguration {
         return new RestServiceImpl(searchService, updateService, metricsCollector);
     }
 
+    @Bean
+    public AmServiceMetricsCollector metricsCollector() {
+        return new AmServiceMetricsCollector();
+    }
+
 }
