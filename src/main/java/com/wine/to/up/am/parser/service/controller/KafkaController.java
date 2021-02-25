@@ -18,7 +18,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/send")
+@RequestMapping("/parser")
 @Slf4j
 public class KafkaController {
 
@@ -36,7 +36,7 @@ public class KafkaController {
     /**
      * Отправка всех вин из БД в Кафку.
      */
-    @GetMapping("/sendAllWines")
+    @GetMapping("/update")
     @TrackExecutionTime
     public void sendAllWines() {
 
