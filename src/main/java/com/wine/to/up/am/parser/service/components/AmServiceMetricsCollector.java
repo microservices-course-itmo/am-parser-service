@@ -191,7 +191,7 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     }
 
     public void countWinesPublishedToKafka(double wineNum) {
-        Metrics.counter(WINES_PUBLISHED_TO_KAFKA).increment();
+        Metrics.counter(WINES_PUBLISHED_TO_KAFKA).increment(wineNum);
         prometheusWinesPublishedToKafkaCounter.inc(wineNum);
     }
 
