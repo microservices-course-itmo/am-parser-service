@@ -220,20 +220,20 @@ public class AmServiceImpl implements AmService {
         }
 
         long parseStart = System.nanoTime();
-        boolean isOtherVersion = false;
         props.setRating(parseRating(page));
         Elements properties = page.getElementsByClass(WINE_PROPERTY);
         for (Element prop : properties) {
-            handleProp(prop, isOtherVersion, props);
+            handleProp(prop, props);
         }
         long parseEnd = System.nanoTime();
         metricsCollector.timeWineDetailsParsingDuration(parseEnd - parseStart);
         return props;
     }
 
-    private void handleProp(Element prop, boolean isOtherVersion, AdditionalProps props) {
+    private void handleProp(Element prop, AdditionalProps props) {
         String title = prop.getElementsByTag("div").get(1).text();
         String body = prop.getElementsByTag("p").get(0).text();
+        boolean isOtherVersion = false;
         if (title.contains(DEGUSTATION)) {
             isOtherVersion = true;
         }

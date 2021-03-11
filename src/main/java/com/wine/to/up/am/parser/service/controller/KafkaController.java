@@ -62,7 +62,7 @@ public class KafkaController {
 
     }
 
-    public List<List<ParserApi.Wine>> chunkify(List<ParserApi.Wine> list, int chunkSize){
+    public List<List<ParserApi.Wine>> chunkify(List<ParserApi.Wine> list, int chunkSize) {
         List<List<ParserApi.Wine>> chunks = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i += chunkSize) {

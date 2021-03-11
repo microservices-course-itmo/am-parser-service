@@ -14,7 +14,7 @@ import java.time.ZoneOffset;
 @Slf4j
 public class ExecutionTimeTracker {
 
-    private static final String DURATION = " duration= ";
+    private static final String DURATION = " duration = ";
     private static final String SECONDS = " seconds";
 
     @Around("@annotation(com.wine.to.up.am.parser.service.util.TrackExecutionTime)")
