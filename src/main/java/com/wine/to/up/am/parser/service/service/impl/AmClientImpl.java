@@ -63,7 +63,7 @@ public class AmClientImpl implements AmClient {
                 failedFetches = 0;
                 return document;
             }
-            attempt ++;
+            attempt++;
         }
         failedFetches++;
         if(failedFetches >= 5 || url.equals(catalogUrl)) {

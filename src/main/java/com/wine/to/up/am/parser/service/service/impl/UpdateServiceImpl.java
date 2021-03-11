@@ -138,10 +138,11 @@ public class UpdateServiceImpl implements UpdateService {
                 log.error("Couldn't instantiate {} with error: {}", aClass.getSimpleName(), e.getMessage());
             }
         }
-        final String name = aClass.getSimpleName();
-        log.info("created {} {}s", created, name);
-        log.info("updated {} {}s", updated, name);
-        log.info("mark for deleted {} {}s", markForDelete, name);
+        String name = aClass.getSimpleName();
+        name = name.charAt(name.length() - 1) == 'y' ? name.substring(0, name.length() - 1) + "ies" : name + "s";
+        log.info("created {} {}", created, name);
+        log.info("updated {} {}", updated, name);
+        log.info("mark for deleted {} {}", markForDelete, name);
     }
 
     /**
@@ -182,6 +183,8 @@ public class UpdateServiceImpl implements UpdateService {
     @Override
     public void updateAdditionalProps() {
         List<Wine> wines = wineRepository.findAll();
+        log.info("Number of wines found: {}", wines.size());
+        int updated = 0;
         for (Wine wine : wines) {
             String link = wine.getLink();
             AdditionalProps props = amService.getAdditionalProps(link);
@@ -195,8 +198,10 @@ public class UpdateServiceImpl implements UpdateService {
                 wine.setDateRec(new Date());
                 wineRepository.save(wine);
                 eventLogger.info(AmServiceNotableEvents.I_WINE_DETAILS_PARSED, link);
+                updated++;
             }
         }
+        log.info("Number of wines with updated additional props: {}", updated);
     }
 
     private void saveWine(Wine wine, AmWine amWine, Date date) {
