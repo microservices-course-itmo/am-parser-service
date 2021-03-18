@@ -7,7 +7,7 @@
     <groupId>com.wine.to.up</groupId>
     <artifactId>am-parser-service</artifactId>
     <!--    "current-version" is used for building image and should not include a "SNAPSHOT" word. -->
-    <version>${current-version}-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <parent>
