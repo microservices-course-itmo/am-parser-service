@@ -215,6 +215,7 @@ public class UpdateServiceImpl implements UpdateService {
 
         wine.setActual(true);
         wine.setDateRec(date);
+
         wineRepository.save(wine);
     }
 
