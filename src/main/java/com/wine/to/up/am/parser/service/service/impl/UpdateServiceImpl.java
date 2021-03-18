@@ -219,6 +219,7 @@ public class UpdateServiceImpl implements UpdateService {
         wineRepository.save(wine);
     }
 
+
     private void fillPropsValue(Wine wine, AmWine amWine) {
         if (amWine.getProps() != null) {
             final AmWine.Props props = amWine.getProps();
