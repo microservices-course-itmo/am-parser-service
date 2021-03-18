@@ -128,6 +128,26 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
 
     public AmServiceMetricsCollector() {
         this(SERVICE_NAME);
+        countParsingStart(0);
+        incParsingInProgress(0);
+        decParsingInProgress(0);
+        countParsingComplete("success", 0);
+        countParsingComplete("failed", 0);
+        countNumberOfWinesCreated(0);
+        countNumberOfWinesUpdated(0);
+        countNumberOfWinesDeleted(0);
+        countWinesPublishedToKafka(0);
+        percentageOfUnsuccessfullyParsedWines(0);
+        timeParsingDuration(0);
+        countTimeSinceLastParsing(0);
+        timeWineDetailsFetchingDuration(0);
+        timeWineDetailsParsingDuration(0);
+        timeWinePageParsingDuration(0);
+        timeWinePageFetchingDuration(0);
+        parsedWinesSuccess(0);
+        winesParsedUnsuccessful(0);
+        isBanned(0);
+        jobExecutionTime(0);
     }
 
     private AmServiceMetricsCollector(String serviceName) {
@@ -139,9 +159,19 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
         prometheusParsingStartedCounter.inc();
     }
 
+    public void countParsingStart(double value) {
+        Metrics.counter(PARSING_STARTED).increment(value);
+        prometheusParsingStartedCounter.inc(value);
+    }
+
     public void countParsingComplete(String status) {
         Metrics.counter(PARSING_COMPLETE, PARSING_COMPLETE_STATUS, status).increment();
         prometheusParsingCompleteCounter.labels(status).inc();
+    }
+
+    public void countParsingComplete(String status, double value) {
+        Metrics.counter(PARSING_COMPLETE, PARSING_COMPLETE_STATUS, status).increment(value);
+        prometheusParsingCompleteCounter.labels(status).inc(value);
     }
 
     public void incParsingInProgress() {
@@ -149,9 +179,19 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
         micrometerParsingInProgressGauge.getAndIncrement();
     }
 
+    public void incParsingInProgress(double value) {
+        prometheusParsingInProgressGauge.inc(value);
+        micrometerParsingInProgressGauge.getAndAdd((int)value);
+    }
+
     public void decParsingInProgress() {
         prometheusParsingInProgressGauge.dec();
         micrometerParsingInProgressGauge.getAndDecrement();
+    }
+
+    public void decParsingInProgress(double value) {
+        prometheusParsingInProgressGauge.dec(value);
+        micrometerParsingInProgressGauge.getAndAdd((int)value);
     }
 
     public void timeParsingDuration(long nanoTime) {
@@ -215,14 +255,29 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
         prometheusNumberOfWinesCreatedCounter.inc();
     }
 
+    public void countNumberOfWinesCreated(double value) {
+        Metrics.counter(NUMBER_OF_WINES_CREATED).increment(value);
+        prometheusNumberOfWinesCreatedCounter.inc(value);
+    }
+
     public void countNumberOfWinesUpdated() {
         Metrics.counter(NUMBER_OF_WINES_UPDATED).increment();
         prometheusNumberOfWinesUpdatedCounter.inc();
     }
 
+    public void countNumberOfWinesUpdated(double value) {
+        Metrics.counter(NUMBER_OF_WINES_UPDATED).increment(value);
+        prometheusNumberOfWinesUpdatedCounter.inc(value);
+    }
+
     public void countNumberOfWinesDeleted() {
         Metrics.counter(NUMBER_OF_WINES_DELETED).increment();
         prometheusNumberOfWinesDeletedCounter.inc();
+    }
+
+    public void countNumberOfWinesDeleted(double value) {
+        Metrics.counter(NUMBER_OF_WINES_DELETED).increment(value);
+        prometheusNumberOfWinesDeletedCounter.inc(value);
     }
 
     public void percentageOfUnsuccessfullyParsedWines(int percentUnsuccessfullyParsedWines){
