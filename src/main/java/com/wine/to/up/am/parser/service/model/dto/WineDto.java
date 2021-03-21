@@ -1,41 +1,114 @@
 package com.wine.to.up.am.parser.service.model.dto;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import io.swagger.annotations.ApiModel;
+import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.List;
 
 /**
  * @author : SSyrova
- * @since : 29.09.2020, вт
+ * @since : 08.10.2020, чт
  **/
-
 @Getter
 @Setter
-@NoArgsConstructor
+@Builder
+@ApiModel(description = "All details about the WineDTO (DTO)")
 public class WineDto {
 
-    private String id;
-    private Long sort;
+    /**
+     * Название вина.
+     */
     private String name;
-    private Props props;
-    @JsonProperty("preview_picture")
-    private String pictureUrl;
 
+    /**
+     * Ссылка на изображение.
+     */
+    private String picture;
 
-    @Getter
-    @Setter
-    @NoArgsConstructor
-    public class Props {
-        private Long color;
-        private Long sugar;
-        private String country;
-        private Double alco;
-        private Double value;
-        @JsonProperty("grape_sort")
-        private List<String> grapes;
+    /**
+     * Цвет вина.
+     */
+    private String color;
 
-    }
+    /**
+     * Сахаристость вина.
+     */
+    private String sugar;
+
+    /**
+     * Страна производства.
+     */
+    private String country;
+
+    /**
+     * Крепость вина.
+     */
+    private Double alco;
+
+    /**
+     * Объем бутылки.
+     */
+    private Double value;
+
+    /**
+     * Цена за бутылку вина.
+     */
+    private Double price;
+
+    /**
+     * Старая цена за бутылку вина.
+     */
+    private Double oldPrice;
+
+    /**
+     * Ссылка на винную позицию.
+     */
+    private String link;
+
+    /**
+     * Регион производства бутылки вина.
+     */
+    private String region;
+
+    /**
+     * Производитель вина.
+     */
+    private String producer;
+
+    /**
+     * Описание вина.
+     */
+    private String description;
+
+    /**
+     * Описание аромата вина.
+     */
+    private String flavor;
+
+    /**
+     * Описание гастрономических сочетаний вина.
+     */
+    private String gastronomy;
+
+    /**
+     * Описание вкуса вина.
+     */
+    private String taste;
+
+    /**
+     * Рейтинг вина на сайте.
+     */
+    private Double rating;
+
+    /**
+     * Бренд вина.
+     */
+    private String brand;
+
+    /**
+     * Сорта винограда.
+     */
+    private List<String> grapes;
 }

@@ -17,23 +17,23 @@ import javax.persistence.Id;
 import java.util.Date;
 
 @Entity
-@Table(name = "grapes")
+@Table(name = "producers")
 @Setter
 @Getter
 @NoArgsConstructor
-@ApiModel(description = "All details about the Grape")
-public class Grape implements DictionaryValue {
+@ApiModel(description = "All details about the Producer")
+public class Producer implements DictionaryValue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ApiModelProperty(notes = "The database generated grape ID")
+    @ApiModelProperty(notes = "The database generated producer ID")
     private Long id;
 
     @Column(name = "import_id")
     @ApiModelProperty(notes = "The import ID")
     private String importId;
 
-    @ApiModelProperty(notes = "The name of the grape")
+    @ApiModelProperty(notes = "The name of the producer")
     private String name;
 
     private Boolean actual;
@@ -42,12 +42,12 @@ public class Grape implements DictionaryValue {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateRec;
 
-    public Grape(String importId, String name) {
+    public Producer(String importId, String name) {
         this.importId = importId;
         this.name = name;
     }
 
-    public Grape(String importId, String name, Boolean actual, Date dateRec) {
+    public Producer(String importId, String name, Boolean actual, Date dateRec) {
         this.importId = importId;
         this.name = name;
         this.actual = actual;

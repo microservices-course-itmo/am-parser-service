@@ -1,99 +1,75 @@
 package com.wine.to.up.am.parser.service.controller;
 
-import com.google.protobuf.ByteString;
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
+import com.wine.to.up.am.parser.service.model.dto.WineDto;
+import com.wine.to.up.am.parser.service.service.SearchService;
+import com.wine.to.up.am.parser.service.util.ProtobufConverter;
+import com.wine.to.up.am.parser.service.util.TrackExecutionTime;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
-import com.wine.to.up.demo.service.api.dto.DemoServiceMessage;
-import com.wine.to.up.demo.service.api.message.KafkaMessageHeaderOuterClass;
-import com.wine.to.up.demo.service.api.message.KafkaMessageSentEventOuterClass.KafkaMessageSentEvent;
-import lombok.RequiredArgsConstructor;
+import com.wine.to.up.parser.common.api.schema.ParserApi;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collections;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
 
-import static java.util.stream.Collectors.toList;
 
-/**
- * REST controller of the service
- */
 @RestController
-@RequiredArgsConstructor
-@RequestMapping("/kafka")
-@Validated
+@RequestMapping("/parser")
 @Slf4j
 public class KafkaController {
 
+    @Resource
+    private KafkaMessageSender<ParserApi.WineParsedEvent> kafkaMessageSender;
+    @Resource
+    private SearchService searchService;
+    @Resource
+    private AmServiceMetricsCollector amServiceMetricsCollector;
+
+
+    private static final String SHOP_LINK = "amwine.com";
+    private static final int CHUNK_SIZE = 1000;
+
     /**
-     * Service for sending messages
+     * Отправка всех вин из БД в Кафку.
      */
-    private KafkaMessageSender<KafkaMessageSentEvent> kafkaSendMessageService;
+    @GetMapping("/update")
+    @TrackExecutionTime
+    public void sendAllWines() {
 
-    private final ExecutorService executorService = Executors.newFixedThreadPool(3);
+        try {
+            List<WineDto> wineDtoList = searchService.findAll();
+            List<ParserApi.Wine> wines = new ArrayList<>();
+            for (WineDto wineDto : wineDtoList) {
+                wines.add(ProtobufConverter.getProtobufWine(wineDto));
+            }
+            amServiceMetricsCollector.countWinesPublishedToKafka(wines.size());
+            List<List<ParserApi.Wine>> chunks = chunkify(wines, CHUNK_SIZE);
 
+            for(List<ParserApi.Wine> chunk : chunks) {
+                ParserApi.WineParsedEvent message = ParserApi.WineParsedEvent.newBuilder()
+                        .setShopLink(SHOP_LINK)
+                        .addAllWines(chunk)
+                        .build();
+                kafkaMessageSender.sendMessage(message);
+            }
+        } catch (Exception exception) {
+            log.error("Can't export wines list", exception);
+        }
 
-    @Autowired
-    public KafkaController(KafkaMessageSender<KafkaMessageSentEvent> kafkaSendMessageService) {
-        this.kafkaSendMessageService = kafkaSendMessageService;
     }
 
-    /**
-     * Sends messages into the topic "test".
-     * In fact now this service listen to that topic too. That means that it causes sending and reading messages
-     */
-    @PostMapping(value = "/send")
-    public void sendMessage(@RequestBody String message) {
-        sendMessageWithHeaders(new DemoServiceMessage(Collections.emptyMap(), message));
-    }
+    public List<List<ParserApi.Wine>> chunkify(List<ParserApi.Wine> list, int chunkSize) {
+        List<List<ParserApi.Wine>> chunks = new ArrayList<>();
 
-    /**
-     * See {@link #sendMessage(String)}
-     * Sends message with headers
-     */
-    @PostMapping(value = "/send/headers")
-    public void sendMessageWithHeaders(@RequestBody DemoServiceMessage message) {
-        AtomicInteger counter = new AtomicInteger(0);
+        for (int i = 0; i < list.size(); i += chunkSize) {
+            List<ParserApi.Wine> chunk = new ArrayList<>(list.subList(i, Math.min(list.size(), i + chunkSize)));
+            chunks.add(chunk);
+        }
 
-        KafkaMessageSentEvent event = KafkaMessageSentEvent.newBuilder()
-                .addAllHeaders(message.getHeaders().entrySet().stream()
-                        .map(entry -> KafkaMessageHeaderOuterClass.KafkaMessageHeader.newBuilder()
-                                .setKey(entry.getKey())
-                                .setValue(ByteString.copyFrom(entry.getValue()))
-                                .build())
-                        .collect(toList()))
-                .setMessage(message.getMessage())
-                .build();
-
-        int sent = Stream.iterate(1, v -> v + 1)
-                .limit(3)
-                .map(n -> executorService.submit(() -> {
-                    int numOfMessages = 10;
-                    for (int j = 0; j < numOfMessages; j++) {
-                        kafkaSendMessageService.sendMessage(event);
-                        counter.incrementAndGet();
-                    }
-                    return numOfMessages;
-                }))
-                .map(f -> {
-                    try {
-                        return f.get();
-                    } catch (InterruptedException | ExecutionException e) {
-                        log.error("Error while sending in Kafka ", e);
-                        return 0;
-                    }
-                })
-                .mapToInt(Integer::intValue)
-                .sum();
-
-        log.info("Sent: " + sent);
+        return chunks;
     }
 }

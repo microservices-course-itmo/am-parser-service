@@ -17,12 +17,13 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 import java.util.Collections;
 
 /**
- * @author : Mark Menshikh
+ * @author : Mark Menshikh, Vladimir Alexeev
  * @since : 05.10.2020
  **/
 
 @Configuration
 @EnableSwagger2
+//@Import({springfox.documentation.spring.data.rest.configuration.SpringDataRestConfiguration.class}) // для отображения jpa repos - конфликт зависимостей
 public class SwaggerConfig extends WebMvcConfigurationSupport {
 
     @Value(value = "${spring.application.name}")

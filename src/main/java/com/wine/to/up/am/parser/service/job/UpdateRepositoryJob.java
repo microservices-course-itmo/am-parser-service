@@ -1,12 +1,13 @@
 package com.wine.to.up.am.parser.service.job;
 
-import com.wine.to.up.am.parser.service.service.AmService;
+import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
+import com.wine.to.up.am.parser.service.service.UpdateService;
+import com.wine.to.up.am.parser.service.util.TrackExecutionTime;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.util.Date;
+import javax.annotation.Resource;
 
 /**
  * Job для периодического обновления данных о винах
@@ -18,18 +19,25 @@ import java.util.Date;
 @Slf4j
 public class UpdateRepositoryJob {
 
-    @Autowired
-    private AmService amService;
+    @Resource
+    private UpdateService updateService;
+
+    private final AmServiceMetricsCollector metricsCollector;
+
+    public UpdateRepositoryJob(AmServiceMetricsCollector metricsCollector) {
+        this.metricsCollector = metricsCollector;
+    }
 
     /**
      * Каждый день обновляет список вин
      */
     @Scheduled(cron = "${job.cron.update.repository}")
+    @TrackExecutionTime
     public void runJob() {
-        long startDate = new Date().getTime();
-        log.info("start ActualizeWineJob run job method at " + startDate);
-        amService.updateDatabase();
-        log.info("end ActualizeWineJob run job method at " + new Date().getTime() + " duration = " + (new Date().getTime() - startDate));
+        long jobStart = System.nanoTime();
+        updateService.updateDictionary();
+        updateService.updateWines();
+        long jobEnd = System.nanoTime();
+        metricsCollector.jobExecutionTime(jobEnd - jobStart);
     }
-
 }
