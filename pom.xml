@@ -105,5 +105,11 @@
             <artifactId>demo-service-api</artifactId>
             <version>${demo.service.api.version}</version>
         </dependency>
+
+        <!--Eureka-->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
     </dependencies>
 </project>
