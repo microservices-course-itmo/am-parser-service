@@ -19,11 +19,8 @@
     <properties>
         <current-version>0.2.0</current-version>
 
-        <springfox-swagger2.version>2.9.2</springfox-swagger2.version>
-        <springfox-swagger-ui.version>2.9.2</springfox-swagger-ui.version>
-        <service.commonlib.version>0.2.1-SNAPSHOT</service.commonlib.version>
-        <!--        TODO create-service: replace-->
-        <demo.service.api.version>0.3.0-SNAPSHOT</demo.service.api.version>
+        <service.commonlib.version>0.2.3-SNAPSHOT</service.commonlib.version>
+        <parser.common.api.version>0.2.3-SNAPSHOT</parser.common.api.version>
     </properties>
 
     <dependencies>
@@ -37,6 +34,12 @@
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
             <version>1.13.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.wine.to.up</groupId>
+            <artifactId>parser-common-api</artifactId>
+            <version>${parser.common.api.version}</version>
         </dependency>
 
         <!-- Required: Spring-->
@@ -54,22 +57,11 @@
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
 
-        <!-- Required: Swagger -->
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox-swagger2.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.springfox</groupId>
-            <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox-swagger-ui.version}</version>
-        </dependency>
-
         <!-- Db -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
+            <version>6.5.1</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -81,6 +73,11 @@
         </dependency>
 
         <!-- Recommended-->
+        <dependency>
+            <groupId>com.squareup.okhttp3</groupId>
+            <artifactId>okhttp</artifactId>
+            <version>3.14.9</version>
+        </dependency>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -97,13 +94,10 @@
             <groupId>javax.validation</groupId>
             <artifactId>validation-api</artifactId>
         </dependency>
-
-        <!--Our custom artifacts-->
-        <!--        TODO create-service: replace-->
         <dependency>
-            <groupId>com.wine.to.up</groupId>
-            <artifactId>demo-service-api</artifactId>
-            <version>${demo.service.api.version}</version>
+            <groupId>org.apache.kafka</groupId>
+            <artifactId>kafka-clients</artifactId>
+            <version>${kafka.version}</version>
         </dependency>
 
         <!--Eureka-->
