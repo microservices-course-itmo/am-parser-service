@@ -69,6 +69,8 @@ public class ProtobufConverter {
         }
         if (wineDto.getOldPrice() != null) {
             builder.setOldPrice(wineDto.getOldPrice().floatValue());
+        } else if (wineDto.getPrice() != null) {
+            builder.setOldPrice(wineDto.getPrice().floatValue());
         }
         if (wineDto.getRating() != null) {
             builder.setRating(wineDto.getRating().floatValue());

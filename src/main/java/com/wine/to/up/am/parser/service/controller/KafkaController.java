@@ -18,7 +18,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/send")
+@RequestMapping("/parser")
 @Slf4j
 public class KafkaController {
 
@@ -36,7 +36,7 @@ public class KafkaController {
     /**
      * Отправка всех вин из БД в Кафку.
      */
-    @GetMapping("/sendAllWines")
+    @GetMapping("/update")
     @TrackExecutionTime(description = "Send wines to kafka")
     public void sendAllWines() {
 
@@ -62,7 +62,7 @@ public class KafkaController {
 
     }
 
-    public List<List<ParserApi.Wine>> chunkify(List<ParserApi.Wine> list, int chunkSize){
+    public List<List<ParserApi.Wine>> chunkify(List<ParserApi.Wine> list, int chunkSize) {
         List<List<ParserApi.Wine>> chunks = new ArrayList<>();
 
         for (int i = 0; i < list.size(); i += chunkSize) {

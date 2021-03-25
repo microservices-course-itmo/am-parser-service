@@ -35,7 +35,7 @@ public interface AmService {
     Dictionary getDictionary();
 
     /**
-     * Метод получения дополнителных атрибутов вина.
+     * Метод получения дополнительных атрибутов вина.
      * @return Дополнительные атрибуты.
      */
     AdditionalProps getAdditionalProps(String link);

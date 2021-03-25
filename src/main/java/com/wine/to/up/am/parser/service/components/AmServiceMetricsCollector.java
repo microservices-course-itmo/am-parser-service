@@ -28,10 +28,10 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
     private static final String PARSING_IN_PROGRESS = "parsing_in_progress";
     private static final String PARSING_DURATION = "parsing_process_duration_summary";
     private static final String TIME_SINCE_LAST_PARSING = "time_since_last_succeeded_parsing";
-    private static final String WINE_DETAILS_FETCHING_DURATION = "wine_details_fetching_duration";
-    private static final String WINE_PAGE_FETCHING_DURATION = "wine_page_fetching_duration";
-    private static final String WINE_DETAILS_PARSING_DURATION = "wine_details_parsing_duration";
-    private static final String WINE_PAGE_PARSING_DURATION = "wine_page_parsing_duration";
+    private static final String WINE_DETAILS_FETCHING_DURATION = "wine_details_fetching_duration_seconds";
+    private static final String WINE_PAGE_FETCHING_DURATION = "wine_page_fetching_duration_seconds";
+    private static final String WINE_DETAILS_PARSING_DURATION = "wine_details_parsing_duration_seconds";
+    private static final String WINE_PAGE_PARSING_DURATION = "wine_page_parsing_duration_seconds";
     private static final String WINES_PUBLISHED_TO_KAFKA = "wines_published_to_kafka_count";
 
     private static final String PARSING_COMPLETE_STATUS = "status";
@@ -128,6 +128,26 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
 
     public AmServiceMetricsCollector() {
         this(SERVICE_NAME);
+        countParsingStart(0);
+        incParsingInProgress(0);
+        decParsingInProgress(0);
+        countParsingComplete("success", 0);
+        countParsingComplete("failed", 0);
+        countNumberOfWinesCreated(0);
+        countNumberOfWinesUpdated(0);
+        countNumberOfWinesDeleted(0);
+        countWinesPublishedToKafka(0);
+        percentageOfUnsuccessfullyParsedWines(0);
+        timeParsingDuration(0);
+        countTimeSinceLastParsing(0);
+        timeWineDetailsFetchingDuration(0);
+        timeWineDetailsParsingDuration(0);
+        timeWinePageParsingDuration(0);
+        timeWinePageFetchingDuration(0);
+        parsedWinesSuccess(0);
+        winesParsedUnsuccessful(0);
+        isBanned(0);
+        jobExecutionTime(0);
     }
 
     private AmServiceMetricsCollector(String serviceName) {
@@ -139,9 +159,19 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
         prometheusParsingStartedCounter.inc();
     }
 
+    public void countParsingStart(double value) {
+        Metrics.counter(PARSING_STARTED).increment(value);
+        prometheusParsingStartedCounter.inc(value);
+    }
+
     public void countParsingComplete(String status) {
         Metrics.counter(PARSING_COMPLETE, PARSING_COMPLETE_STATUS, status).increment();
         prometheusParsingCompleteCounter.labels(status).inc();
+    }
+
+    public void countParsingComplete(String status, double value) {
+        Metrics.counter(PARSING_COMPLETE, PARSING_COMPLETE_STATUS, status).increment(value);
+        prometheusParsingCompleteCounter.labels(status).inc(value);
     }
 
     public void incParsingInProgress() {
@@ -149,49 +179,59 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
         micrometerParsingInProgressGauge.getAndIncrement();
     }
 
+    public void incParsingInProgress(double value) {
+        prometheusParsingInProgressGauge.inc(value);
+        micrometerParsingInProgressGauge.getAndAdd((int)value);
+    }
+
     public void decParsingInProgress() {
         prometheusParsingInProgressGauge.dec();
         micrometerParsingInProgressGauge.getAndDecrement();
     }
 
+    public void decParsingInProgress(double value) {
+        prometheusParsingInProgressGauge.dec(value);
+        micrometerParsingInProgressGauge.getAndAdd((int)value);
+    }
+
     public void timeParsingDuration(long nanoTime) {
-        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
-        prometheusParsingDurationSummary.observe(milliTime);
-        Metrics.summary(PARSING_DURATION).record(milliTime);
+        long secondsTime = TimeUnit.NANOSECONDS.toSeconds(nanoTime);
+        prometheusParsingDurationSummary.observe(secondsTime);
+        Metrics.summary(PARSING_DURATION).record(secondsTime);
     }
 
     public void countTimeSinceLastParsing(long nanoTime) {
-        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
-        prometheusTimeSinceLastParsingGauge.set(milliTime);
-        micrometerTimeSinceLastParsingGauge.set(milliTime);
+        long secondsTime = TimeUnit.NANOSECONDS.toSeconds(nanoTime);
+        prometheusTimeSinceLastParsingGauge.set(secondsTime);
+        micrometerTimeSinceLastParsingGauge.set(secondsTime);
     }
 
     public void timeWineDetailsFetchingDuration(long nanoTime) {
-        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
-        prometheusWineDetailsFetchingDurationSummary.observe(milliTime);
-        Metrics.summary(WINE_DETAILS_FETCHING_DURATION).record(milliTime);
+        long secondsTime = TimeUnit.NANOSECONDS.toSeconds(nanoTime);
+        prometheusWineDetailsFetchingDurationSummary.observe(secondsTime);
+        Metrics.summary(WINE_DETAILS_FETCHING_DURATION).record(secondsTime);
     }
 
     public void timeWinePageFetchingDuration(long nanoTime) {
-        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
-        prometheusWinePageFetchingDurationSummary.observe(milliTime);
-        Metrics.summary(WINE_PAGE_FETCHING_DURATION).record(milliTime);
+        long secondsTime = TimeUnit.NANOSECONDS.toSeconds(nanoTime);
+        prometheusWinePageFetchingDurationSummary.observe(secondsTime);
+        Metrics.summary(WINE_PAGE_FETCHING_DURATION).record(secondsTime);
     }
 
     public void timeWineDetailsParsingDuration(long nanoTime) {
-        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
-        prometheusWineDetailsParsingDurationSummary.observe(milliTime);
-        Metrics.summary(WINE_DETAILS_PARSING_DURATION).record(milliTime);
+        long secondsTime = TimeUnit.NANOSECONDS.toSeconds(nanoTime);
+        prometheusWineDetailsParsingDurationSummary.observe(secondsTime);
+        Metrics.summary(WINE_DETAILS_PARSING_DURATION).record(secondsTime);
     }
 
     public void timeWinePageParsingDuration(long nanoTime) {
-        long milliTime = TimeUnit.NANOSECONDS.toMillis(nanoTime);
-        prometheusWinePageParsingDurationSummary.observe(milliTime);
-        Metrics.summary(WINE_PAGE_PARSING_DURATION).record(milliTime);
+        long secondsTime = TimeUnit.NANOSECONDS.toSeconds(nanoTime);
+        prometheusWinePageParsingDurationSummary.observe(secondsTime);
+        Metrics.summary(WINE_PAGE_PARSING_DURATION).record(secondsTime);
     }
 
     public void countWinesPublishedToKafka(double wineNum) {
-        Metrics.counter(WINES_PUBLISHED_TO_KAFKA).increment();
+        Metrics.counter(WINES_PUBLISHED_TO_KAFKA).increment(wineNum);
         prometheusWinesPublishedToKafkaCounter.inc(wineNum);
     }
 
@@ -215,14 +255,29 @@ public class AmServiceMetricsCollector extends CommonMetricsCollector {
         prometheusNumberOfWinesCreatedCounter.inc();
     }
 
+    public void countNumberOfWinesCreated(double value) {
+        Metrics.counter(NUMBER_OF_WINES_CREATED).increment(value);
+        prometheusNumberOfWinesCreatedCounter.inc(value);
+    }
+
     public void countNumberOfWinesUpdated() {
         Metrics.counter(NUMBER_OF_WINES_UPDATED).increment();
         prometheusNumberOfWinesUpdatedCounter.inc();
     }
 
+    public void countNumberOfWinesUpdated(double value) {
+        Metrics.counter(NUMBER_OF_WINES_UPDATED).increment(value);
+        prometheusNumberOfWinesUpdatedCounter.inc(value);
+    }
+
     public void countNumberOfWinesDeleted() {
         Metrics.counter(NUMBER_OF_WINES_DELETED).increment();
         prometheusNumberOfWinesDeletedCounter.inc();
+    }
+
+    public void countNumberOfWinesDeleted(double value) {
+        Metrics.counter(NUMBER_OF_WINES_DELETED).increment(value);
+        prometheusNumberOfWinesDeletedCounter.inc(value);
     }
 
     public void percentageOfUnsuccessfullyParsedWines(int percentUnsuccessfullyParsedWines){

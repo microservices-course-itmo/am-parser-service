@@ -7,6 +7,7 @@ import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ColorConverter;
 import com.wine.to.up.am.parser.service.util.SugarConverter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
  * @since : 08.10.2020, чт
  **/
 @Service
+@Slf4j
 public class SearchServiceImpl implements SearchService {
 
     private final WineRepository wineRepository;
@@ -57,6 +59,7 @@ public class SearchServiceImpl implements SearchService {
     @Override
     public List<WineDto> findAll() {
         List<Wine> wines = wineRepository.findAll();
+        log.info("Number of wines found: {}", wines.size());
         return wines
                 .stream()
                 .map(e -> WineDto.builder()
