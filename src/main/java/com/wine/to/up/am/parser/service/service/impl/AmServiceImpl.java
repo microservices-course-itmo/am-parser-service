@@ -265,6 +265,11 @@ public class AmServiceImpl implements AmService {
         final Document document = client.getPage(page);
         long fetchEnd = System.nanoTime();
         metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart);
+        return getAmWines(document);
+    }
+
+    @Override
+    public List<AmWine> getAmWines(Document document) {
         if (document == null) {
             return Collections.emptyList();
         }
@@ -290,7 +295,10 @@ public class AmServiceImpl implements AmService {
      * @return Количество страниц каталога.
      */
     private Long getCatalogPagesAmount() {
-        final Document document = client.getMainPage();
+        return getCatalogPagesAmount(client.getMainPage());
+    }
+
+    public Long getCatalogPagesAmount(Document document) {
         String rawTotalCount = getRawValue(document, TOTAL_COUNT_NAME, TOTAL_COUNT_PATTERN);
         String rawPerPageCount = getRawValue(document, PER_PAGE_COUNT_NAME, PER_PAGE_COUNT_PATTERN);
         if (!StringUtils.hasText(rawTotalCount) || !StringUtils.hasText(rawPerPageCount)) {

@@ -9,10 +9,13 @@ import com.wine.to.up.am.parser.service.util.ColorConverter;
 import com.wine.to.up.am.parser.service.util.SugarConverter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -81,5 +84,11 @@ public class SearchServiceImpl implements SearchService {
                         .picture(baseUrl + e.getPictureUrl())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Wine nWine(Integer n) {
+        Optional<Wine> wine = wineRepository.findAll(PageRequest.of(n, n)).stream().findFirst();
+        return wine.orElse(null);
     }
 }

@@ -4,7 +4,7 @@ import com.wine.to.up.am.parser.service.components.AmServiceMetricsCollector;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ProtobufConverter;
-import com.wine.to.up.am.parser.service.util.TrackExecutionTime;
+import com.wine.to.up.am.parser.service.util.log.TrackExecutionTime;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.schema.ParserApi;
 import lombok.extern.slf4j.Slf4j;
@@ -37,7 +37,7 @@ public class KafkaController {
      * Отправка всех вин из БД в Кафку.
      */
     @GetMapping("/update")
-    @TrackExecutionTime
+    @TrackExecutionTime(description = "Send wines to kafka")
     public void sendAllWines() {
 
         try {

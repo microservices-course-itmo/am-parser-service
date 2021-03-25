@@ -4,6 +4,7 @@ import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
 import com.wine.to.up.am.parser.service.model.dto.Dictionary;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
+import org.jsoup.nodes.Document;
 
 import java.util.List;
 
@@ -25,6 +26,8 @@ public interface AmService {
      */
     List<AmWine> getAmWines();
 
+    List<AmWine> getAmWines(Document document);
+
     /**
      * Метод получения справочной информации в виде словаря.
      * @return Словарь справочной информации.
@@ -36,4 +39,6 @@ public interface AmService {
      * @return Дополнительные атрибуты.
      */
     AdditionalProps getAdditionalProps(String link);
+
+    Long getCatalogPagesAmount(Document document);
 }
