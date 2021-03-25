@@ -149,7 +149,10 @@ public class UpdateServiceImpl implements UpdateService {
      */
     @Override
     public void updateWines() {
-        List<AmWine> wines = amService.getAmWines();
+        updateWines(amService.getAmWines());
+    }
+
+    public void updateWines(List<AmWine> wines) {
         int created = 0;
         int updated = 0;
         int markForDeleted = 0;

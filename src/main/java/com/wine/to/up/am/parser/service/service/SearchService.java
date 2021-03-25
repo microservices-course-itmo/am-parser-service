@@ -1,5 +1,6 @@
 package com.wine.to.up.am.parser.service.service;
 
+import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.model.dto.WineDto;
 
 import java.util.List;
@@ -22,4 +23,6 @@ public interface SearchService {
      * @return Список всех вин в формате DTO.
      */
     List<WineDto> findAll();
+
+    Wine nWine(Integer n);
 }
