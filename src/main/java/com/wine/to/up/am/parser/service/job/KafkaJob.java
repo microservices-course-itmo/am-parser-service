@@ -8,6 +8,7 @@ import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.util.ColorConverter;
 import com.wine.to.up.am.parser.service.util.ProtobufConverter;
 import com.wine.to.up.am.parser.service.util.SugarConverter;
+import com.wine.to.up.am.parser.service.util.log.TrackExecutionTime;
 import com.wine.to.up.commonlib.messaging.KafkaMessageSender;
 import com.wine.to.up.parser.common.api.schema.ParserApi;
 import lombok.extern.slf4j.Slf4j;
@@ -45,6 +46,7 @@ public class KafkaJob {
     }
 
     @Scheduled(cron = "*/20 * * * * *")
+    @TrackExecutionTime(description = "Kafka Job")
     public void sendWines() {
         Wine wine = searchService.nWine(cursor.getAndIncrement());
         if (wine == null) {

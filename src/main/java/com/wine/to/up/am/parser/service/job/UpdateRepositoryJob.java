@@ -5,12 +5,12 @@ import com.wine.to.up.am.parser.service.domain.entity.Wine;
 import com.wine.to.up.am.parser.service.logging.AmServiceNotableEvents;
 import com.wine.to.up.am.parser.service.model.dto.AdditionalProps;
 import com.wine.to.up.am.parser.service.model.dto.AmWine;
-import com.wine.to.up.am.parser.service.model.dto.WineDto;
 import com.wine.to.up.am.parser.service.repository.WineRepository;
 import com.wine.to.up.am.parser.service.service.AmClient;
 import com.wine.to.up.am.parser.service.service.AmService;
 import com.wine.to.up.am.parser.service.service.SearchService;
 import com.wine.to.up.am.parser.service.service.UpdateService;
+import com.wine.to.up.am.parser.service.util.log.TrackExecutionTime;
 import com.wine.to.up.commonlib.annotations.InjectEventLogger;
 import com.wine.to.up.commonlib.logging.EventLogger;
 import lombok.extern.slf4j.Slf4j;
@@ -87,6 +87,7 @@ public class UpdateRepositoryJob {
     }
 
     @Scheduled(cron = "*/20 * * * * *")
+    @TrackExecutionTime(description = "Actualize wines Job")
     public void parsePages() {
         long fetchStart = System.nanoTime();
         Document document = amClient.getPage(pageCursor.getAndIncrement());
