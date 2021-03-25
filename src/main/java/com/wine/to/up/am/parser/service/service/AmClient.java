@@ -4,13 +4,13 @@ import org.jsoup.nodes.Document;
 
 /**
  * @author : SSyrova
- * @since : 29.09.2020, вт
+ * @since : 07.10.2020, ср
  **/
 public interface AmClient {
 
     /**
      * Получение страницы каталога
-     *
+     * @param page Номер получаемой страницы каталога.
      * @return страницу каталога
      */
     Document getPage(Long page);
@@ -23,5 +23,11 @@ public interface AmClient {
      * @return главная страница каталога
      */
     Document getMainPage();
-}
 
+    /**
+     * Получение страницы каталога
+     * @param url url, который используется для получения страницы.
+     * @return страницу каталога
+     */
+    Document getPageByUrl(String url);
+}

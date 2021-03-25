@@ -1,7 +1,7 @@
 package com.wine.to.up.am.parser.service.repository;
 
 import com.wine.to.up.am.parser.service.domain.entity.Sugar;
-import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
  * @since : 04.10.2020, вс
  **/
 @Repository
-public interface SugarRepository extends CrudRepository<Sugar, Long> {
+public interface SugarRepository extends JpaRepository<Sugar, Long> {
 
     Sugar findByImportId(String importId);
 
