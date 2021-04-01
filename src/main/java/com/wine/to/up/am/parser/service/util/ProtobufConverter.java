@@ -48,7 +48,9 @@ public class ProtobufConverter {
         if (StringUtils.hasText(wineDto.getBrand())) {
             builder.setBrand(wineDto.getBrand());
         }
-
+        builder.setCity("Санкт-Петербург");
+        Double price = wineDto.getPrice();
+        builder.setInStock(price != null && price.floatValue() > 0.0 ? "Есть в наличии" : "0");
         builder.setSugar(SugarConverter.getApiSugar(wineDto.getSugar()));
         builder.setColor(ColorConverter.getApiColor(wineDto.getColor()));
         return builder.build();
