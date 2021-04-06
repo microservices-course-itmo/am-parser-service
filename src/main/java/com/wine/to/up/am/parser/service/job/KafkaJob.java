@@ -54,7 +54,31 @@ public class KafkaJob {
             sendWines();
             return;
         }
-        WineDto wineDto = WineDto.builder()
+        WineDto wineDto;
+        if (wine.getPrice() <= 0) {
+            if (wine.getOldPrice() <= 0) {
+                return;
+            } else {
+                wineDto = wineToWineDto(wine, wine.getOldPrice(), wine.getOldPrice());
+            }
+        } else {
+            if (wine.getOldPrice() <= 0) {
+                wineDto = wineToWineDto(wine, wine.getPrice(), wine.getPrice());
+            } else {
+                wineDto = wineToWineDto(wine, wine.getOldPrice(), wine.getPrice());
+            }
+        }
+
+        ParserApi.WineParsedEvent message = ParserApi.WineParsedEvent.newBuilder()
+                .setShopLink(SHOP_LINK)
+                .addWines(ProtobufConverter.getProtobufWine(wineDto))
+                .build();
+        kafkaMessageSender.sendMessage(message);
+        amServiceMetricsCollector.countWinesPublishedToKafka(1);
+    }
+
+    private WineDto wineToWineDto(Wine wine, Double oldPrice, Double price) {
+        return WineDto.builder()
                 .name(wine.getName())
                 .picture(wine.getPictureUrl())
                 .color(ColorConverter.getColor(wine.getColor()))
@@ -62,8 +86,8 @@ public class KafkaJob {
                 .country(wine.getCountry().getName())
                 .alco(wine.getStrength())
                 .value(wine.getVolume())
-                .price(wine.getPrice())
-                .oldPrice(wine.getOldPrice())
+                .price(price)
+                .oldPrice(oldPrice)
                 .link(wine.getLink())
                 .region(wine.getRegion().getName())
                 .producer(wine.getProducer().getName())
@@ -75,11 +99,5 @@ public class KafkaJob {
                 .brand(wine.getBrand().getName())
                 .grapes(wine.getGrapes().stream().map(Grape::getName).collect(Collectors.toList()))
                 .build();
-        ParserApi.WineParsedEvent message = ParserApi.WineParsedEvent.newBuilder()
-                .setShopLink(SHOP_LINK)
-                .addWines(ProtobufConverter.getProtobufWine(wineDto))
-                .build();
-        kafkaMessageSender.sendMessage(message);
-        amServiceMetricsCollector.countWinesPublishedToKafka(1);
     }
 }
