@@ -59,7 +59,7 @@ public class AmClientImpl implements AmClient {
         while (attempt < maxRetries) {
             Document document = fetchPage(url);
             if (document != null) {
-                metricsCollector.isBanned(0);
+                metricsCollector.isBanned(0, "Санкт-Петербург");
                 failedFetches = 0;
                 return document;
             }
@@ -68,7 +68,7 @@ public class AmClientImpl implements AmClient {
         failedFetches++;
         if(failedFetches >= 5 || url.equals(catalogUrl)) {
             log.warn("The service appears to have been banned!");
-            metricsCollector.isBanned(1);
+            metricsCollector.isBanned(1, "Санкт-Петербург");
         }
         log.error("Cannot get document by '{}' url in {} attempts, there have been {} failed fetches in a row", url, attempt, failedFetches);
         return null;

@@ -163,12 +163,12 @@ public class UpdateServiceImpl implements UpdateService {
             if (wine != null) {
                 saveWine(wine, amWine, now);
                 updated++;
-                metricsCollector.countNumberOfWinesUpdated();
+                metricsCollector.countNumberOfWinesUpdated("Санкт-Петербург");
             } else {
                 wine = new Wine();
                 saveWine(wine, amWine, now);
                 created++;
-                metricsCollector.countNumberOfWinesCreated();
+                metricsCollector.countNumberOfWinesCreated("Санкт-Петербург");
             }
         }
         List<Wine> wineForDeleted = wineRepository.findAllByDateRecIsNot(now);
@@ -176,7 +176,7 @@ public class UpdateServiceImpl implements UpdateService {
             w.setActual(false);
             wineRepository.save(w);
             markForDeleted++;
-            metricsCollector.countNumberOfWinesDeleted();
+            metricsCollector.countNumberOfWinesDeleted("Санкт-Петербург");
         }
         log.info("created {} Wines", created);
         log.info("updated {} Wines", updated);

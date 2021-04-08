@@ -75,11 +75,15 @@ public class UpdateRepositoryJob {
     @Scheduled(cron = "${job.cron.update.repository}")
     @TrackExecutionTime(description = "ActualizeWineJob")
     public void runJob() {
+        metricsCollector.countParsingStart("Санкт-Петербург");
+        metricsCollector.incParsingInProgress("Санкт-Петербург");
         long jobStart = System.nanoTime();
         updateService.updateDictionary();
         updateService.updateWines();
         long jobEnd = System.nanoTime();
-        metricsCollector.jobExecutionTime(jobEnd - jobStart);
+        metricsCollector.jobExecutionTime(jobEnd - jobStart, "Санкт-Петербург");
+        metricsCollector.countParsingComplete("SUCCESS", "Санкт-Петербург");
+        metricsCollector.decParsingInProgress("Санкт-Петербург");
     }
 
     @Scheduled(cron = "*/20 * * * * *")
@@ -88,7 +92,7 @@ public class UpdateRepositoryJob {
         long fetchStart = System.nanoTime();
         Document document = amClient.getPage(pageCursor.getAndIncrement());
         long fetchEnd = System.nanoTime();
-        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart);
+        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart, "Санкт-Петербург");
         if(document != null) {
             final Long pageAmount = amService.getCatalogPagesAmount(document);
             if(pageCursor.longValue() >= pageAmount) {

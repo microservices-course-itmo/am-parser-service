@@ -47,7 +47,7 @@ public class RestServiceImpl implements RestService {
         long parseStart = System.nanoTime();
         updateService.updateWines();
         long parseEnd = System.nanoTime();
-        metricsCollector.timeParsingDuration(parseEnd - parseStart);
+        metricsCollector.timeParsingDuration(parseEnd - parseStart, "Санкт-Петербург");
     }
 
     @Override
@@ -56,7 +56,7 @@ public class RestServiceImpl implements RestService {
         long parseStart = System.nanoTime();
         updateService.updateWines();
         long parseEnd = System.nanoTime();
-        metricsCollector.timeParsingDuration(parseEnd - parseStart);
+        metricsCollector.timeParsingDuration(parseEnd - parseStart, "Санкт-Петербург");
     }
 
     @Override
