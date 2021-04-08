@@ -75,20 +75,18 @@ public class UpdateRepositoryJob {
     @Scheduled(cron = "${job.cron.update.repository}")
     @TrackExecutionTime(description = "ActualizeWineJob")
     public void runJob() {
-        metricsCollector.countParsingStart("Санкт-Петербург");
-        metricsCollector.incParsingInProgress("Санкт-Петербург");
         long jobStart = System.nanoTime();
         updateService.updateDictionary();
         updateService.updateWines();
         long jobEnd = System.nanoTime();
         metricsCollector.jobExecutionTime(jobEnd - jobStart, "Санкт-Петербург");
-        metricsCollector.countParsingComplete("SUCCESS", "Санкт-Петербург");
-        metricsCollector.decParsingInProgress("Санкт-Петербург");
     }
 
     @Scheduled(cron = "*/20 * * * * *")
     @TrackExecutionTime(description = "Actualize wines Job")
     public void parsePages() {
+        metricsCollector.countParsingStart("Санкт-Петербург");
+        metricsCollector.incParsingInProgress("Санкт-Петербург");
         long fetchStart = System.nanoTime();
         Document document = amClient.getPage(pageCursor.getAndIncrement());
         long fetchEnd = System.nanoTime();
@@ -100,7 +98,11 @@ public class UpdateRepositoryJob {
             }
             List<AmWine> wines = amService.getAmWines(document);
             updateService.updateWines(wines);
+            metricsCollector.countParsingComplete("SUCCESS", "Санкт-Петербург");
+        } else {
+            metricsCollector.countParsingComplete("FAILURE", "Санкт-Петербург");
         }
+        metricsCollector.decParsingInProgress("Санкт-Петербург");
     }
 
     @Scheduled(cron = "*/20 * * * * *")
