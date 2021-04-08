@@ -74,7 +74,7 @@ public class KafkaJob {
                 .addWines(ProtobufConverter.getProtobufWine(wineDto))
                 .build();
         kafkaMessageSender.sendMessage(message);
-        amServiceMetricsCollector.countWinesPublishedToKafka(1);
+        amServiceMetricsCollector.countWinesPublishedToKafka(1, "Санкт-Петербург");
     }
 
     private WineDto wineToWineDto(Wine wine, Double oldPrice, Double price) {

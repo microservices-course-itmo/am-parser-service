@@ -46,7 +46,7 @@ public class KafkaController {
             for (WineDto wineDto : wineDtoList) {
                 wines.add(ProtobufConverter.getProtobufWine(wineDto));
             }
-            amServiceMetricsCollector.countWinesPublishedToKafka(wines.size());
+            amServiceMetricsCollector.countWinesPublishedToKafka(wines.size(), "Санкт-Петербург");
             List<List<ParserApi.Wine>> chunks = chunkify(wines, CHUNK_SIZE);
 
             for(List<ParserApi.Wine> chunk : chunks) {

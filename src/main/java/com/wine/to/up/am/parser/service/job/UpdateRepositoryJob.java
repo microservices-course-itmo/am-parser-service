@@ -79,16 +79,18 @@ public class UpdateRepositoryJob {
         updateService.updateDictionary();
         updateService.updateWines();
         long jobEnd = System.nanoTime();
-        metricsCollector.jobExecutionTime(jobEnd - jobStart);
+        metricsCollector.jobExecutionTime(jobEnd - jobStart, "Санкт-Петербург");
     }
 
     @Scheduled(cron = "*/20 * * * * *")
     @TrackExecutionTime(description = "Actualize wines Job")
     public void parsePages() {
+        metricsCollector.countParsingStart("Санкт-Петербург");
+        metricsCollector.incParsingInProgress("Санкт-Петербург");
         long fetchStart = System.nanoTime();
         Document document = amClient.getPage(pageCursor.getAndIncrement());
         long fetchEnd = System.nanoTime();
-        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart);
+        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart, "Санкт-Петербург");
         if(document != null) {
             final Long pageAmount = amService.getCatalogPagesAmount(document);
             if(pageCursor.longValue() >= pageAmount) {
@@ -96,7 +98,11 @@ public class UpdateRepositoryJob {
             }
             List<AmWine> wines = amService.getAmWines(document);
             updateService.updateWines(wines);
+            metricsCollector.countParsingComplete("SUCCESS", "Санкт-Петербург");
+        } else {
+            metricsCollector.countParsingComplete("FAILURE", "Санкт-Петербург");
         }
+        metricsCollector.decParsingInProgress("Санкт-Петербург");
     }
 
     @Scheduled(cron = "*/20 * * * * *")

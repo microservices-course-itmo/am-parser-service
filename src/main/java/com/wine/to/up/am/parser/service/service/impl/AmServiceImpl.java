@@ -130,32 +130,27 @@ public class AmServiceImpl implements AmService {
         Long lastParse = null;
 
         while (page <= pages) {
-            metricsCollector.countParsingStart();
-            metricsCollector.incParsingInProgress();
             parseAttemptsCount++;
             long pageCopy = page;
             List<AmWine> newWines = getAmWines(page);
-            metricsCollector.parsedWinesSuccess(newWines.size());
-            metricsCollector.winesParsedUnsuccessful(18 - newWines.size());
-            metricsCollector.percentageOfUnsuccessfullyParsedWines(newWines.size() / 18);
+            metricsCollector.parsedWinesSuccess(newWines.size(), "Санкт-Петербург");
+            metricsCollector.winesParsedUnsuccessful(18 - newWines.size(), "Санкт-Петербург");
+            metricsCollector.percentageOfUnsuccessfullyParsedWines(newWines.size() / 18, "Санкт-Петербург");
             page++;
             amWines.addAll(newWines);
             pagesProcessed[(int) pageCopy - 1] = true;
             if (!newWines.isEmpty()) {
                 successfulParseCount++;
-                metricsCollector.countParsingComplete("SUCCESS");
                 eventLogger.info(AmServiceNotableEvents.I_WINES_PAGE_PARSED, pageCopy);
                 pagesWithParsedWines[(int) pageCopy - 1] = true;
                 long currentParse = System.nanoTime();
                 if(lastParse != null) {
-                    metricsCollector.countTimeSinceLastParsing(currentParse - lastParse);
+                    metricsCollector.countTimeSinceLastParsing(currentParse - lastParse, "Санкт-Петербург");
                 }
                 lastParse = currentParse;
             } else {
-                metricsCollector.countParsingComplete("FAILED");
                 eventLogger.warn(AmServiceNotableEvents.W_WINE_PAGE_PARSING_FAILED, pageCopy, baseUrl + "?page=" + pageCopy);
             }
-            metricsCollector.decParsingInProgress();
         }
 
         StringBuilder lostPagesLog = new StringBuilder("Unprocessed pages: ");
@@ -202,7 +197,7 @@ public class AmServiceImpl implements AmService {
         long fetchStart = System.nanoTime();
         Document page = client.getPageByUrl(link);
         long fetchEnd = System.nanoTime();
-        metricsCollector.timeWineDetailsFetchingDuration(fetchEnd - fetchStart);
+        metricsCollector.timeWineDetailsFetchingDuration(fetchEnd - fetchStart, "Санкт-Петербург");
         if(page == null) {
             eventLogger.info(AmServiceNotableEvents.W_WINE_DETAILS_PARSING_FAILED, link);
         }
@@ -226,7 +221,7 @@ public class AmServiceImpl implements AmService {
             handleProp(prop, props);
         }
         long parseEnd = System.nanoTime();
-        metricsCollector.timeWineDetailsParsingDuration(parseEnd - parseStart);
+        metricsCollector.timeWineDetailsParsingDuration(parseEnd - parseStart, "Санкт-Петербург");
         return props;
     }
 
@@ -264,7 +259,7 @@ public class AmServiceImpl implements AmService {
         long fetchStart = System.nanoTime();
         final Document document = client.getPage(page);
         long fetchEnd = System.nanoTime();
-        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart);
+        metricsCollector.timeWinePageFetchingDuration(fetchEnd - fetchStart, "Санкт-Петербург");
         return getAmWines(document);
     }
 
@@ -281,7 +276,7 @@ public class AmServiceImpl implements AmService {
                     }) :
                     Collections.emptyList();
             long parseEnd = System.nanoTime();
-            metricsCollector.timeWinePageParsingDuration(parseEnd - parseStart);
+            metricsCollector.timeWinePageParsingDuration(parseEnd - parseStart, "Санкт-Петербург");
             return res;
         } catch (JsonProcessingException e) {
             log.error("Cannot parse wines with error: {}", e.getMessage());
