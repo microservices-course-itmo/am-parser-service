@@ -38,6 +38,12 @@ public class ProxyClientImpl implements ProxyClient {
     @Value(value = "${am.site.catalog-url}")
     private String catalogUrl;
 
+    @Value(value = "${proxy.service.url}")
+    private String proxyServiceUrl;
+
+    @Value(value = "${proxy.service.name}")
+    private String proxyServiceServiceName;
+
     private final OkHttpClient client = new OkHttpClient();
 
     private final ObjectMapper mapper = new ObjectMapper();
@@ -49,6 +55,34 @@ public class ProxyClientImpl implements ProxyClient {
 
     @Override
     public List<Proxy> getProxies() {
+        HttpUrl.Builder builder = HttpUrl.parse(proxyServiceUrl).newBuilder();
+        builder.addQueryParameter("serviceName", proxyServiceServiceName);
+        builder.addQueryParameter("count", "10");
+        Request request = new Request.Builder().url(builder.build()).build();
+        try {
+            Response response = client.newCall(request).execute();
+            if (response.code() < 200 || response.code() > 204 || response.body() == null) {
+                return Collections.emptyList();
+            }
+            ProxyServiceResponse proxyResponse = mapper.readValue(response.body().bytes(), ProxyServiceResponse.class);
+            List<Proxy> proxyList = proxyResponse.data.stream()
+                    .map(proxy -> new Proxy(Proxy.Type.HTTP,
+                            new InetSocketAddress(proxy.ip, proxy.port)))
+                    .collect(Collectors.toList());
+            if(!proxyList.isEmpty()) {
+                log.info("Valid proxy count : {}", proxyList.size());
+                return proxyList;
+            } else {
+                log.info("Trying again with proxy");
+                return getProxies();
+            }
+        } catch (IOException e) {
+            log.info("Cannot retrieve proxies: {}", e.getMessage());
+            return getProxiesOld();
+        }
+    }
+
+    private List<Proxy> getProxiesOld() {
         HttpUrl.Builder builder = HttpUrl.parse(apiUrl).newBuilder();
         builder.addQueryParameter("key", apiKey);
         builder.addQueryParameter("type", "1");
@@ -102,5 +136,22 @@ public class ProxyClientImpl implements ProxyClient {
     static class ProxyJson {
         String ip;
         Integer port;
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    static class ProxyServiceResponse {
+        List<ProxyServiceJson> data;
+    }
+
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    static class ProxyServiceJson {
+        String ip;
+        Integer port;
+        Long id;
+        String createDate;
     }
 }
